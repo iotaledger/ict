@@ -1,3 +1,3 @@
-# IOTA Controlled Agent (ICT)
+# Iota Controlled Agent (Ict)
 
 ...
