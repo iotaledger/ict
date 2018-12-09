@@ -21,7 +21,7 @@ public class Sender extends Thread {
     private final DatagramSocket socket;
 
 
-    public Sender(Ict ict, Properties properties, Tangle tangle, DatagramSocket socket) {
+    public Sender(Ict ict, Properties properties, final Tangle tangle, DatagramSocket socket) {
         super("Sender");
         this.ict = ict;
         this.tangle = tangle;
@@ -31,7 +31,8 @@ public class Sender extends Thread {
         ict.addGossipListener(new GossipListener() {
             @Override
             public void onReceiveTransaction(GossipReceiveEvent e) {
-                queueTransaction(e.getTransaction());
+                if(tangle.findTransactionLog(e.getTransaction()).senders.size() == 1)
+                    queueTransaction(e.getTransaction());
             }
         });
     }
