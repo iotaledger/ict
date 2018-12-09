@@ -1,0 +1,18 @@
+plugins {
+    id 'java'
+}
+
+group 'org.iota'
+version '0.1-SNAPSHOT'
+
+sourceCompatibility = 1.7
+
+repositories {
+    maven { url "https://jitpack.io" }
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'junit', name: 'junit', version: '4.12'
+    compile 'com.github.mikrohash:iota.curl.java:master' // used until pull request for iotaledger/iota.curl.java is merged
+}
