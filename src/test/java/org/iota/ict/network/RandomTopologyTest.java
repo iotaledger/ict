@@ -1,0 +1,68 @@
+package org.iota.ict.network;
+
+import org.iota.ict.Ict;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+@RunWith(Parameterized.class)
+public class RandomTopologyTest extends GossipTest {
+
+    @Parameterized.Parameters
+    public static Object[][] data() {
+        return new Object[20][0];
+    }
+
+    @Test
+    public void testRandomNetworkTopologies() {
+        List<Ict> network = createRandomNetworkTopology(10);
+        randomlyConnectIcts(network, 3);
+        Ict randomIct = network.get((int)(Math.random() * network.size()));
+        LinkedList<Ict> otherIcts = new LinkedList<>(network);
+        otherIcts.remove(randomIct);
+        testCommunicationRange(randomIct, otherIcts, 20);
+    }
+
+    private void testCommunicationRange(Ict sender, List<Ict> otherIcts, int amountOfMessages) {
+        Map<String, String> sentMessagesByHash = sendMessages(sender, amountOfMessages);
+        waitUntilCommunicationEnds(1000);
+        for(Ict receiver : otherIcts)
+            assertThatTransactionsReceived(receiver, sentMessagesByHash);
+    }
+
+    private List<Ict> createRandomNetworkTopology(int amountOfIcts) {
+        List<Ict> icts = new LinkedList<>();
+        for (; amountOfIcts > 0; amountOfIcts--)
+            icts.add(createIct(1337 + amountOfIcts));
+        return icts;
+    }
+
+    private void randomlyConnectIcts(List<Ict> icts, int requiredNeighbors) {
+        for(Ict ict : icts) {
+            LinkedList<Ict> neighborCandidates = new LinkedList<>(icts);
+            neighborCandidates.remove(ict);
+            while (ict.getNeighbors().size() < requiredNeighbors) {
+                Ict neighbor = findIctWithLeastNeighbors(neighborCandidates);
+                neighborCandidates.remove(neighbor);
+                if(neighbor == null)
+                    Assert.fail("Couldn't find neighbor.");
+                buildConnection(ict, neighbor);
+            }
+        }
+    }
+
+    private Ict findIctWithLeastNeighbors(List<Ict> icts) {
+        Collections.shuffle(icts);
+        Ict ictWithLeastNeighbors = null;
+        for(Ict ict : icts)
+            if(ictWithLeastNeighbors == null || ict.getNeighbors().size() < ictWithLeastNeighbors.getNeighbors().size())
+                ictWithLeastNeighbors = ict;
+        return ictWithLeastNeighbors;
+    }
+}

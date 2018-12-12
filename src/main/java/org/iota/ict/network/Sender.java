@@ -69,7 +69,8 @@ public class Sender extends Thread {
             socket.send(packet);
         } catch (Exception e) {
             // TODO more advanced handling
-            e.printStackTrace();
+            if(ict.isRunning())
+                e.printStackTrace();
         }
     }
 

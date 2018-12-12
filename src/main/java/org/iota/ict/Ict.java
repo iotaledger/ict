@@ -107,6 +107,7 @@ public class Ict {
      */
     public void submit(Transaction transaction) {
         sender.queueTransaction(transaction);
+        tangle.createTransactionLogIfAbsent(transaction);
         notifyListeners(new GossipSentEvent(transaction));
     }
 
