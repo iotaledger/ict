@@ -94,12 +94,12 @@ public class Ict {
      *
      * @return Hash of sent transaction.
      */
-    public String submit(String asciiMessage) {
+    public Transaction submit(String asciiMessage) {
         TransactionBuilder builder = new TransactionBuilder();
         builder.asciiMessage(asciiMessage);
         Transaction transaction = builder.build();
         submit(transaction);
-        return transaction.hash;
+        return transaction;
     }
 
     /**
@@ -111,9 +111,17 @@ public class Ict {
         notifyListeners(new GossipSentEvent(transaction));
     }
 
+    public void rebroadcast(Transaction transaction) {
+        sender.queueTransaction(transaction);
+    }
+
     public void notifyListeners(GossipEvent event) {
         for (GossipListener listener : listeners)
             listener.on(event);
+    }
+
+    public void request(String requestedHash) {
+        sender.request(requestedHash);
     }
 
     /**
@@ -161,6 +169,7 @@ public class Ict {
             state = new StateTerminating();
             socket.close();
             sender.terminate();
+            receiver.interrupt();
         }
     }
 

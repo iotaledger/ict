@@ -27,6 +27,16 @@ public class Tangle {
         return transactionsByHash.containsKey(hash) ? transactionsByHash.get(hash).transaction : null;
     }
 
+    public void deleteTransaction(Transaction transaction) {
+        transactionsByHash.remove(transaction.hash);
+        transactionsByAddress.remove(transaction.address);
+        transactionsByTag.remove(transaction.tag);
+    }
+
+    public int size() {
+        return transactionsByHash.size();
+    }
+
     public class TransactionLog {
         private final Transaction transaction;
         public final Set<Neighbor> senders = new HashSet<>();

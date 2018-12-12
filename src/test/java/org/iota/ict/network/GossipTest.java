@@ -10,10 +10,10 @@ import java.util.*;
 public abstract class GossipTest {
 
     private Set<Ict> runningIcts = new HashSet<>();
+    private final static int DEFAULT_PORT = 1337;
 
-    Ict createIct(int port)
-    {
-        Properties properties = new Properties().port(port);
+    Ict createIct() {
+        Properties properties = new Properties().port(DEFAULT_PORT + runningIcts.size());
         Ict ict = new Ict(properties);
         runningIcts.add(ict);
         return ict;
@@ -36,7 +36,7 @@ public abstract class GossipTest {
 
         for (int i = 0; i < amountOfMessages; i++) {
             String message = randomAsciiMessage();
-            String hash = sender.submit(message);
+            String hash = sender.submit(message).hash;
             sentMessagesByHash.put(hash, message);
         }
         return sentMessagesByHash;
@@ -55,14 +55,14 @@ public abstract class GossipTest {
 
     private static int sumNeighborStatsReceivedTransaction(Iterable<Ict> network) {
         int sum = 0;
-        for(Ict ict : network)
+        for (Ict ict : network)
             sum += sumNeighborStatsReceivedTransaction(ict);
         return sum;
     }
 
     private static int sumNeighborStatsReceivedTransaction(Ict ict) {
         int sum = 0;
-        for(Neighbor nb : ict.getNeighbors())
+        for (Neighbor nb : ict.getNeighbors())
             sum += nb.stats.receivedAll;
         return sum;
     }
@@ -73,7 +73,7 @@ public abstract class GossipTest {
             if (receiver.getTangle().findTransactionByHash(hash) != null)
                 receivedTransactions++;
         // tolerate if 80% of transactions went through
-        if (receivedTransactions < Math.ceil(sentMessagesByHash.size()*0.8))
+        if (receivedTransactions < Math.ceil(sentMessagesByHash.size() * 0.8))
             Assert.fail("sent " + sentMessagesByHash.size() + " but received " + receivedTransactions);
     }
 
@@ -91,14 +91,14 @@ public abstract class GossipTest {
         }
     }
 
-    static void buildConnection(Ict ict1, Ict ict2) {
+    static void connect(Ict ict1, Ict ict2) {
         ict1.neighbor(ict2.getAddress());
         ict2.neighbor(ict1.getAddress());
     }
 
     @After
     public void tearDown() {
-        for(Ict ict : runningIcts)
+        for (Ict ict : runningIcts)
             ict.terminate();
         runningIcts = new HashSet<>();
         sleep(100);

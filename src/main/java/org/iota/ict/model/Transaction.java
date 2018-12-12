@@ -22,7 +22,7 @@ public class Transaction {
     public final String decodedSignatureFragments;
 
     public final String trytes;
-    public final String requestHash;
+    public String requestHash;
     public final String hash;
 
     Transaction(TransactionBuilder builder) {
@@ -70,7 +70,7 @@ public class Transaction {
         requestHash = extractField(trytes, Field.REQUEST_HASH);
 
         this.trytes = trytes();
-        assert this.trytes.equals(trytes);
+        assert trytes.startsWith(this.trytes.substring(0, Field.REQUEST_HASH.tryteOffset));
         hash = curlHash();
         decodedSignatureFragments = Trytes.toAscii(signatureFragments);
 
@@ -94,7 +94,7 @@ public class Transaction {
         putField(trytes, Field.ATTACHMENT_TIMESTAMP_LOWER_BOUND, attachmentTimestampLowerBound);
         putField(trytes, Field.ATTACHMENT_TIMESTAMP_UPPER_BOUND, attachmentTimestampUpperBound);
         putField(trytes, Field.NONCE, nonce);
-        putField(trytes, Field.REQUEST_HASH, requestHash);
+        putField(trytes, Field.REQUEST_HASH, Trytes.NULL_HASH);
         return new String(trytes);
     }
 
@@ -121,7 +121,8 @@ public class Transaction {
     }
 
     public DatagramPacket toDatagramPacket() {
-        return new DatagramPacket(trytes.getBytes(), trytes.getBytes().length);
+        String fullTrytes = trytes.substring(0, Field.REQUEST_HASH.tryteOffset) + requestHash;
+        return new DatagramPacket(fullTrytes.getBytes(), fullTrytes.getBytes().length);
     }
 
     public static class Field {

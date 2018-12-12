@@ -7,7 +7,7 @@ import org.iota.ict.network.event.GossipSentEvent;
 
 /**
  * An example IXI for demonstration purposes.
- * */
+ */
 public class SimpleIXI extends IXI {
     public SimpleIXI(Ict ict) {
         super(ict);

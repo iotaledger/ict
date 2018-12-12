@@ -6,10 +6,13 @@ import org.iota.ict.model.Tangle;
 import org.iota.ict.model.Transaction;
 import org.iota.ict.network.event.GossipListener;
 import org.iota.ict.network.event.GossipReceiveEvent;
+import org.iota.ict.utils.Trytes;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -19,6 +22,7 @@ public class Sender extends Thread {
     private final Ict ict;
     private final SendingTaskQueue queue = new SendingTaskQueue();
     private final DatagramSocket socket;
+    private final Queue<String> transactionsToRequest = new PriorityBlockingQueue<>();
 
 
     public Sender(Ict ict, Properties properties, final Tangle tangle, DatagramSocket socket) {
@@ -31,7 +35,7 @@ public class Sender extends Thread {
         ict.addGossipListener(new GossipListener() {
             @Override
             public void onReceiveTransaction(GossipReceiveEvent e) {
-                if(tangle.findTransactionLog(e.getTransaction()).senders.size() == 1)
+                if (tangle.findTransactionLog(e.getTransaction()).senders.size() == 1)
                     queueTransaction(e.getTransaction());
             }
         });
@@ -43,20 +47,25 @@ public class Sender extends Thread {
             if (!queue.isEmpty() && queue.peek().sendingTime <= System.currentTimeMillis()) {
                 sendTransaction(queue.poll().transaction);
             } else {
-                try {
-                    // keep queue.isEmpty() within the synchronized block so notify is not called after the empty check and before queue.wait()
-                    synchronized (queue) {
-                        queue.wait(queue.isEmpty() ? 0 : Math.max(1, queue.peek().sendingTime - System.currentTimeMillis()));
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                waitForNextTransaction();
             }
+        }
+    }
+
+    private void waitForNextTransaction() {
+        try {
+            synchronized (queue) {
+                // keep queue.isEmpty() within the synchronized block so notify is not called after the empty check and before queue.wait()
+                queue.wait(queue.isEmpty() ? 0 : Math.max(1, queue.peek().sendingTime - System.currentTimeMillis()));
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
     private void sendTransaction(Transaction transaction) {
         Tangle.TransactionLog transactionLog = tangle.findTransactionLog(transaction);
+        transaction.requestHash = transactionsToRequest.isEmpty() ? Trytes.NULL_HASH : transactionsToRequest.poll();
         for (Neighbor nb : ict.getNeighbors())
             if (transactionLog == null || !transactionLog.senders.contains(nb))
                 sendTransactionToNeighbor(nb, transaction);
@@ -69,7 +78,7 @@ public class Sender extends Thread {
             socket.send(packet);
         } catch (Exception e) {
             // TODO more advanced handling
-            if(ict.isRunning())
+            if (ict.isRunning())
                 e.printStackTrace();
         }
     }
@@ -88,6 +97,10 @@ public class Sender extends Thread {
         synchronized (queue) {
             queue.notify();
         }
+    }
+
+    public void request(String requestedHash) {
+        transactionsToRequest.add(requestedHash);
     }
 
     private static class SendingTask {

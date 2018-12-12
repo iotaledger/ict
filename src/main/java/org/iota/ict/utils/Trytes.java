@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 public class Trytes {
 
+    public static final String NULL_HASH = fromTrits(new byte[81 * 3]);
     static final String TRYTES = "9ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static final BigInteger BI3 = BigInteger.valueOf(3);
     static final int MAX_TRYTE_TRIPLET_ABS = 9841; // 9841 = (3^9-1)/2
