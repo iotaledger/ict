@@ -18,3 +18,12 @@ dependencies {
     // used until pull request for iotaledger/iota.curl.java is merged
     compile 'com.github.mikrohash:iota.curl.java:master'
 }
+
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Main-Class': 'org.iota.ict.Main'
+    }
+    baseName = 'ict'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}

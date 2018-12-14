@@ -47,6 +47,8 @@ public class Properties {
     private static List<InetSocketAddress> neighborsFromString(String string) {
         List<InetSocketAddress> neighbors = new LinkedList<>();
         for (String address : string.split(LIST_DELIMITER)) {
+            if(address.length() == 0)
+                continue;
             try {
                 neighbors.add(inetSocketAddressFromString(address));
             } catch (Throwable t) {
