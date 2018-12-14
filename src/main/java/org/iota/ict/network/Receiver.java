@@ -78,7 +78,7 @@ public class Receiver extends Thread {
     }
 
     private void manageRounds() {
-        if (roundStart + ict.getProperties().roundDuration < System.currentTimeMillis()) {
+        if (roundStart + ict.getProperties().logRoundDuration < System.currentTimeMillis()) {
             ict.logRound();
             roundStart = System.currentTimeMillis();
         }

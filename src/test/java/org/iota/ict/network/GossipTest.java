@@ -14,6 +14,8 @@ public abstract class GossipTest {
 
     Ict createIct() {
         Properties properties = new Properties().port(DEFAULT_PORT + runningIcts.size());
+        properties.minForwardDelay = 0;
+        properties.maxForwardDelay = 10;
         Ict ict = new Ict(properties);
         runningIcts.add(ict);
         return ict;
