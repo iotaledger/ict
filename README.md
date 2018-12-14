@@ -8,4 +8,4 @@ This modular design enables the customization of the core node, allowing for all
 
 ## Development
 
-This project is still in early development. Community contributations are highly appreciated.
+This project is still in early development. Community contributions are highly appreciated.
