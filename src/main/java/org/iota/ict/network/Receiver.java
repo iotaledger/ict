@@ -31,7 +31,7 @@ public class Receiver extends Thread {
         while (ict.isRunning()) {
             manageRounds();
 
-            DatagramPacket packet = new DatagramPacket(new byte[Constants.PACKET_SIZE], Constants.PACKET_SIZE);
+            DatagramPacket packet = new DatagramPacket(new byte[Constants.TRANSACTION_SIZE_TRYTES], Constants.TRANSACTION_SIZE_TRYTES);
             try {
                 socket.receive(packet);
                 processIncoming(packet);
@@ -43,11 +43,22 @@ public class Receiver extends Thread {
     }
 
     private void processIncoming(DatagramPacket packet) {
-        Transaction transaction = new Transaction(new String(packet.getData()));
         Neighbor sender = determineNeighborWhoSent(packet);
-        Tangle.TransactionLog log = tangle.createTransactionLogIfAbsent(transaction);
-        log.senders.add(sender);
+        Transaction transaction;
+        try {
+            transaction = new Transaction(new String(packet.getData()));
+        } catch (Throwable t) {
+            System.err.println("Received invalid transaction from neighbor: " + sender.getAddress() + " ("+t.getMessage()+")");
+            sender.stats.receivedInvalid++;
+            return;
+        }
         sender.stats.receivedAll++;
+        Tangle.TransactionLog log = tangle.findTransactionLog(transaction);
+        if(log == null) {
+            log = tangle.createTransactionLogIfAbsent(transaction);
+            sender.stats.receivedNew++;
+        }
+        log.senders.add(sender);
         processRequest(transaction, sender);
         ict.notifyListeners(new GossipReceiveEvent(transaction));
     }

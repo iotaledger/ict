@@ -27,7 +27,7 @@ public class Tangle {
      * trunk of a received transaction is unset (all 9 trytes).
      */
     private void addNullTransaction() {
-        Transaction nullTransaction = new Transaction(Trytes.padRight("", Constants.TRANSACTION_SIZE / 3));
+        Transaction nullTransaction = new Transaction(Trytes.padRight("", Constants.TRANSACTION_SIZE_TRYTES));
         assert nullTransaction.hash.equals(Trytes.padRight("", 81));
         nullTransaction.branch = nullTransaction;
         nullTransaction.trunk = nullTransaction;

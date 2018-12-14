@@ -9,7 +9,7 @@ import java.util.*;
 
 public abstract class GossipTest {
 
-    private Set<Ict> runningIcts = new HashSet<>();
+    Set<Ict> runningIcts = new HashSet<>();
     private final static int DEFAULT_PORT = 1337;
 
     Ict createIct() {

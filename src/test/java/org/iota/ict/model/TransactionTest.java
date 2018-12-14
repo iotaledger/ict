@@ -43,4 +43,11 @@ public class TransactionTest {
         Transaction transaction = new Transaction(EXAMPLE_TRYTES);
         Assert.assertEquals("DAEFHBJKDCGV9HRNECOBMLNHKEPYPDNNDXUSFCFKD9YKWSHMMYMCQJAVTWBVHWZDCPYNOJCRLZUVMKNBK", transaction.hash);
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testNonTryteCharacter() {
+        TransactionBuilder builder = new TransactionBuilder();
+        builder.address = builder.address.substring(0, Transaction.Field.ADDRESS.tryteLength-1) + 'z';
+        builder.build();
+    }
 }

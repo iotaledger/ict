@@ -126,6 +126,11 @@ public class Trytes {
         return new String(padded);
     }
 
+    public static boolean isTrytes(String string) {
+        return string.matches("^[A-Z9]*$");
+    }
+
+
     static String unpadRight(String padded) {
         int cutPos;
         for (cutPos = padded.length(); cutPos > 0 && padded.charAt(cutPos - 1) == '9'; cutPos--) ;

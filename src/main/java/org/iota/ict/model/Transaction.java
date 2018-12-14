@@ -47,14 +47,19 @@ public class Transaction {
         requestHash = builder.requestHash;
 
         trytes = trytes();
+        if(!Trytes.isTrytes(trytes))
+            throw new IllegalArgumentException("at least one field contains non-tryte characters");
+
         hash = curlHash();
         decodedSignatureFragments = Trytes.toAscii(signatureFragments);
-
-        // TODO validate transaction format
     }
 
+    /**
+     * Creates a transaction object from its trytes.
+     * @param trytes Trytes containing all information describing this transaction. Must have length = {@link Constants#TRANSACTION_SIZE_TRYTES}.
+     * */
     public Transaction(String trytes) {
-        assert trytes.length() == Constants.TRANSACTION_SIZE / 3;
+        assert trytes.length() == Constants.TRANSACTION_SIZE_TRYTES;
         signatureFragments = extractField(trytes, Field.SIGNATURE_FRAGMENTS);
         extraDataDigest = extractField(trytes, Field.EXTRA_DATA_DIGEST);
         address = extractField(trytes, Field.ADDRESS);
@@ -76,12 +81,13 @@ public class Transaction {
         assert trytes.startsWith(this.trytes.substring(0, Field.REQUEST_HASH.tryteOffset));
         hash = curlHash();
         decodedSignatureFragments = Trytes.toAscii(signatureFragments);
-
-        // TODO validate transaction format
     }
 
+    /**
+     * @return Trytes of this transaction (length = {@link Constants#TRANSACTION_SIZE_TRYTES}). {@link #requestHash} trytes are always NULL.
+     * */
     private String trytes() {
-        char[] trytes = new char[Constants.TRANSACTION_SIZE / 3];
+        char[] trytes = new char[Constants.TRANSACTION_SIZE_TRYTES];
         putField(trytes, Field.SIGNATURE_FRAGMENTS, signatureFragments);
         putField(trytes, Field.EXTRA_DATA_DIGEST, extraDataDigest);
         putField(trytes, Field.ADDRESS, address);
@@ -101,6 +107,10 @@ public class Transaction {
         return new String(trytes);
     }
 
+    /**
+     * Requires {@link #trytes} to be set.
+     * @return Calculated hash of this transaction.
+     * */
     private String curlHash() {
         return IotaCurlHash.iotaCurlHash(trytes, trytes.length(), 123);
     }
@@ -120,7 +130,10 @@ public class Transaction {
     }
 
     private static String extractField(String transactionTrytes, Field field) {
-        return transactionTrytes.substring(field.tryteOffset, field.tryteOffset + field.tryteLength);
+        String extracted = transactionTrytes.substring(field.tryteOffset, field.tryteOffset + field.tryteLength);
+        if(!Trytes.isTrytes(extracted))
+            throw new IllegalArgumentException("field starting at offset '"+field.tryteOffset+"' contains non tryte characters");
+        return extracted;
     }
 
     public DatagramPacket toDatagramPacket() {
