@@ -15,7 +15,7 @@ public class Transaction {
     public final long issuanceTimestamp;
     public final long timelockLowerBound, timelockUpperBound;
     public final String bundleNonce;
-    public final String trunk, branch;
+    public final String trunkHash, branchHash;
     public final String tag;
     public final long attachmentTimestamp, attachmentTimestampLowerBound, attachmentTimestampUpperBound;
     public final String nonce;
@@ -24,6 +24,9 @@ public class Transaction {
     public final String trytes;
     public String requestHash;
     public final String hash;
+
+    Transaction branch;
+    Transaction trunk;
 
     Transaction(TransactionBuilder builder) {
         signatureFragments = builder.signatureFragments;
@@ -34,8 +37,8 @@ public class Transaction {
         timelockLowerBound = builder.timelockLowerBound;
         timelockUpperBound = builder.timelockUpperBound;
         bundleNonce = builder.bundleNonce;
-        trunk = builder.trunk;
-        branch = builder.branch;
+        trunkHash = builder.trunkHash;
+        branchHash = builder.branchHash;
         tag = builder.tag;
         attachmentTimestamp = builder.attachmentTimestamp;
         attachmentTimestampLowerBound = builder.attachmentTimestampLowerBound;
@@ -60,8 +63,8 @@ public class Transaction {
         timelockLowerBound = Trytes.toLong(extractField(trytes, Field.TIMELOCK_LOWER_BOUND));
         timelockUpperBound = Trytes.toLong(extractField(trytes, Field.TIMELOCK_UPPER_BOUND));
         bundleNonce = extractField(trytes, Field.BUNDLE_NONCE);
-        trunk = extractField(trytes, Field.TRUNK);
-        branch = extractField(trytes, Field.BRANCH);
+        trunkHash = extractField(trytes, Field.TRUNK_HASH);
+        branchHash = extractField(trytes, Field.BRANCH_HASH);
         tag = extractField(trytes, Field.TAG);
         attachmentTimestamp = Trytes.toLong(extractField(trytes, Field.ATTACHMENT_TIMESTAMP));
         attachmentTimestampLowerBound = Trytes.toLong(extractField(trytes, Field.ATTACHMENT_TIMESTAMP_LOWER_BOUND));
@@ -87,8 +90,8 @@ public class Transaction {
         putField(trytes, Field.TIMELOCK_LOWER_BOUND, timelockLowerBound);
         putField(trytes, Field.TIMELOCK_UPPER_BOUND, timelockUpperBound);
         putField(trytes, Field.BUNDLE_NONCE, bundleNonce);
-        putField(trytes, Field.TRUNK, trunk);
-        putField(trytes, Field.BRANCH, branch);
+        putField(trytes, Field.TRUNK_HASH, trunkHash);
+        putField(trytes, Field.BRANCH_HASH, branchHash);
         putField(trytes, Field.TAG, tag);
         putField(trytes, Field.ATTACHMENT_TIMESTAMP, attachmentTimestamp);
         putField(trytes, Field.ATTACHMENT_TIMESTAMP_LOWER_BOUND, attachmentTimestampLowerBound);
@@ -125,6 +128,14 @@ public class Transaction {
         return new DatagramPacket(fullTrytes.getBytes(), fullTrytes.getBytes().length);
     }
 
+    public Transaction getBranch() {
+        return branch;
+    }
+
+    public Transaction getTrunk() {
+        return trunk;
+    }
+
     public static class Field {
         public static final Field SIGNATURE_FRAGMENTS = new Field(6561, null),
                 EXTRA_DATA_DIGEST = new Field(243, SIGNATURE_FRAGMENTS),
@@ -134,9 +145,9 @@ public class Transaction {
                 TIMELOCK_LOWER_BOUND = new Field(27, ISSUANCE_TIMESTAMP),
                 TIMELOCK_UPPER_BOUND = new Field(27, TIMELOCK_LOWER_BOUND),
                 BUNDLE_NONCE = new Field(81, TIMELOCK_UPPER_BOUND),
-                TRUNK = new Field(243, BUNDLE_NONCE),
-                BRANCH = new Field(243, TRUNK),
-                TAG = new Field(81, BRANCH),
+                TRUNK_HASH = new Field(243, BUNDLE_NONCE),
+                BRANCH_HASH = new Field(243, TRUNK_HASH),
+                TAG = new Field(81, BRANCH_HASH),
                 ATTACHMENT_TIMESTAMP = new Field(27, TAG),
                 ATTACHMENT_TIMESTAMP_LOWER_BOUND = new Field(27, ATTACHMENT_TIMESTAMP),
                 ATTACHMENT_TIMESTAMP_UPPER_BOUND = new Field(27, ATTACHMENT_TIMESTAMP_LOWER_BOUND),

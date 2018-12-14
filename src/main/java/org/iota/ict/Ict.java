@@ -27,10 +27,11 @@ public class Ict {
     private final Properties properties;
     private final DatagramSocket socket;
     private final InetSocketAddress address;
+    public final long timeStarted = System.currentTimeMillis();
 
     public Ict(Properties properties) {
         this.properties = properties;
-        this.tangle = new Tangle();
+        this.tangle = new Tangle(this);
         this.address = new InetSocketAddress(properties.host, properties.port);
 
         try {
@@ -106,8 +107,8 @@ public class Ict {
      * Submits a new transaction to the protocol. It will be sent to all neighbors.
      */
     public void submit(Transaction transaction) {
-        sender.queueTransaction(transaction);
         tangle.createTransactionLogIfAbsent(transaction);
+        sender.queueTransaction(transaction);
         notifyListeners(new GossipSentEvent(transaction));
     }
 

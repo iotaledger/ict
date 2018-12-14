@@ -47,8 +47,8 @@ public abstract class GossipTest {
         int newReceived = sumNeighborStatsReceivedTransaction(runningIcts);
         do {
             lastReceived = newReceived;
-            sleep(100);
-            maxWaitTime -= 100;
+            sleep(50);
+            maxWaitTime -= 50;
             newReceived = sumNeighborStatsReceivedTransaction(runningIcts);
         } while (lastReceived != newReceived && maxWaitTime > 0);
     }
@@ -73,7 +73,7 @@ public abstract class GossipTest {
             if (receiver.getTangle().findTransactionByHash(hash) != null)
                 receivedTransactions++;
         // tolerate if 80% of transactions went through
-        if (receivedTransactions < Math.ceil(sentMessagesByHash.size() * 0.8))
+        if (receivedTransactions < sentMessagesByHash.size())
             Assert.fail("sent " + sentMessagesByHash.size() + " but received " + receivedTransactions);
     }
 
@@ -84,7 +84,7 @@ public abstract class GossipTest {
         return new String(message);
     }
 
-    private static void sleep(long ms) {
+    static void sleep(long ms) {
         try {
             Thread.sleep(ms);
         } catch (InterruptedException e) {
@@ -101,6 +101,6 @@ public abstract class GossipTest {
         for (Ict ict : runningIcts)
             ict.terminate();
         runningIcts = new HashSet<>();
-        sleep(100);
+        sleep(50);
     }
 }

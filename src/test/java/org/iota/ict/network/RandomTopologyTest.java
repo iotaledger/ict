@@ -12,20 +12,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+@Ignore // takes too long, only test occasionally
 @RunWith(Parameterized.class)
 public class RandomTopologyTest extends GossipTest {
 
     @Parameterized.Parameters
     public static Object[][] data() {
-        return new Object[20][0];
+        // lets this Test run 10 times
+        return new Object[10][0];
     }
 
     @Test
-    public void testRandomNetworkTopologiesWrapper() {
-        // takes too long
-        // testRandomNetworkTopologies();
-    }
-
     public void testRandomNetworkTopologies() {
         List<Ict> network = createRandomNetworkTopology(10);
         randomlyConnectIcts(network, 3);

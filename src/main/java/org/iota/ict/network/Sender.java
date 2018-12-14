@@ -25,7 +25,7 @@ public class Sender extends Thread {
     private final Queue<String> transactionsToRequest = new PriorityBlockingQueue<>();
 
 
-    public Sender(Ict ict, Properties properties, final Tangle tangle, DatagramSocket socket) {
+    public Sender(final Ict ict, Properties properties, final Tangle tangle, DatagramSocket socket) {
         super("Sender");
         this.ict = ict;
         this.tangle = tangle;
@@ -35,8 +35,11 @@ public class Sender extends Thread {
         ict.addGossipListener(new GossipListener() {
             @Override
             public void onReceiveTransaction(GossipReceiveEvent e) {
-                if (tangle.findTransactionLog(e.getTransaction()).senders.size() == 1)
+                Tangle.TransactionLog log = tangle.findTransactionLog(e.getTransaction());
+                if (!log.sent && log.senders.size() < ict.getNeighbors().size()) {
+                    log.sent = true;
                     queueTransaction(e.getTransaction());
+                }
             }
         });
     }
