@@ -29,7 +29,7 @@ public class PropertiesTest {
 
     private Properties createCustomProperties() {
         Properties custom = new Properties();
-        custom.port = (int)(Math.random() * 10000)+1;
+        custom.port = (int) (Math.random() * 10000) + 1;
         custom.host = "example.org";
         custom.minForwardDelay = 50;
         custom.maxForwardDelay = 4000;

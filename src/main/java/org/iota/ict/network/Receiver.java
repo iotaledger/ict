@@ -48,13 +48,13 @@ public class Receiver extends Thread {
         try {
             transaction = new Transaction(new String(packet.getData()));
         } catch (Throwable t) {
-            System.err.println("Received invalid transaction from neighbor: " + sender.getAddress() + " ("+t.getMessage()+")");
+            System.err.println("Received invalid transaction from neighbor: " + sender.getAddress() + " (" + t.getMessage() + ")");
             sender.stats.receivedInvalid++;
             return;
         }
         sender.stats.receivedAll++;
         Tangle.TransactionLog log = tangle.findTransactionLog(transaction);
-        if(log == null) {
+        if (log == null) {
             log = tangle.createTransactionLogIfAbsent(transaction);
             sender.stats.receivedNew++;
         }

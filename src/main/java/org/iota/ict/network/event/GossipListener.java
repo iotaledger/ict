@@ -1,7 +1,7 @@
 package org.iota.ict.network.event;
 
 public class GossipListener {
-    public void on(GossipEvent e) {
+    void on(GossipEvent e) {
         if (e instanceof GossipReceiveEvent)
             onReceiveTransaction((GossipReceiveEvent) e);
         else if (e instanceof GossipSentEvent)

@@ -46,12 +46,12 @@ public class Properties {
 
     private static List<InetSocketAddress> neighborsFromString(String string) {
         List<InetSocketAddress> neighbors = new LinkedList<>();
-        for(String address : string.split(LIST_DELIMITER)) {
+        for (String address : string.split(LIST_DELIMITER)) {
             try {
                 neighbors.add(inetSocketAddressFromString(address));
             } catch (Throwable t) {
                 // TODO use logger
-                System.err.println("Invalid neighbor address: '"+address+"'");
+                System.err.println("Invalid neighbor address: '" + address + "'");
                 t.printStackTrace();
             }
         }
@@ -60,33 +60,33 @@ public class Properties {
 
     private static InetSocketAddress inetSocketAddressFromString(String address) {
         int portColonIndex;
-        for (portColonIndex = address.length()-1; address.charAt(portColonIndex) != ':'; portColonIndex--);
+        for (portColonIndex = address.length() - 1; address.charAt(portColonIndex) != ':'; portColonIndex--) ;
         String hostString = address.substring(0, portColonIndex);
-        int port = Integer.parseInt(address.substring(portColonIndex+1, address.length()));
+        int port = Integer.parseInt(address.substring(portColonIndex + 1, address.length()));
         return new InetSocketAddress(hostString, port);
     }
 
     private String neighborsToString() {
         StringBuilder sb = new StringBuilder();
-        for(InetSocketAddress address : neighbors)
+        for (InetSocketAddress address : neighbors)
             sb.append(address.getHostString() + ":" + address.getPort()).append(LIST_DELIMITER);
-        return sb.length() == 0 ? "" : sb.deleteCharAt(sb.length()-1).toString();
+        return sb.length() == 0 ? "" : sb.deleteCharAt(sb.length() - 1).toString();
     }
 
     private long readLongProperty(java.util.Properties properties, Property property, long min, long max, long defaultValue) {
         long value = defaultValue;
         try {
             String string = properties.getProperty(property.name());
-            if(string != null)
+            if (string != null)
                 value = Integer.parseInt(string);
         } catch (NumberFormatException e) {
             // TODO use logger
-            System.err.println("Property '"+property.name()+"' must be an integer.");
+            System.err.println("Property '" + property.name() + "' must be an integer.");
         }
 
-        if(value < min || value > max) {
+        if (value < min || value > max) {
             // TODO use logger
-            System.err.println("Property '"+property.name()+"' must be in range: "+min+"-"+max);
+            System.err.println("Property '" + property.name() + "' must be in range: " + min + "-" + max);
             value = Math.min(max, Math.max(min, value));
         }
 
@@ -105,11 +105,11 @@ public class Properties {
 
     java.util.Properties toPropObject() {
         java.util.Properties propObject = new java.util.Properties();
-        propObject.setProperty(Property.min_forward_delay.name(), minForwardDelay+"");
-        propObject.setProperty(Property.max_forward_delay.name(), maxForwardDelay+"");
+        propObject.setProperty(Property.min_forward_delay.name(), minForwardDelay + "");
+        propObject.setProperty(Property.max_forward_delay.name(), maxForwardDelay + "");
         propObject.setProperty(Property.host.name(), host);
-        propObject.setProperty(Property.port.name(), port+"");
-        propObject.setProperty(Property.log_round_duration.name(), logRoundDuration+"");
+        propObject.setProperty(Property.port.name(), port + "");
+        propObject.setProperty(Property.log_round_duration.name(), logRoundDuration + "");
         propObject.setProperty(Property.neighbors.name(), neighborsToString());
         return propObject;
     }

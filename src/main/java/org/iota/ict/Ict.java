@@ -4,6 +4,7 @@ import org.iota.ict.model.Tangle;
 import org.iota.ict.model.TransactionBuilder;
 import org.iota.ict.network.Neighbor;
 import org.iota.ict.network.event.GossipEvent;
+import org.iota.ict.network.event.GossipEventDispatcher;
 import org.iota.ict.network.event.GossipListener;
 import org.iota.ict.network.event.GossipSentEvent;
 import org.iota.ict.network.Receiver;
@@ -18,7 +19,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Ict {
-    private final List<GossipListener> listeners = new LinkedList<>();
     private final List<Neighbor> neighbors = new LinkedList<>();
     private final Sender sender;
     private final Receiver receiver;
@@ -27,6 +27,7 @@ public class Ict {
     private final Properties properties;
     private final DatagramSocket socket;
     private final InetSocketAddress address;
+    private final GossipEventDispatcher eventDispatcher = new GossipEventDispatcher();
     public final long timeStarted = System.currentTimeMillis();
 
     public Ict(Properties properties) {
@@ -34,7 +35,7 @@ public class Ict {
         this.tangle = new Tangle(this);
         this.address = new InetSocketAddress(properties.host, properties.port);
 
-        for(InetSocketAddress neighborAddress : properties.neighbors)
+        for (InetSocketAddress neighborAddress : properties.neighbors)
             neighbor(neighborAddress);
 
         try {
@@ -45,7 +46,9 @@ public class Ict {
 
         this.sender = new Sender(this, properties, tangle, socket);
         this.receiver = new Receiver(this, tangle, socket);
+
         state = new StateRunning();
+        eventDispatcher.start();
         sender.start();
         receiver.start();
     }
@@ -68,7 +71,7 @@ public class Ict {
      * @param gossipListener The listener to add.
      */
     public void addGossipListener(GossipListener gossipListener) {
-        listeners.add(gossipListener);
+        eventDispatcher.listeners.add(gossipListener);
     }
 
     /**
@@ -120,8 +123,7 @@ public class Ict {
     }
 
     public void notifyListeners(GossipEvent event) {
-        for (GossipListener listener : listeners)
-            listener.on(event);
+        eventDispatcher.notifyListeners(event);
     }
 
     public void request(String requestedHash) {
@@ -174,6 +176,7 @@ public class Ict {
             socket.close();
             sender.terminate();
             receiver.interrupt();
+            eventDispatcher.terminate();
         }
     }
 

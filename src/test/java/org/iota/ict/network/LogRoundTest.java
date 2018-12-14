@@ -60,7 +60,7 @@ public class LogRoundTest extends GossipTest {
         DatagramSocket socket = new DatagramSocket(a.getAddress());
 
         // packet with invalid size
-        DatagramPacket invalidPacket1 = new DatagramPacket(new byte[Constants.TRANSACTION_SIZE_TRYTES-1], Constants.TRANSACTION_SIZE_TRYTES-1);
+        DatagramPacket invalidPacket1 = new DatagramPacket(new byte[Constants.TRANSACTION_SIZE_TRYTES - 1], Constants.TRANSACTION_SIZE_TRYTES - 1);
         invalidPacket1.setSocketAddress(b.getAddress());
         socket.send(invalidPacket1);
         sleep(100);

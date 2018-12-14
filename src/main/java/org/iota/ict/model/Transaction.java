@@ -47,7 +47,7 @@ public class Transaction {
         requestHash = builder.requestHash;
 
         trytes = trytes();
-        if(!Trytes.isTrytes(trytes))
+        if (!Trytes.isTrytes(trytes))
             throw new IllegalArgumentException("at least one field contains non-tryte characters");
 
         hash = curlHash();
@@ -56,8 +56,9 @@ public class Transaction {
 
     /**
      * Creates a transaction object from its trytes.
+     *
      * @param trytes Trytes containing all information describing this transaction. Must have length = {@link Constants#TRANSACTION_SIZE_TRYTES}.
-     * */
+     */
     public Transaction(String trytes) {
         assert trytes.length() == Constants.TRANSACTION_SIZE_TRYTES;
         signatureFragments = extractField(trytes, Field.SIGNATURE_FRAGMENTS);
@@ -85,7 +86,7 @@ public class Transaction {
 
     /**
      * @return Trytes of this transaction (length = {@link Constants#TRANSACTION_SIZE_TRYTES}). {@link #requestHash} trytes are always NULL.
-     * */
+     */
     private String trytes() {
         char[] trytes = new char[Constants.TRANSACTION_SIZE_TRYTES];
         putField(trytes, Field.SIGNATURE_FRAGMENTS, signatureFragments);
@@ -109,8 +110,9 @@ public class Transaction {
 
     /**
      * Requires {@link #trytes} to be set.
+     *
      * @return Calculated hash of this transaction.
-     * */
+     */
     private String curlHash() {
         return IotaCurlHash.iotaCurlHash(trytes, trytes.length(), 123);
     }
@@ -131,8 +133,8 @@ public class Transaction {
 
     private static String extractField(String transactionTrytes, Field field) {
         String extracted = transactionTrytes.substring(field.tryteOffset, field.tryteOffset + field.tryteLength);
-        if(!Trytes.isTrytes(extracted))
-            throw new IllegalArgumentException("field starting at offset '"+field.tryteOffset+"' contains non tryte characters");
+        if (!Trytes.isTrytes(extracted))
+            throw new IllegalArgumentException("field starting at offset '" + field.tryteOffset + "' contains non tryte characters");
         return extracted;
     }
 
