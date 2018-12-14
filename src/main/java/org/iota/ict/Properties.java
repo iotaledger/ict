@@ -3,9 +3,13 @@ package org.iota.ict;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Properties {
 
+    private static final String LIST_DELIMITER = ",";
     private static final Properties DEFAULT_PROPERTIES = new Properties();
 
     public long minForwardDelay = 0;
@@ -13,6 +17,7 @@ public class Properties {
     public String host = "localhost";
     public int port = 1337;
     public long logRoundDuration = 60000;
+    public List<InetSocketAddress> neighbors = new LinkedList<>();
 
     public static Properties fromFile(String path) {
         java.util.Properties propObject = new java.util.Properties();
@@ -36,6 +41,36 @@ public class Properties {
         host = propObject.getProperty(Property.host.name(), DEFAULT_PROPERTIES.host);
         port = (int) readLongProperty(propObject, Property.port, 1, 65535, DEFAULT_PROPERTIES.port);
         logRoundDuration = readLongProperty(propObject, Property.log_round_duration, 100, Long.MAX_VALUE, DEFAULT_PROPERTIES.logRoundDuration);
+        neighbors = neighborsFromString(propObject.getProperty(Property.neighbors.name(), ""));
+    }
+
+    private static List<InetSocketAddress> neighborsFromString(String string) {
+        List<InetSocketAddress> neighbors = new LinkedList<>();
+        for(String address : string.split(LIST_DELIMITER)) {
+            try {
+                neighbors.add(inetSocketAddressFromString(address));
+            } catch (Throwable t) {
+                // TODO use logger
+                System.err.println("Invalid neighbor address: '"+address+"'");
+                t.printStackTrace();
+            }
+        }
+        return neighbors;
+    }
+
+    private static InetSocketAddress inetSocketAddressFromString(String address) {
+        int portColonIndex;
+        for (portColonIndex = address.length()-1; address.charAt(portColonIndex) != ':'; portColonIndex--);
+        String hostString = address.substring(0, portColonIndex);
+        int port = Integer.parseInt(address.substring(portColonIndex+1, address.length()));
+        return new InetSocketAddress(hostString, port);
+    }
+
+    private String neighborsToString() {
+        StringBuilder sb = new StringBuilder();
+        for(InetSocketAddress address : neighbors)
+            sb.append(address.getHostString() + ":" + address.getPort()).append(LIST_DELIMITER);
+        return sb.length() == 0 ? "" : sb.deleteCharAt(sb.length()-1).toString();
     }
 
     private long readLongProperty(java.util.Properties properties, Property property, long min, long max, long defaultValue) {
@@ -51,7 +86,7 @@ public class Properties {
 
         if(value < min || value > max) {
             // TODO use logger
-            System.err.println("Property '"+property.name()+"' must be in range "+min+"-"+max);
+            System.err.println("Property '"+property.name()+"' must be in range: "+min+"-"+max);
             value = Math.min(max, Math.max(min, value));
         }
 
@@ -75,6 +110,7 @@ public class Properties {
         propObject.setProperty(Property.host.name(), host);
         propObject.setProperty(Property.port.name(), port+"");
         propObject.setProperty(Property.log_round_duration.name(), logRoundDuration+"");
+        propObject.setProperty(Property.neighbors.name(), neighborsToString());
         return propObject;
     }
 
@@ -89,6 +125,6 @@ public class Properties {
     }
 
     private static enum Property {
-        min_forward_delay, max_forward_delay, port, host, log_round_duration;
+        min_forward_delay, max_forward_delay, port, host, log_round_duration, neighbors;
     }
 }

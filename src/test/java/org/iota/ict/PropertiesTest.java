@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
+import java.net.InetSocketAddress;
 
 public class PropertiesTest {
 
@@ -33,6 +34,8 @@ public class PropertiesTest {
         custom.minForwardDelay = 50;
         custom.maxForwardDelay = 4000;
         custom.logRoundDuration = 15000;
+        custom.neighbors.add(new InetSocketAddress("http://example.org", 443));
+        custom.neighbors.add(new InetSocketAddress("https://example.com", 1337));
         return custom;
     }
 }

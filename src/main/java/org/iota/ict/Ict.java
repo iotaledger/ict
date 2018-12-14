@@ -34,6 +34,9 @@ public class Ict {
         this.tangle = new Tangle(this);
         this.address = new InetSocketAddress(properties.host, properties.port);
 
+        for(InetSocketAddress neighborAddress : properties.neighbors)
+            neighbor(neighborAddress);
+
         try {
             this.socket = new DatagramSocket(address);
         } catch (SocketException socketException) {
