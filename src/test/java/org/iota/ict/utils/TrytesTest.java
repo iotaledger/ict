@@ -9,7 +9,7 @@ public class TrytesTest {
     @Test
     public void testNumberEncoding() {
         for (int i = -Trytes.MAX_TRYTE_TRIPLET_ABS; i <= Trytes.MAX_TRYTE_TRIPLET_ABS; i += 30 * Math.random())
-            Assert.assertEquals(i, Trytes.toNumber(Trytes.fromNumber(BigInteger.valueOf(i), 3)).intValueExact());
+            Assert.assertEquals(i, Trytes.toNumber(Trytes.fromNumber(BigInteger.valueOf(i), 3)).intValue());
     }
 
     @Test

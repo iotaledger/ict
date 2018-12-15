@@ -59,14 +59,12 @@ public class RemoteIctImplementation extends UnicastRemoteObject implements Remo
     }
 
     public void connectToIxi(String name) {
-        System.out.print("connecting to IXI '" + name + "' ...");
         try {
             RemoteIxiModule ixiModule = (RemoteIxiModule) Naming.lookup("//localhost/" + name);
             ixiModules.add(ixiModule);
             ixiModule.onIctConnect(this.name);
-            System.out.print(" success\n");
         } catch (Throwable t) {
-            System.out.print(" failed (" + t.toString() + ")\n");
+            System.out.print("Failed connecting to IXI '" + name + "' (" + t.toString() + ")\n");
             t.printStackTrace();
         }
     }

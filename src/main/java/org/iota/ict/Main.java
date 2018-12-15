@@ -1,5 +1,7 @@
 package org.iota.ict;
 
+import org.iota.ict.utils.Properties;
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +23,9 @@ public class Main {
 
         Properties properties = loadOrCreatedProperties(argMap);
         System.out.println("Starting new Ict '" + properties.name + "' ...");
+
+        if (!properties.ixiEnabled && properties.ixis.size() > 0)
+            System.err.println("Warning: Not running any IXI modules because IXI is disabled. To enable IXI, set 'ixi_enabled = true' in your config file.");
 
         final Ict ict = new Ict(properties);
         System.out.println("Ict started on " + ict.getAddress() + ".\n");

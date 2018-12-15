@@ -1,4 +1,4 @@
-package org.iota.ict;
+package org.iota.ict.utils;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

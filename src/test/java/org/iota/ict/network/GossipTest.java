@@ -1,7 +1,7 @@
 package org.iota.ict.network;
 
 import org.iota.ict.Ict;
-import org.iota.ict.Properties;
+import org.iota.ict.utils.Properties;
 import org.junit.After;
 import org.junit.Assert;
 

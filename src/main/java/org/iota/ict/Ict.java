@@ -12,6 +12,7 @@ import org.iota.ict.network.Receiver;
 import org.iota.ict.network.Sender;
 import org.iota.ict.model.Transaction;
 import org.iota.ict.utils.Constants;
+import org.iota.ict.utils.Properties;
 
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;

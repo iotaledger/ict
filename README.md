@@ -30,7 +30,7 @@ git clone https://github.com/iotaledger/ict
 # 2) move into the cloned repository
 cd ict
 
-# 3) build the runnable .jar file (you will need Gradle) - it will be created in 'build/libs'
+# 3) build the runnable .jar file (you will need Gradle)
 gradle fatJar
 ```
 

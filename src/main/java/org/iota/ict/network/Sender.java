@@ -1,7 +1,7 @@
 package org.iota.ict.network;
 
 import org.iota.ict.Ict;
-import org.iota.ict.Properties;
+import org.iota.ict.utils.Properties;
 import org.iota.ict.model.Tangle;
 import org.iota.ict.model.Transaction;
 import org.iota.ict.network.event.GossipListener;
@@ -11,7 +11,6 @@ import org.iota.ict.utils.Trytes;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ThreadLocalRandom;

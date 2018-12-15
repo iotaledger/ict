@@ -1,7 +1,7 @@
 package org.iota.ict.ixi;
 
 import org.iota.ict.Ict;
-import org.iota.ict.Properties;
+import org.iota.ict.utils.Properties;
 import org.iota.ict.network.event.GossipReceiveEvent;
 import org.iota.ict.network.event.GossipSubmitEvent;
 import org.junit.Assert;

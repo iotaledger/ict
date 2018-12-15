@@ -1,7 +1,7 @@
 package org.iota.ict.network.event;
 
 import org.iota.ict.Ict;
-import org.iota.ict.Properties;
+import org.iota.ict.utils.Properties;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -20,7 +20,7 @@ public class GossipEventDispatcherTest {
             public void onTransactionSubmitted(GossipSubmitEvent e) {
                 eventReceived = true;
                 // try to block for a second
-                sleep(1000);
+                sleep(5000);
             }
         });
 
@@ -29,7 +29,7 @@ public class GossipEventDispatcherTest {
         Assert.assertEquals("event not delivered to gossip listener", true, eventReceived);
 
         long duration = System.currentTimeMillis() - start;
-        Assert.assertEquals("gossip listener blocked main thread", true, duration < 1000);
+        Assert.assertEquals("gossip listener blocked main thread", true, duration < 5000);
 
         a.terminate();
         sleep(100);
