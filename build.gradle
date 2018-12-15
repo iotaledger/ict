@@ -19,15 +19,12 @@ dependencies {
     compile 'com.github.mikrohash:iota.curl.java:master'
 }
 
-tasks.withType(Jar) {
-    destinationDir = file("$rootDir/")
-}
-
 task fatJar(type: Jar) {
     manifest {
         attributes 'Main-Class': 'org.iota.ict.Main'
     }
     baseName = 'ict'
+    destinationDir = file("$rootDir/")
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
