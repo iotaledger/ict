@@ -77,7 +77,7 @@ public class Ict {
      * @throws IllegalStateException if already has {@link Constants#MAX_NEIGHBOR_COUNT} neighbors.
      */
     public void neighbor(InetSocketAddress neighborAddress) {
-        if (neighbors.size() > Constants.MAX_NEIGHBOR_COUNT)
+        if (neighbors.size() >= Constants.MAX_NEIGHBOR_COUNT)
             throw new IllegalStateException("Already reached maximum amount of neighbors.");
         neighbors.add(new Neighbor(neighborAddress));
     }
