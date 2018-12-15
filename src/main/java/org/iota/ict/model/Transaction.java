@@ -4,10 +4,11 @@ import com.iota.curl.IotaCurlHash;
 import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.Trytes;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.net.DatagramPacket;
 
-public class Transaction {
+public class Transaction implements Serializable {
     public final String signatureFragments;
     public final String extraDataDigest;
     public final String address;

@@ -2,10 +2,12 @@ package org.iota.ict.network.event;
 
 import org.iota.ict.model.Transaction;
 
-public class GossipSentEvent extends GossipEvent {
+import java.io.Serializable;
+
+public class GossipSubmitEvent extends GossipEvent implements Serializable {
     private final Transaction transaction;
 
-    public GossipSentEvent(Transaction transaction) {
+    public GossipSubmitEvent(Transaction transaction) {
         this.transaction = transaction;
     }
 

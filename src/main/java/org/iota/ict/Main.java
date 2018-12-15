@@ -21,7 +21,7 @@ public class Main {
 
         Properties properties = loadOrCreatedProperties(argMap);
         final Ict ict = new Ict(properties);
-        System.out.println("Started new Ict on " + ict.getAddress()+".");
+        System.out.println("Started new Ict on " + ict.getAddress() + ".");
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
@@ -44,12 +44,12 @@ public class Main {
     }
 
     private static Properties tryToLoadOrCreateProperties(Map<String, String> argMap) {
-        if(argMap.containsKey(ARG_CONFIG)) {
+        if (argMap.containsKey(ARG_CONFIG)) {
             return Properties.fromFile(argMap.get(ARG_CONFIG));
-        } else if(new File(DEFAULT_PROPERTY_FILE_PATH).exists()) {
+        } else if (new File(DEFAULT_PROPERTY_FILE_PATH).exists()) {
             return Properties.fromFile(DEFAULT_PROPERTY_FILE_PATH);
         } else {
-            System.out.println("No property file found, creating new: '"+DEFAULT_PROPERTY_FILE_PATH+"'.");
+            System.out.println("No property file found, creating new: '" + DEFAULT_PROPERTY_FILE_PATH + "'.");
             Properties properties = new Properties();
             properties.store(DEFAULT_PROPERTY_FILE_PATH);
             return properties;
@@ -60,13 +60,13 @@ public class Main {
 
         Map<String, String> argMap = new HashMap<>();
 
-        for(int i = 0; i < args.length-1; i++) {
+        for (int i = 0; i < args.length - 1; i++) {
             String arg = args[i].toLowerCase();
-            if(arg.charAt(0) == '-') {
-                String value = args[i+1];
-                if(argMap.containsKey(arg))
+            if (arg.charAt(0) == '-') {
+                String value = args[i + 1];
+                if (argMap.containsKey(arg))
                     System.err.println("multiple values for argument " + arg);
-                if(!ARG_NAME_BY_ARG_ALIAS.containsKey(arg))
+                if (!ARG_NAME_BY_ARG_ALIAS.containsKey(arg))
                     System.err.println("unknown argument '" + arg + "'");
                 argMap.put(ARG_NAME_BY_ARG_ALIAS.get(arg), value);
             }

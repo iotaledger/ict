@@ -17,7 +17,7 @@ public class GossipEventDispatcherTest {
 
         a.addGossipListener(new GossipListener() {
             @Override
-            public void onSentTransaction(GossipSentEvent e) {
+            public void onTransactionSubmitted(GossipSubmitEvent e) {
                 eventReceived = true;
                 // try to block for a second
                 sleep(1000);

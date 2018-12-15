@@ -12,12 +12,14 @@ public class Properties {
     private static final String LIST_DELIMITER = ",";
     private static final Properties DEFAULT_PROPERTIES = new Properties();
 
+    public boolean ixiEnabled = false;
     public long minForwardDelay = 0;
     public long maxForwardDelay = 200;
     public String host = "localhost";
     public int port = 1337;
     public long logRoundDuration = 60000;
     public List<InetSocketAddress> neighbors = new LinkedList<>();
+    public List<String> ixis = new LinkedList<>();
 
     public static Properties fromFile(String path) {
         java.util.Properties propObject = new java.util.Properties();
@@ -42,13 +44,25 @@ public class Properties {
         port = (int) readLongProperty(propObject, Property.port, 1, 65535, DEFAULT_PROPERTIES.port);
         logRoundDuration = readLongProperty(propObject, Property.log_round_duration, 100, Long.MAX_VALUE, DEFAULT_PROPERTIES.logRoundDuration);
         neighbors = neighborsFromString(propObject.getProperty(Property.neighbors.name(), ""));
+        ixiEnabled = propObject.getProperty(Property.ixi_enabled.name(), DEFAULT_PROPERTIES.ixiEnabled+"").toLowerCase().equals("true");
+        ixis = stringListFromString(propObject.getProperty(Property.ixis.name(), ""));
+    }
+
+    private static List<String> stringListFromString(String string) {
+        List<String> stringList = new LinkedList<>();
+        for (String element : string.split(LIST_DELIMITER)) {
+            if(element.length() == 0)
+                continue;
+            stringList.add(element);
+        }
+        return stringList;
     }
 
     private static List<InetSocketAddress> neighborsFromString(String string) {
+        List<String> addresses = stringListFromString(string);
+
         List<InetSocketAddress> neighbors = new LinkedList<>();
-        for (String address : string.split(LIST_DELIMITER)) {
-            if(address.length() == 0)
-                continue;
+        for (String address : addresses) {
             try {
                 neighbors.add(inetSocketAddressFromString(address));
             } catch (Throwable t) {
@@ -69,9 +83,16 @@ public class Properties {
     }
 
     private String neighborsToString() {
-        StringBuilder sb = new StringBuilder();
+        List<String> addresses = new LinkedList<>();
         for (InetSocketAddress address : neighbors)
-            sb.append(address.getHostString() + ":" + address.getPort()).append(LIST_DELIMITER);
+            addresses.add(address.getHostString() + ":" + address.getPort());
+        return stringListToString(addresses);
+    }
+
+    private String stringListToString(List<String> stringList) {
+        StringBuilder sb = new StringBuilder();
+        for (String element : stringList)
+            sb.append(element).append(LIST_DELIMITER);
         return sb.length() == 0 ? "" : sb.deleteCharAt(sb.length() - 1).toString();
     }
 
@@ -113,6 +134,8 @@ public class Properties {
         propObject.setProperty(Property.port.name(), port + "");
         propObject.setProperty(Property.log_round_duration.name(), logRoundDuration + "");
         propObject.setProperty(Property.neighbors.name(), neighborsToString());
+        propObject.setProperty(Property.ixi_enabled.name(), ixiEnabled+"");
+        propObject.setProperty(Property.ixis.name(), stringListToString(ixis));
         return propObject;
     }
 
@@ -127,6 +150,6 @@ public class Properties {
     }
 
     private static enum Property {
-        min_forward_delay, max_forward_delay, port, host, log_round_duration, neighbors;
+        min_forward_delay, max_forward_delay, port, host, log_round_duration, neighbors, ixi_enabled, ixis;
     }
 }

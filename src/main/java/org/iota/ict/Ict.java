@@ -1,12 +1,13 @@
 package org.iota.ict;
 
+import org.iota.ict.ixi.rmi.RemoteIctImplementation;
 import org.iota.ict.model.Tangle;
 import org.iota.ict.model.TransactionBuilder;
 import org.iota.ict.network.Neighbor;
 import org.iota.ict.network.event.GossipEvent;
 import org.iota.ict.network.event.GossipEventDispatcher;
 import org.iota.ict.network.event.GossipListener;
-import org.iota.ict.network.event.GossipSentEvent;
+import org.iota.ict.network.event.GossipSubmitEvent;
 import org.iota.ict.network.Receiver;
 import org.iota.ict.network.Sender;
 import org.iota.ict.model.Transaction;
@@ -15,6 +16,7 @@ import org.iota.ict.utils.Constants;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.rmi.RemoteException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -29,6 +31,7 @@ public class Ict {
     private final InetSocketAddress address;
     private final GossipEventDispatcher eventDispatcher = new GossipEventDispatcher();
     public final long timeStarted = System.currentTimeMillis();
+    private final RemoteIctImplementation remoteIctImplementation;
 
     public Ict(Properties properties) {
         this.properties = properties;
@@ -51,6 +54,20 @@ public class Ict {
         eventDispatcher.start();
         sender.start();
         receiver.start();
+
+        remoteIctImplementation = properties.ixiEnabled ? createRemoteIctImplementation(properties.ixis) : null;
+    }
+
+    private RemoteIctImplementation createRemoteIctImplementation(List<String> ixis) {
+        try {
+            RemoteIctImplementation remoteIctImplementation = new RemoteIctImplementation(this);
+            for (String ixi : ixis)
+                remoteIctImplementation.connectToIxi(ixi);
+            return remoteIctImplementation;
+        } catch (RemoteException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**
@@ -115,7 +132,7 @@ public class Ict {
     public void submit(Transaction transaction) {
         tangle.createTransactionLogIfAbsent(transaction);
         sender.queueTransaction(transaction);
-        notifyListeners(new GossipSentEvent(transaction));
+        notifyListeners(new GossipSubmitEvent(transaction));
     }
 
     public void rebroadcast(Transaction transaction) {
@@ -177,6 +194,8 @@ public class Ict {
             sender.terminate();
             receiver.interrupt();
             eventDispatcher.terminate();
+            if (remoteIctImplementation != null)
+                remoteIctImplementation.terminate();
         }
     }
 

@@ -34,7 +34,7 @@ public class Sender extends Thread {
 
         ict.addGossipListener(new GossipListener() {
             @Override
-            public void onReceiveTransaction(GossipReceiveEvent e) {
+            public void onTransactionReceived(GossipReceiveEvent e) {
                 Tangle.TransactionLog log = tangle.findTransactionLog(e.getTransaction());
                 if (!log.sent && log.senders.size() < ict.getNeighbors().size()) {
                     log.sent = true;

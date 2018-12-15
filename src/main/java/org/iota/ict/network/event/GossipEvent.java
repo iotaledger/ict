@@ -1,4 +1,6 @@
 package org.iota.ict.network.event;
 
-public class GossipEvent {
+import java.io.Serializable;
+
+public class GossipEvent implements Serializable {
 }
