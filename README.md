@@ -54,6 +54,9 @@ Argument|Alias|Example|Description
 ---|---|---|---
 `-config`|`-c`|`-config ict.cfg`|Loads the Ict configuration from the specified file.
 
+## IXI Modules
+
+An example/template for an IXI module can be found on [iotaledger/ixi](https://github.com/iotaledger/ixi).
 
 ## Development
 
