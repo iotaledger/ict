@@ -1,4 +1,4 @@
-package org.iota.ict.ixi.rmi;
+package org.iota.ict.ixi;
 
 import org.iota.ict.model.Transaction;
 

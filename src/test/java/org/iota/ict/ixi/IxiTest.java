@@ -2,7 +2,6 @@ package org.iota.ict.ixi;
 
 import org.iota.ict.Ict;
 import org.iota.ict.Properties;
-import org.iota.ict.ixi.rmi.IxiModule;
 import org.iota.ict.network.event.GossipReceiveEvent;
 import org.iota.ict.network.event.GossipSubmitEvent;
 import org.junit.Assert;
@@ -23,7 +22,7 @@ public class IxiTest {
 
         String message = "Hello World";
         String hash = ixi.submit(message).hash;
-        try { Thread.sleep(100); } catch (InterruptedException e) {}
+        try { Thread.sleep(200); } catch (InterruptedException e) {}
         Assert.assertNotNull("ixi did not receive event", ixi.receivedGossipSubmitEvent);
         Assert.assertEquals("ixi did not receive correct information", message, ixi.receivedGossipSubmitEvent.getTransaction().decodedSignatureFragments);
         Assert.assertNotNull("ict did not store transaction submitted by ixi", ict.getTangle().findTransactionByHash(hash));
@@ -34,7 +33,7 @@ public class IxiTest {
 
 class TestIxi extends IxiModule {
 
-    static final String NAME = "simpleIxi";
+    static final String NAME = "simple.ixi";
 
     boolean connected = false;
     GossipSubmitEvent receivedGossipSubmitEvent = null;

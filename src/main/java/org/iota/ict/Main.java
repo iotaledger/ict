@@ -20,8 +20,9 @@ public class Main {
         Map<String, String> argMap = mapArgs(args);
 
         Properties properties = loadOrCreatedProperties(argMap);
+        System.out.println("Starting new Ict '"+properties.name+"' ...");
         final Ict ict = new Ict(properties);
-        System.out.println("Started new Ict on " + ict.getAddress() + ".");
+        System.out.println("Ict started on "+ ict.getAddress() + ".\n");
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override

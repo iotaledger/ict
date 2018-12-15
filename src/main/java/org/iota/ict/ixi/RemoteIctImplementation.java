@@ -1,4 +1,4 @@
-package org.iota.ict.ixi.rmi;
+package org.iota.ict.ixi;
 
 import org.iota.ict.Ict;
 import org.iota.ict.model.Transaction;
@@ -24,11 +24,12 @@ public class RemoteIctImplementation extends UnicastRemoteObject implements Remo
     }
 
     private final List<RemoteIxiModule> ixiModules = new LinkedList<>();
-    private final String name = "ict";
+    private final String name;
     private final Ict ict;
 
     public RemoteIctImplementation(final Ict ict) throws RemoteException {
         this.ict = ict;
+        name = ict.getProperties().name;
         try {
             Naming.rebind("//localhost/"+name, this);
         } catch (MalformedURLException e) {
@@ -55,12 +56,14 @@ public class RemoteIctImplementation extends UnicastRemoteObject implements Remo
     }
 
     public void connectToIxi(String name) {
+        System.out.print("connecting to IXI '"+name+"' ...");
         try {
             RemoteIxiModule ixiModule = (RemoteIxiModule) Naming.lookup("//localhost/"+name);
             ixiModules.add(ixiModule);
             ixiModule.onIctConnect("ict");
+            System.out.print(" success\n");
         } catch (MalformedURLException | NotBoundException | RemoteException e) {
-            e.printStackTrace();
+            System.out.print(" failed ("+e.toString()+")\n");
         }
     }
 

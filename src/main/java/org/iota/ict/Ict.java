@@ -1,6 +1,6 @@
 package org.iota.ict;
 
-import org.iota.ict.ixi.rmi.RemoteIctImplementation;
+import org.iota.ict.ixi.RemoteIctImplementation;
 import org.iota.ict.model.Tangle;
 import org.iota.ict.model.TransactionBuilder;
 import org.iota.ict.network.Neighbor;
@@ -30,7 +30,6 @@ public class Ict {
     private final DatagramSocket socket;
     private final InetSocketAddress address;
     private final GossipEventDispatcher eventDispatcher = new GossipEventDispatcher();
-    public final long timeStarted = System.currentTimeMillis();
     private final RemoteIctImplementation remoteIctImplementation;
 
     public Ict(Properties properties) {

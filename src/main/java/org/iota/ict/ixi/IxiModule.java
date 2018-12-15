@@ -1,4 +1,4 @@
-package org.iota.ict.ixi.rmi;
+package org.iota.ict.ixi;
 
 import org.iota.ict.model.Transaction;
 import org.iota.ict.network.event.GossipReceiveEvent;
@@ -20,6 +20,7 @@ public abstract class IxiModule {
     }
 
     private RemoteIct ict;
+    private String ictName;
     private final IxiModuleAdapter adapter;
 
     public IxiModule(String name) {
@@ -60,6 +61,7 @@ public abstract class IxiModule {
     private void setIct(String name) {
         try {
             ict = (RemoteIct) Naming.lookup("//localhost/"+name);
+            ictName = name;
         } catch (MalformedURLException | NotBoundException | RemoteException e) {
             System.err.println("Failed to accept connection to ict:");
             e.printStackTrace();
@@ -99,7 +101,10 @@ public abstract class IxiModule {
         }
 
         @Override
-        public void onIctConnect(String name) {
+        public void onIctConnect(String name) throws RemoteException {
+            if(ict != null && !ictName.equals(name)) {
+                throw new RemoteException("IXI is already connected to Ict '"+ictName+"'");
+            }
             IxiModule.this.setIct(name);
             IxiModule.this.onIctConnect(name);
         }

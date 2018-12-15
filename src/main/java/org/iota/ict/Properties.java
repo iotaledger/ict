@@ -15,6 +15,7 @@ public class Properties {
     public boolean ixiEnabled = false;
     public long minForwardDelay = 0;
     public long maxForwardDelay = 200;
+    public String name = "ict";
     public String host = "localhost";
     public int port = 1337;
     public long logRoundDuration = 60000;
@@ -41,6 +42,7 @@ public class Properties {
         minForwardDelay = readLongProperty(propObject, Property.min_forward_delay, 0, 10000, DEFAULT_PROPERTIES.minForwardDelay);
         maxForwardDelay = readLongProperty(propObject, Property.max_forward_delay, 0, 10000, DEFAULT_PROPERTIES.maxForwardDelay);
         host = propObject.getProperty(Property.host.name(), DEFAULT_PROPERTIES.host);
+        name = propObject.getProperty(Property.name.name(), DEFAULT_PROPERTIES.name);
         port = (int) readLongProperty(propObject, Property.port, 1, 65535, DEFAULT_PROPERTIES.port);
         logRoundDuration = readLongProperty(propObject, Property.log_round_duration, 100, Long.MAX_VALUE, DEFAULT_PROPERTIES.logRoundDuration);
         neighbors = neighborsFromString(propObject.getProperty(Property.neighbors.name(), ""));
@@ -130,6 +132,7 @@ public class Properties {
         java.util.Properties propObject = new java.util.Properties();
         propObject.setProperty(Property.min_forward_delay.name(), minForwardDelay + "");
         propObject.setProperty(Property.max_forward_delay.name(), maxForwardDelay + "");
+        propObject.setProperty(Property.name.name(), name);
         propObject.setProperty(Property.host.name(), host);
         propObject.setProperty(Property.port.name(), port + "");
         propObject.setProperty(Property.log_round_duration.name(), logRoundDuration + "");
@@ -150,6 +153,6 @@ public class Properties {
     }
 
     private static enum Property {
-        min_forward_delay, max_forward_delay, port, host, log_round_duration, neighbors, ixi_enabled, ixis;
+        min_forward_delay, max_forward_delay, port, host, log_round_duration, neighbors, ixi_enabled, ixis, name;
     }
 }
