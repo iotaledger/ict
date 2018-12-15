@@ -16,7 +16,8 @@ public abstract class IxiModule {
     static {
         try {
             LocateRegistry.createRegistry(1099);
-        } catch (RemoteException e) { }
+        } catch (RemoteException e) {
+        }
     }
 
     private RemoteIct ict;
@@ -60,7 +61,7 @@ public abstract class IxiModule {
 
     private void setIct(String name) {
         try {
-            ict = (RemoteIct) Naming.lookup("//localhost/"+name);
+            ict = (RemoteIct) Naming.lookup("//localhost/" + name);
             ictName = name;
         } catch (MalformedURLException | NotBoundException | RemoteException e) {
             System.err.println("Failed to accept connection to ict:");
@@ -75,7 +76,7 @@ public abstract class IxiModule {
     public abstract void onTransactionSubmitted(GossipSubmitEvent event);
 
     private void assertThatIctConnected() {
-        if(ict == null)
+        if (ict == null)
             throw new RuntimeException("The Ict has not connected to this module yet.");
     }
 
@@ -84,7 +85,7 @@ public abstract class IxiModule {
         private IxiModuleAdapter(String name) throws RemoteException {
             super(0);
             try {
-                Naming.rebind("//localhost/"+name, this);
+                Naming.rebind("//localhost/" + name, this);
             } catch (MalformedURLException e) {
                 throw new RuntimeException(e);
             }
@@ -102,8 +103,9 @@ public abstract class IxiModule {
 
         @Override
         public void onIctConnect(String name) throws RemoteException {
-            if(ict != null && !ictName.equals(name)) {
-                throw new RemoteException("IXI is already connected to Ict '"+ictName+"'");
+            if (ict != null) {
+                System.err.println("Refusing Ict '"+ict+"' (already connected to '"+ictName+"').");
+                throw new RemoteException("IXI is already connected to Ict '" + ictName + "'");
             }
             IxiModule.this.setIct(name);
             IxiModule.this.onIctConnect(name);

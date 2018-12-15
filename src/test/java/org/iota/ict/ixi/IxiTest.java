@@ -22,7 +22,10 @@ public class IxiTest {
 
         String message = "Hello World";
         String hash = ixi.submit(message).hash;
-        try { Thread.sleep(200); } catch (InterruptedException e) {}
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+        }
         Assert.assertNotNull("ixi did not receive event", ixi.receivedGossipSubmitEvent);
         Assert.assertEquals("ixi did not receive correct information", message, ixi.receivedGossipSubmitEvent.getTransaction().decodedSignatureFragments);
         Assert.assertNotNull("ict did not store transaction submitted by ixi", ict.getTangle().findTransactionByHash(hash));

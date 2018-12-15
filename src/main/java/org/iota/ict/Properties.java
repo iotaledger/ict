@@ -46,14 +46,14 @@ public class Properties {
         port = (int) readLongProperty(propObject, Property.port, 1, 65535, DEFAULT_PROPERTIES.port);
         logRoundDuration = readLongProperty(propObject, Property.log_round_duration, 100, Long.MAX_VALUE, DEFAULT_PROPERTIES.logRoundDuration);
         neighbors = neighborsFromString(propObject.getProperty(Property.neighbors.name(), ""));
-        ixiEnabled = propObject.getProperty(Property.ixi_enabled.name(), DEFAULT_PROPERTIES.ixiEnabled+"").toLowerCase().equals("true");
+        ixiEnabled = propObject.getProperty(Property.ixi_enabled.name(), DEFAULT_PROPERTIES.ixiEnabled + "").toLowerCase().equals("true");
         ixis = stringListFromString(propObject.getProperty(Property.ixis.name(), ""));
     }
 
     private static List<String> stringListFromString(String string) {
         List<String> stringList = new LinkedList<>();
         for (String element : string.split(LIST_DELIMITER)) {
-            if(element.length() == 0)
+            if (element.length() == 0)
                 continue;
             stringList.add(element);
         }
@@ -137,7 +137,7 @@ public class Properties {
         propObject.setProperty(Property.port.name(), port + "");
         propObject.setProperty(Property.log_round_duration.name(), logRoundDuration + "");
         propObject.setProperty(Property.neighbors.name(), neighborsToString());
-        propObject.setProperty(Property.ixi_enabled.name(), ixiEnabled+"");
+        propObject.setProperty(Property.ixi_enabled.name(), ixiEnabled + "");
         propObject.setProperty(Property.ixis.name(), stringListToString(ixis));
         return propObject;
     }

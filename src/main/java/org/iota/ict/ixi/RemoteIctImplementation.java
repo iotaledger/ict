@@ -20,7 +20,8 @@ public class RemoteIctImplementation extends UnicastRemoteObject implements Remo
     static {
         try {
             LocateRegistry.createRegistry(1099);
-        } catch (RemoteException e) { }
+        } catch (RemoteException e) {
+        }
     }
 
     private final List<RemoteIxiModule> ixiModules = new LinkedList<>();
@@ -31,7 +32,7 @@ public class RemoteIctImplementation extends UnicastRemoteObject implements Remo
         this.ict = ict;
         name = ict.getProperties().name;
         try {
-            Naming.rebind("//localhost/"+name, this);
+            Naming.rebind("//localhost/" + name, this);
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
@@ -39,31 +40,34 @@ public class RemoteIctImplementation extends UnicastRemoteObject implements Remo
         ict.addGossipListener(new GossipListener() {
             @Override
             public void onTransactionSubmitted(GossipSubmitEvent event) {
-                for(RemoteIxiModule ixiModule : ixiModules)
+                for (RemoteIxiModule ixiModule : ixiModules)
                     try {
                         ixiModule.onTransactionSubmitted(event);
-                    } catch (RemoteException e) {}
+                    } catch (RemoteException e) {
+                    }
             }
 
             @Override
             public void onTransactionReceived(GossipReceiveEvent event) {
-                for(RemoteIxiModule ixiModule : ixiModules)
+                for (RemoteIxiModule ixiModule : ixiModules)
                     try {
                         ixiModule.onTransactionReceived(event);
-                    } catch (RemoteException e) {}
+                    } catch (RemoteException e) {
+                    }
             }
         });
     }
 
     public void connectToIxi(String name) {
-        System.out.print("connecting to IXI '"+name+"' ...");
+        System.out.print("connecting to IXI '" + name + "' ...");
         try {
-            RemoteIxiModule ixiModule = (RemoteIxiModule) Naming.lookup("//localhost/"+name);
+            RemoteIxiModule ixiModule = (RemoteIxiModule) Naming.lookup("//localhost/" + name);
             ixiModules.add(ixiModule);
-            ixiModule.onIctConnect("ict");
+            ixiModule.onIctConnect(name);
             System.out.print(" success\n");
-        } catch (MalformedURLException | NotBoundException | RemoteException e) {
-            System.out.print(" failed ("+e.toString()+")\n");
+        } catch (Throwable t) {
+            System.out.print(" failed (" + t.toString() + ")\n");
+            t.printStackTrace();
         }
     }
 
