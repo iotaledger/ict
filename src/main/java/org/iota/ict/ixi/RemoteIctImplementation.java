@@ -64,7 +64,7 @@ public class RemoteIctImplementation extends UnicastRemoteObject implements Remo
             ixiModules.add(ixiModule);
             ixiModule.onIctConnect(this.name);
         } catch (Throwable t) {
-            System.out.print("Failed connecting to IXI '" + name + "' (" + t.toString() + ")\n");
+            ict.logger.error("Failed connecting to IXI", t);
             t.printStackTrace();
         }
     }

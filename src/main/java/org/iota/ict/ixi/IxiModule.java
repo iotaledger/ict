@@ -1,5 +1,7 @@
 package org.iota.ict.ixi;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.iota.ict.model.Transaction;
 import org.iota.ict.network.event.GossipReceiveEvent;
 import org.iota.ict.network.event.GossipSubmitEvent;
@@ -11,6 +13,8 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
 
 public abstract class IxiModule {
+
+    final Logger logger = LogManager.getLogger();
 
     static {
         try {
@@ -63,7 +67,7 @@ public abstract class IxiModule {
             ict = (RemoteIct) Naming.lookup("//localhost/" + name);
             ictName = name;
         } catch (Throwable t) {
-            System.err.println("Failed to accept connection to ict '" + name + "' (" + t.toString() + ")");
+            logger.error("Failed to accept connection to ict '" + name + "'", t);
             t.printStackTrace();
             throw new RuntimeException(t);
         }
@@ -104,7 +108,7 @@ public abstract class IxiModule {
         @Override
         public void onIctConnect(String name) throws RemoteException {
             if (ict != null) {
-                System.err.println("Refusing Ict '" + name + "' (already connected to '" + ictName + "').");
+                logger.warn("Refusing Ict '" + name + "' (already connected to '" + ictName + "').");
                 throw new RemoteException("IXI is already connected to Ict '" + ictName + "'");
             }
             IxiModule.this.setIct(name);

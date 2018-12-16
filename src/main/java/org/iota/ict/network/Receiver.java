@@ -48,7 +48,7 @@ public class Receiver extends Thread {
         try {
             transaction = new Transaction(new String(packet.getData()));
         } catch (Throwable t) {
-            System.err.println("Received invalid transaction from neighbor: " + sender.getAddress() + " (" + t.getMessage() + ")");
+            ict.logger.warn("Received invalid transaction from neighbor: " + sender.getAddress() + " (" + t.getMessage() + ")");
             sender.stats.receivedInvalid++;
             return;
         }

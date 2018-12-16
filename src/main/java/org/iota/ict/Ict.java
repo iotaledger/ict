@@ -1,5 +1,7 @@
 package org.iota.ict;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.iota.ict.ixi.RemoteIctImplementation;
 import org.iota.ict.model.Tangle;
 import org.iota.ict.model.TransactionBuilder;
@@ -32,6 +34,7 @@ public class Ict {
     private final InetSocketAddress address;
     private final GossipEventDispatcher eventDispatcher = new GossipEventDispatcher();
     private final RemoteIctImplementation remoteIctImplementation;
+    public final Logger logger = LogManager.getLogger();
 
     public Ict(Properties properties) {
         this.properties = properties;
@@ -155,10 +158,8 @@ public class Ict {
     }
 
     public void logRound() {
-        for (Neighbor neighbor : neighbors) {
-            Neighbor.Stats stats = neighbor.stats;
-            System.out.println(stats.receivedAll + "/" + stats.receivedNew + "/" + stats.receivedInvalid + "[" + stats.prevReceivedAll + "/" + stats.prevReceivedNew + "/" + stats.prevReceivedInvalid + "]    " + neighbor.getAddress());
-        }
+        for (Neighbor neighbor : neighbors)
+            neighbor.printStats();
     }
 
     public void terminate() {

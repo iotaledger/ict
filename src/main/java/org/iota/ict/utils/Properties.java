@@ -1,5 +1,8 @@
 package org.iota.ict.utils;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -11,6 +14,7 @@ public class Properties {
 
     private static final String LIST_DELIMITER = ",";
     private static final Properties DEFAULT_PROPERTIES = new Properties();
+    private static final Logger logger = LogManager.getLogger();
 
     public boolean ixiEnabled = false;
     public long minForwardDelay = 0;
@@ -27,9 +31,7 @@ public class Properties {
         try {
             propObject.load(new FileInputStream(path));
         } catch (IOException e) {
-            // TODO use logger
-            System.err.println("Failed loading properties from file: " + path);
-            e.printStackTrace();
+            logger.error("Failed loading properties from file", e);
         }
         return new Properties(propObject);
     }
@@ -68,9 +70,7 @@ public class Properties {
             try {
                 neighbors.add(inetSocketAddressFromString(address));
             } catch (Throwable t) {
-                // TODO use logger
-                System.err.println("Invalid neighbor address: '" + address + "'");
-                t.printStackTrace();
+                logger.error("Invalid neighbor address: '" + address + "'", t);
             }
         }
         return neighbors;
@@ -105,13 +105,11 @@ public class Properties {
             if (string != null)
                 value = Integer.parseInt(string);
         } catch (NumberFormatException e) {
-            // TODO use logger
-            System.err.println("Property '" + property.name() + "' must be an integer.");
+            logger.error("Property '" + property.name() + "' must be an integer.");
         }
 
         if (value < min || value > max) {
-            // TODO use logger
-            System.err.println("Property '" + property.name() + "' must be in range: " + min + "-" + max);
+            logger.error("Property '" + property.name() + "' must be in range: " + min + "-" + max);
             value = Math.min(max, Math.max(min, value));
         }
 
@@ -122,9 +120,7 @@ public class Properties {
         try {
             toPropObject().store(new FileOutputStream(path), null);
         } catch (IOException e) {
-            // TODO use logger
-            System.err.println("Failed storing properties in file: " + path);
-            e.printStackTrace();
+            logger.error("Failed storing properties in file: " + path, e);
         }
     }
 

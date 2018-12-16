@@ -19,7 +19,7 @@ public class SimpleTopologyTest extends GossipTest {
 
         testBidirectionalCommunication(a, b, 20);
         testBidirectionalCommunication(b, c, 20);
-        testBidirectionalCommunication(a, c, 30);
+        testBidirectionalCommunication(a, c, 20);
     }
 
     @Test

@@ -1,0 +1,7 @@
+.*
+ict.cfg
+*.jar
+build/
+out/
+ict.iml
+!.gitignore

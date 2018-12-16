@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'org.iota'
-version '0.1'
+version '0.2-SNAPSHOT'
 
 sourceCompatibility = 1.7
 
@@ -13,7 +13,10 @@ repositories {
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile group: 'junit', name: 'junit', version: '4.12'
+
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.11.1'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.11.1'
 
     // used until pull request for iotaledger/iota.curl.java is merged
     compile 'com.github.mikrohash:iota.curl.java:master'
@@ -28,3 +31,16 @@ task fatJar(type: Jar) {
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
+
+task validateRelease {
+    println "=== RELEASING VERSION " + version + " ==="
+    assert !version.contains("SNAPSHOT")
+    assert 'git status --porcelain -uno'.execute().text == null
+}
+
+task release {
+}
+
+release.dependsOn validateRelease
+release.dependsOn test
+release.finalizedBy fatJar
