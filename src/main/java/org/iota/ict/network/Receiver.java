@@ -31,7 +31,7 @@ public class Receiver extends Thread {
         while (ict.isRunning()) {
             manageRounds();
 
-            DatagramPacket packet = new DatagramPacket(new byte[Constants.TRANSACTION_SIZE_TRYTES], Constants.TRANSACTION_SIZE_TRYTES);
+            DatagramPacket packet = new DatagramPacket(new byte[Constants.TRANSACTION_SIZE_BYTES], Constants.TRANSACTION_SIZE_BYTES);
             try {
                 socket.receive(packet);
                 processIncoming(packet);
@@ -46,7 +46,7 @@ public class Receiver extends Thread {
         Neighbor sender = determineNeighborWhoSent(packet);
         Transaction transaction;
         try {
-            transaction = new Transaction(new String(packet.getData()));
+            transaction = new Transaction(Trytes.fromBytes((packet.getData())));
         } catch (Throwable t) {
             ict.logger.warn("Received invalid transaction from neighbor: " + sender.getAddress() + " (" + t.getMessage() + ")");
             sender.stats.receivedInvalid++;

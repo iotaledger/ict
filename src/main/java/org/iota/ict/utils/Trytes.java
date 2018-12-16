@@ -45,41 +45,19 @@ public class Trytes {
 
     public static String fromTrits(byte[] trits) {
         assert trits.length % 3 == 0;
-        char[] trytes = new char[trits.length / 3];
+        byte[] trytes = new byte[trits.length / 3];
         for (int i = 0; i < trytes.length; i++)
-            trytes[i] = tryteFromTrits(Arrays.copyOfRange(trits, i * 3, i * 3 + 3));
+            trytes[i] = tryteFromTrits(Arrays.copyOfRange(trits, i * 3, i * 3 + 3), 0);
         return new String(trytes);
     }
 
-    private static char tryteFromTrits(byte[] trits) {
-        int index = trits[0] + 3 * trits[1] + 9 * trits[2];
-        return TRYTES.charAt((index + 27) % 27);
+    private static byte tryteFromTrits(byte[] trits, int offset) {
+        int index = trits[offset + 0] + 3 * trits[offset + 1] + 9 * trits[offset + 2];
+        return (byte) TRYTES.charAt((index + 27) % 27);
     }
 
     public static long toLong(String trytes) {
         return toNumber(trytes).longValue();
-    }
-
-    public static String fromNumber(BigInteger value, int tryteLength) {
-        assert value.abs().longValue() <= (Math.pow(3, tryteLength * 3) - 1) / 2;
-        final byte[] trits = new byte[tryteLength * 3];
-
-        BigInteger number = value.abs();
-
-        for (int i = 0; i < tryteLength * 3; i++) {
-            BigInteger[] divisionResult = number.divideAndRemainder(BI3);
-            BigInteger quotient = divisionResult[0];
-            BigInteger remainder = divisionResult[1];
-            if (remainder.compareTo(BigInteger.ONE) > 0) {
-                trits[i] = (byte) (value.signum() >= 0 ? -1 : 1);
-                number = quotient.add(BigInteger.ONE);
-            } else {
-                trits[i] = (byte) ((value.signum() >= 0 ? 1 : -1) * remainder.byteValue());
-                number = quotient;
-            }
-        }
-
-        return fromTrits(trits);
     }
 
     public static String fromAscii(String ascii) {
@@ -142,6 +120,78 @@ public class Trytes {
         for (int i = 0; i < length; i++)
             sequence[i] = randomTryte();
         return new String(sequence);
+    }
+
+    public static byte[] toBytes(String trytes) {
+        assert trytes.length() % 3 == 0;
+        byte[] bytes = new byte[trytes.length() / 3 * 2];
+        for (int i = 0; i < trytes.length() / 3; i++) {
+            byte[] nineTrits = toTrits(trytes.substring(3 * i, 3 * i + 3));
+            bytes[2 * i + 0] = tritsToByte(nineTrits, 0, 5);
+            bytes[2 * i + 1] = tritsToByte(nineTrits, 5, 4);
+        }
+        return bytes;
+    }
+
+    public static String fromBytes(byte[] bytes) {
+        assert bytes.length % 2 == 0;
+        byte[] trytes = new byte[bytes.length / 2 * 3];
+        for (int i = 0; i < trytes.length / 3; i++) {
+            byte[] nineTrits = new byte[9];
+            byteToTrits(bytes[2 * i + 0], nineTrits, 0, 5);
+            byteToTrits(bytes[2 * i + 1], nineTrits, 5, 4);
+            trytes[3 * i + 0] = tryteFromTrits(nineTrits, 0);
+            trytes[3 * i + 1] = tryteFromTrits(nineTrits, 3);
+            trytes[3 * i + 2] = tryteFromTrits(nineTrits, 6);
+        }
+        return new String(trytes);
+    }
+
+    static byte tritsToByte(byte[] trits, int offset, int length) {
+        byte sum = 0;
+        int exp = 1;
+        for (int i = offset; i < offset + length; i++) {
+            sum += exp * trits[i];
+            exp *= 3;
+        }
+        return sum;
+    }
+
+    static void byteToTrits(byte b, byte[] target, int offset, int length) {
+        byte n = (byte) Math.abs(b);
+        for (int i = 0; i < length; i++) {
+            int quotient = n / 3;
+            int remainder = n % 3;
+            if (remainder > 1) {
+                target[i + offset] = (byte) (b >= 0 ? -1 : 1);
+                n = (byte) (quotient + 1);
+            } else {
+                target[i + offset] = (byte) (b >= 0 ? remainder : -remainder);
+                n = (byte) quotient;
+            }
+        }
+    }
+
+    public static String fromNumber(BigInteger value, int tryteLength) {
+        assert value.abs().longValue() <= (Math.pow(3, tryteLength * 3) - 1) / 2;
+        final byte[] trits = new byte[tryteLength * 3];
+
+        BigInteger number = value.abs();
+
+        for (int i = 0; i < tryteLength * 3; i++) {
+            BigInteger[] divisionResult = number.divideAndRemainder(BI3);
+            BigInteger quotient = divisionResult[0];
+            BigInteger remainder = divisionResult[1];
+            if (remainder.compareTo(BigInteger.ONE) > 0) {
+                trits[i] = (byte) (value.signum() >= 0 ? -1 : 1);
+                number = quotient.add(BigInteger.ONE);
+            } else {
+                trits[i] = (byte) ((value.signum() >= 0 ? 1 : -1) * remainder.byteValue());
+                number = quotient;
+            }
+        }
+
+        return fromTrits(trits);
     }
 
     private static char randomTryte() {

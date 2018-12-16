@@ -115,7 +115,7 @@ public class Transaction implements Serializable {
      * @return Calculated hash of this transaction.
      */
     private String curlHash() {
-        return IotaCurlHash.iotaCurlHash(trytes, trytes.length(), 123);
+        return IotaCurlHash.iotaCurlHash(trytes, trytes.length(), Constants.CURL_ROUNDS_TRANSACTION_HASH);
     }
 
     private static void putField(char[] target, Field field, long value) {
@@ -141,7 +141,8 @@ public class Transaction implements Serializable {
 
     public DatagramPacket toDatagramPacket() {
         String fullTrytes = trytes.substring(0, Field.REQUEST_HASH.tryteOffset) + requestHash;
-        return new DatagramPacket(fullTrytes.getBytes(), fullTrytes.getBytes().length);
+        byte[] bytes = Trytes.toBytes(fullTrytes);
+        return new DatagramPacket(bytes, bytes.length);
     }
 
     public Transaction getBranch() {
