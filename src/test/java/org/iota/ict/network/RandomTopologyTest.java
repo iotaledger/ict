@@ -36,7 +36,7 @@ public class RandomTopologyTest extends GossipTest {
         Map<String, String> sentMessagesByHash = sendMessages(sender, amountOfMessages);
         waitUntilCommunicationEnds(1000);
         for (Ict receiver : otherIcts)
-            assertThatTransactionsReceived(receiver, sentMessagesByHash);
+            assertThatTransactionsReceived(receiver, sentMessagesByHash, (int)Math.ceil(amountOfMessages*0.85));
     }
 
     private List<Ict> createRandomNetworkTopology(int amountOfIcts) {

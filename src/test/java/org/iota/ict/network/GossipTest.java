@@ -30,7 +30,7 @@ public abstract class GossipTest {
         Map<String, String> sentMessagesByHash = sendMessages(sender, amountOfMessages);
         Assert.assertEquals("unique hashes of sent transactions", amountOfMessages, sentMessagesByHash.values().size());
         waitUntilCommunicationEnds(1000);
-        assertThatTransactionsReceived(receiver, sentMessagesByHash);
+        assertThatTransactionsReceived(receiver, sentMessagesByHash, (int)Math.ceil(amountOfMessages * 0.85));
     }
 
     Map<String, String> sendMessages(Ict sender, int amountOfMessages) {
@@ -69,13 +69,13 @@ public abstract class GossipTest {
         return sum;
     }
 
-    void assertThatTransactionsReceived(Ict receiver, Map<String, String> sentMessagesByHash) {
+    void assertThatTransactionsReceived(Ict receiver, Map<String, String> sentMessagesByHash, int minRequired) {
         int receivedTransactions = 0;
         for (String hash : sentMessagesByHash.keySet())
             if (receiver.getTangle().findTransactionByHash(hash) != null)
                 receivedTransactions++;
         // tolerate if 80% of transactions went through
-        if (receivedTransactions < sentMessagesByHash.size())
+        if (receivedTransactions < minRequired)
             Assert.fail("sent " + sentMessagesByHash.size() + " but received " + receivedTransactions);
     }
 

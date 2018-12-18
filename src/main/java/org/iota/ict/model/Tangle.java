@@ -19,19 +19,7 @@ public class Tangle {
 
     public Tangle(Ict ict) {
         this.ict = ict;
-        addNullTransaction();
-    }
-
-    /**
-     * Adds a transaction consisting of only 9 trytes (hash as well), to avoid requesting such a transaction if branch or
-     * trunk of a received transaction is unset (all 9 trytes).
-     */
-    private void addNullTransaction() {
-        Transaction nullTransaction = new Transaction(Trytes.padRight("", Constants.TRANSACTION_SIZE_TRYTES));
-        assert nullTransaction.hash.equals(Trytes.padRight("", 81));
-        nullTransaction.branch = nullTransaction;
-        nullTransaction.trunk = nullTransaction;
-        createTransactionLogIfAbsent(nullTransaction);
+        createTransactionLogIfAbsent(Transaction.NULL_TRANSACTION);
     }
 
     public TransactionLog createTransactionLogIfAbsent(Transaction transaction) {

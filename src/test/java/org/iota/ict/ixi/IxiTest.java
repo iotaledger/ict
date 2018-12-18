@@ -4,10 +4,15 @@ import org.iota.ict.Ict;
 import org.iota.ict.utils.Properties;
 import org.iota.ict.network.event.GossipReceiveEvent;
 import org.iota.ict.network.event.GossipSubmitEvent;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.HashSet;
+
 public class IxiTest {
+
+    Ict ict;
 
     @Test
     public void testIxI() {
@@ -16,7 +21,7 @@ public class IxiTest {
         Properties properties = new Properties();
         properties.ixis.add(TestIxi.NAME);
         properties.ixiEnabled = true;
-        Ict ict = new Ict(properties);
+        ict = new Ict(properties);
 
         Assert.assertTrue("ict could not connect to ixi", ixi.connected);
 
@@ -29,8 +34,20 @@ public class IxiTest {
         Assert.assertNotNull("ixi did not receive event", ixi.receivedGossipSubmitEvent);
         Assert.assertEquals("ixi did not receive correct information", message, ixi.receivedGossipSubmitEvent.getTransaction().decodedSignatureFragments);
         Assert.assertNotNull("ict did not store transaction submitted by ixi", ict.getTangle().findTransactionByHash(hash));
+    }
 
-        ict.terminate();
+    @After
+    public void tearDown() {
+        if(ict != null)
+            ict.terminate();
+
+        // TODO terminate ixi
+
+        try {
+            Thread.sleep(50);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
 

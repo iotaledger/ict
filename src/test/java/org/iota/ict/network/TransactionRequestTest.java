@@ -17,6 +17,7 @@ public class TransactionRequestTest extends GossipTest {
 
         Transaction original = a.submit("Hello World");
         waitUntilCommunicationEnds(100);
+        Assert.assertNotNull("did not receive transaction", b.getTangle().findTransactionByHash(original.hash));
 
         // scenario: existing ict forgets transaction
         a.getTangle().deleteTransaction(original);
@@ -27,9 +28,9 @@ public class TransactionRequestTest extends GossipTest {
         // scenario: new ict joins
         Ict c = createIct();
         connect(a, c);
-        Assert.assertNull("delete original transaction", c.getTangle().findTransactionByHash(original.hash));
+        Assert.assertNull("did not delete original transaction", c.getTangle().findTransactionByHash(original.hash));
         requestTransaction(c, original.hash);
-        Assert.assertNotNull("request transaction from neighbor", c.getTangle().findTransactionByHash(original.hash));
+        Assert.assertNotNull("could not request transaction from neighbor", c.getTangle().findTransactionByHash(original.hash));
     }
 
     @Test
@@ -45,9 +46,9 @@ public class TransactionRequestTest extends GossipTest {
 
         // === scenario: existing ict forgets transaction ====
         a.getTangle().deleteTransaction(original);
-        Assert.assertNull("delete original transaction", a.getTangle().findTransactionByHash(original.hash));
+        Assert.assertNull("did not delete original transaction", a.getTangle().findTransactionByHash(original.hash));
         requestTransactionByRebroadcast(a, original.hash, oldTransaction1.hash);
-        Assert.assertNotNull("request transaction from neighbor", a.getTangle().findTransactionByHash(original.hash));
+        Assert.assertNotNull("could not request transaction from neighbor", a.getTangle().findTransactionByHash(original.hash));
 
         // === scenario: new ict joins ===
         Ict c = createIct();
@@ -57,9 +58,9 @@ public class TransactionRequestTest extends GossipTest {
         Transaction anotherOldTransaction2 = a.submit("old (already known) transaction acting as carrier");
         waitUntilCommunicationEnds(100);
 
-        Assert.assertNull("delete original transaction", c.getTangle().findTransactionByHash(original.hash));
+        Assert.assertNull("did not delete original transaction", c.getTangle().findTransactionByHash(original.hash));
         requestTransactionByRebroadcast(c, original.hash, anotherOldTransaction2.hash);
-        Assert.assertNotNull("request transaction from neighbor", c.getTangle().findTransactionByHash(original.hash));
+        Assert.assertNotNull("could not request transaction from neighbor", c.getTangle().findTransactionByHash(original.hash));
     }
 
     private void requestTransaction(Ict ict, String hash) {

@@ -17,9 +17,9 @@ public class SimpleTopologyTest extends GossipTest {
         connect(a, b);
         connect(b, c);
 
-        testBidirectionalCommunication(a, b, 20);
-        testBidirectionalCommunication(b, c, 20);
-        testBidirectionalCommunication(a, c, 20);
+        testBidirectionalCommunication(a, b, 10);
+        testBidirectionalCommunication(b, c, 10);
+        testBidirectionalCommunication(a, c, 10);
     }
 
     @Test
@@ -36,8 +36,7 @@ public class SimpleTopologyTest extends GossipTest {
         c.addGossipListener(new GossipListener());
 
         int amountOfMessages = 10;
-        for (int i = 0; i < amountOfMessages; i++)
-            a.submit("Message #" + amountOfMessages);
+        sendMessages(a, amountOfMessages);
 
         waitUntilCommunicationEnds(500);
         Assert.assertTrue("no infinite loop message forwarding", c.getNeighbors().get(0).stats.receivedAll <= amountOfMessages);
