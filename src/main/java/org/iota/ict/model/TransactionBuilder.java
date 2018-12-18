@@ -18,8 +18,8 @@ public class TransactionBuilder {
     public long attachmentTimestamp = System.currentTimeMillis(), attachmentTimestampLowerBound = 0, attachmentTimestampUpperBound = 0;
     String nonce = Trytes.randomSequenceOfLength(Transaction.Field.NONCE.tryteLength);
     public String requestHash = generateNullTrytes(Transaction.Field.REQUEST_HASH);
-    public boolean isBundleHead = false;
-    public boolean isBundleTail = false;
+    public boolean isBundleHead = true;
+    public boolean isBundleTail = true;
 
     public void asciiMessage(String asciiMessage) {
         signatureFragments = Trytes.padRight(Trytes.fromAscii(asciiMessage), Transaction.Field.SIGNATURE_FRAGMENTS.tryteLength);
