@@ -46,6 +46,8 @@ cd Desktop/ict/
 java -jar ict-{VERSION}.jar
 ```
 
+On the very first start, this will create a configuration file (**ict.cfg**). Restart your Ict after modifying the configuration.
+
 ### Arguments
 
 You can pass the following arguments to the .jar file when running it.
