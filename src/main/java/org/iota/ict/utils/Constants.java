@@ -12,7 +12,7 @@ public class Constants {
 
     /**
      * Specifies through which trit of the transaction hash each flag is defined.
-     * */
+     */
     public static final class HashFlags {
         public static final int BUNDLE_HEAD_FLAG = 1;
         public static final int BUNDLE_TAIL_FLAG = 2;

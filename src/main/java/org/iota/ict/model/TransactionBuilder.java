@@ -39,7 +39,8 @@ public class TransactionBuilder {
             } catch (Transaction.InvalidTransactionFlagException e) {
                 // illegal flags, try next nonce
             }
-        } while (transaction == null || transaction.isBundleTail != isBundleTail || transaction.isBundleHead != isBundleHead);
+        }
+        while (transaction == null || transaction.isBundleTail != isBundleTail || transaction.isBundleHead != isBundleHead);
         return transaction;
     }
 }

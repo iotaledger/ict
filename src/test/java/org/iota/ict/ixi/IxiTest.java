@@ -38,7 +38,7 @@ public class IxiTest {
 
     @After
     public void tearDown() {
-        if(ict != null)
+        if (ict != null)
             ict.terminate();
 
         // TODO terminate ixi

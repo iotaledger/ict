@@ -43,7 +43,7 @@ public class Neighbor {
         report.append("   ").append(address);
 
         logger.info(report);
-   }
+    }
 
     public InetSocketAddress getAddress() {
         return address;

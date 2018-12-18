@@ -8,11 +8,11 @@ import org.junit.Test;
 
 public class ReferenceTest extends GossipTest {
 
-    @Test
     /**
      * The referenced transactions were broadcasted to all Icts before the referencing transaction was broadcasted.
-     * Icts must immediately build the edges upon receiving the referencing transaction.
-     * */
+     * Icts must immediately build the edges upon receiving the referencing transactio.
+     */
+    @Test
     public void testReferenceCreationOrdered() {
         Ict a = createIct();
         Ict b = createIct();
@@ -33,12 +33,12 @@ public class ReferenceTest extends GossipTest {
         assertCorrectReferences(c, referrerHash);
     }
 
-    @Test
     /**
-     * The referenced transactions were NOT broadcasted before the referencing transaction was broadcasted. Icts must
+     * The receiving Ict is not aware of the referenced transactions when receiving the referencing transactions and must
      * request branch and trunk and build the edges upon receiving them.
-     * */
-    public void testReferenceCreationNotOrdered() {
+     */
+    @Test
+    public void testReferenceOldTransactions() {
         Ict a = createIct();
         Ict b = createIct();
 
@@ -50,6 +50,29 @@ public class ReferenceTest extends GossipTest {
 
         // referrer is also used as request carrier
         String referrerHash = sendReferrer(b, branchHash, trunkHash);
+        waitUntilCommunicationEnds(200);
+
+        assertCorrectReferences(a, referrerHash);
+        assertCorrectReferences(b, referrerHash);
+    }
+
+    /**
+     * The referecing transaction is received before the referenced transactions are. Both sender and receiver must
+     * build the edges upon sending/receiving them.
+     */
+    @Test
+    public void testReceiveInverseOrder() {
+        Ict a = createIct();
+        Ict b = createIct();
+
+        connect(a, b);
+        Transaction branch = new TransactionBuilder().build();
+        Transaction trunk = new TransactionBuilder().build();
+        String referrerHash = sendReferrer(a, branch.hash, trunk.hash);
+        waitUntilCommunicationEnds(200);
+
+        a.submit(branch);
+        a.submit(trunk);
         waitUntilCommunicationEnds(200);
 
         assertCorrectReferences(a, referrerHash);

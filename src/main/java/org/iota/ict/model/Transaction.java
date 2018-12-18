@@ -37,7 +37,7 @@ public class Transaction implements Serializable {
     /**
      * Creates the NULL transaction. All trits are 0. Requires separate constructor because
      * all trit flags are set to 0 thus making this transaction actually invalid.
-     * */
+     */
     private Transaction() {
         signatureFragments = generateNullTrytes(Field.SIGNATURE_FRAGMENTS);
         extraDataDigest = generateNullTrytes(Field.EXTRA_DATA_DIGEST);
@@ -64,7 +64,7 @@ public class Transaction implements Serializable {
         branch = this;
         trunk = this;
 
-        assert trytes().matches("^[9]{"+Constants.TRANSACTION_SIZE_TRYTES+"}$");
+        assert trytes().matches("^[9]{" + Constants.TRANSACTION_SIZE_TRYTES + "}$");
     }
 
     private static String generateNullTrytes(Transaction.Field field) {
@@ -103,14 +103,15 @@ public class Transaction implements Serializable {
 
     /**
      * Determines the value of a flag in the hash trits.
+     *
      * @param hashTrits The trit sequence of the transaction hash (length must be 243).
-     * @param position Position of the trit which defines this flag.
-     * @throws InvalidTransactionFlagException if flag trit is 0.
+     * @param position  Position of the trit which defines this flag.
      * @return {@code true} if flag trit is 1, {@code false} if flag trit is -1
-     * */
+     * @throws InvalidTransactionFlagException if flag trit is 0.
+     */
     private static boolean isFlagSet(byte[] hashTrits, int position) {
         assert hashTrits.length == Field.REQUEST_HASH.tritLength;
-        if(hashTrits[position] == 0)
+        if (hashTrits[position] == 0)
             throw new InvalidTransactionFlagException(position);
         return hashTrits[position] == 1;
     }
@@ -250,7 +251,7 @@ public class Transaction implements Serializable {
 
     static class InvalidTransactionFlagException extends RuntimeException {
         InvalidTransactionFlagException(int flagIndex) {
-            super("Flag defined in trit #"+flagIndex+" of transaction hash is invalid.");
+            super("Flag defined in trit #" + flagIndex + " of transaction hash is invalid.");
         }
     }
 }

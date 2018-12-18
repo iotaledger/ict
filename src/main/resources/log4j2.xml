@@ -12,8 +12,8 @@
     </Appenders>
     <Loggers>
         <Root level="info">
-            <AppenderRef ref="ConsoleStdOut" />
-            <AppenderRef ref="ConsoleStdErr" />
+            <AppenderRef ref="ConsoleStdOut"/>
+            <AppenderRef ref="ConsoleStdErr"/>
         </Root>
     </Loggers>
 </Configuration>

@@ -29,7 +29,7 @@ public class Main {
         Map<String, String> argMap = mapArgs(args);
 
         Properties properties = loadOrCreatedProperties(argMap);
-        logger.info("Starting new Ict '" + properties.name + "' (version: "+ Constants.ICT_VERSION +")");
+        logger.info("Starting new Ict '" + properties.name + "' (version: " + Constants.ICT_VERSION + ")");
 
         if (!properties.ixiEnabled && properties.ixis.size() > 0)
             logger.warn("Not running any IXI modules because IXI is disabled. To enable IXI, set 'ixi_enabled = true' in your config file.");
@@ -38,8 +38,8 @@ public class Main {
         try {
             ict = new Ict(properties);
         } catch (Throwable t) {
-            if(t.getCause() instanceof BindException)
-                logger.error("Could not start Ict on " + properties.host+":"+properties.port + " (" + t.getCause().getMessage()+"). Make sure that the address is correct and you are not already running an Ict instance or any other service on that port. You can change the port in your properties file.");
+            if (t.getCause() instanceof BindException)
+                logger.error("Could not start Ict on " + properties.host + ":" + properties.port + " (" + t.getCause().getMessage() + "). Make sure that the address is correct and you are not already running an Ict instance or any other service on that port. You can change the port in your properties file.");
             else
                 logger.error(t);
             return;
@@ -90,7 +90,7 @@ public class Main {
         for (int i = 0; i < args.length; i++) {
             String arg = args[i].toLowerCase();
             if (arg.charAt(0) == '-') {
-                if(i == args.length-1 || args[i + 1].charAt(0) == '-') {
+                if (i == args.length - 1 || args[i + 1].charAt(0) == '-') {
                     logger.warn("no value for option " + arg);
                     break;
                 }
