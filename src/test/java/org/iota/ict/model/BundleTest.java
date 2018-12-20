@@ -2,9 +2,11 @@ package org.iota.ict.model;
 
 import org.iota.ict.Ict;
 import org.iota.ict.IctTestTemplate;
+import org.iota.ict.utils.Trytes;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.math.BigInteger;
 import java.util.*;
 
 public class BundleTest extends IctTestTemplate {
@@ -89,6 +91,20 @@ public class BundleTest extends IctTestTemplate {
 
         Assert.assertTrue("bundle is not complete", bundle.isComplete());
         Assert.assertTrue("bundle structure was recognized as valid but is invalid", !bundle.isStructureValid());
+    }
+
+    @Test
+    public void testSecurityLevel() {
+
+        String hashWithLevel3 = "999999999999999999999999999" + "999999999999999999999999999" + "999999999999999999999999999";
+        String hashWithLevel2 = "999999999999999999999999999" + "DWDW99999999999999999999999" + "A99999999999999999999999999"; // D and W cancel out each-other
+        String hashWithLevel1 = "999999999999999999999999999" + "B99999999999999999999999999" + "999999999999999999999999999";
+        String hashWithLevel0 = "A99999999999999999999999999" + "B99999999999999999999999999" + "C99999999999999999999999999";
+
+        Assert.assertEquals("failed to determine correct security level", 0, Bundle.calcSecurityLevel(hashWithLevel0));
+        Assert.assertEquals("failed to determine correct security level", 1, Bundle.calcSecurityLevel(hashWithLevel1));
+        Assert.assertEquals("failed to determine correct security level", 2, Bundle.calcSecurityLevel(hashWithLevel2));
+        Assert.assertEquals("failed to determine correct security level", 3, Bundle.calcSecurityLevel(hashWithLevel3));
     }
 
     private static void submitTransactions(Ict ict, Collection<Transaction> transactions) {

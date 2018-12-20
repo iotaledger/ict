@@ -6,7 +6,7 @@ import java.util.Arrays;
 public class Trytes {
 
     public static final String NULL_HASH = fromTrits(new byte[81 * 3]);
-    static final String TRYTES = "9ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    public static final String TRYTES = "9ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static final BigInteger BI3 = BigInteger.valueOf(3);
     static final int MAX_TRYTE_TRIPLET_ABS = 9841; // 9841 = (3^9-1)/2
 
@@ -37,6 +37,15 @@ public class Trytes {
             System.arraycopy(tritTriplet, 0, trits, 3 * i, 3);
         }
         return trits;
+    }
+
+    public static int sumTrytes(String trytes) {
+        int sum = 0;
+        for(char c : trytes.toCharArray()) {
+            byte[] tritTriplet = toTrits(c);
+            sum += tritTriplet[0] + 3 * tritTriplet[1] + 9 * tritTriplet[2];
+        }
+        return sum;
     }
 
     private static byte[] toTrits(char tryte) {

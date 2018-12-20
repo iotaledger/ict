@@ -1,13 +1,20 @@
 package org.iota.ict.model;
 
+import com.iota.curl.IotaCurlHash;
 import org.iota.ict.Ict;
+import org.iota.ict.utils.Constants;
+import org.iota.ict.utils.Trytes;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class Bundle {
-    private final ArrayList<Transaction> fragments = new ArrayList<>();
+    private final ArrayList<Transaction> transactions = new ArrayList<>();
     private boolean complete, structureValid;
+    private String hash;
+    private int securityLevel;
 
     /**
      * Fetches the bundle from a bundle head transaction which points to the entire bundle.
@@ -17,7 +24,7 @@ public class Bundle {
     public Bundle(Transaction head) {
         if (!head.isBundleHead)
             throw new IllegalArgumentException("Transaction " + head.hash + " is not a bundle head.");
-        fragments.add(head);
+        transactions.add(head);
         build();
     }
 
@@ -29,22 +36,24 @@ public class Bundle {
         if (complete)
             return;
 
-        Transaction fetchedLast = fragments.get(fragments.size() - 1);
-        while (fetchedLast.trunk != null && !fetchedLast.isBundleTail && (!fetchedLast.isBundleHead || fragments.size() == 1)) {
-            fragments.add(fetchedLast.trunk);
+        Transaction fetchedLast = transactions.get(transactions.size() - 1);
+        while (fetchedLast.trunk != null && !fetchedLast.isBundleTail && (!fetchedLast.isBundleHead || transactions.size() == 1)) {
+            transactions.add(fetchedLast.trunk);
             fetchedLast = fetchedLast.trunk;
         }
 
-        if (fetchedLast.isBundleTail) {
-            structureValid = true;
-            complete = true;
-        }
+        if (fetchedLast.isBundleTail)
+            complete(true);
 
-        if (!fetchedLast.isBundleTail && fetchedLast.isBundleHead && fragments.size() > 1) {
-            // new bundle opened by head before current bundle closed by tail
-            structureValid = false;
-            complete = true;
-        }
+        if (!fetchedLast.isBundleTail && fetchedLast.isBundleHead && transactions.size() > 1)
+            complete(false); // new bundle opened by head before current bundle closed by tail
+    }
+
+    private void complete(boolean structureValid) {
+        this.structureValid = structureValid;
+        hash = calcHash();
+        securityLevel = calcSecurityLevel(hash);
+        complete = true;
     }
 
     /**
@@ -56,7 +65,7 @@ public class Bundle {
         build();
         if (complete)
             return;
-        Transaction fetchedLast = fragments.get(fragments.size() - 1);
+        Transaction fetchedLast = transactions.get(transactions.size() - 1);
         ict.request(fetchedLast.trunkHash);
     }
 
@@ -65,9 +74,8 @@ public class Bundle {
      * @throws IllegalStateException if queried before {@link #isComplete() is {@code true}}.
      */
     public List<Transaction> getTransactions() {
-        if (!complete)
-            throw new IllegalStateException("Bundle has not yet been fetched completely. Cannot validate structure.");
-        return new ArrayList<>(fragments);
+        assertCompleteAndStructureValid("return transactions");
+        return new ArrayList<>(transactions);
     }
 
     /**
@@ -78,6 +86,73 @@ public class Bundle {
         if (!complete)
             throw new IllegalStateException("Bundle has not yet been fetched completely. Cannot validate structure.");
         return structureValid;
+    }
+
+    public String getHash() {
+        assertCompleteAndStructureValid("calculate hash");
+        return hash;
+    }
+
+    public int getSecurityLevel() {
+        return securityLevel;
+    }
+
+    private String calcHash() {
+        StringBuilder bundleEssence = new StringBuilder();
+        for(Transaction transaction : transactions)
+            bundleEssence.append(transaction.essence);
+        return IotaCurlHash.iotaCurlHash(bundleEssence.toString(), bundleEssence.length(), Constants.CURL_ROUNDS_BUNDLE_HASH);
+    }
+
+    void validateSignatures() {
+        assertCompleteAndStructureValid("validate signatures");
+        List<BalanceChange> changes = collectInputs();
+    }
+
+    List<BalanceChange> collectInputs() {
+        assertCompleteAndStructureValid("validate signatures");
+        List<BalanceChange> inputs = new LinkedList<>();
+
+        BalanceChangeBuilder inputBuilder = null;
+        for(Transaction t : transactions) {
+
+            boolean valueNegative = t.value.compareTo(BigInteger.ZERO) < 0;
+            boolean valueZero = t.value.compareTo(BigInteger.ZERO) == 0;
+            boolean canAppendToBuilder = inputBuilder != null && valueZero && inputBuilder.address.equals(t.address);
+
+            if(!canAppendToBuilder && inputBuilder != null) {
+                // transaction closes negative balance change
+                inputs.add(inputBuilder.build());
+                inputBuilder = null;
+            }
+
+            if(inputBuilder == null && valueNegative) {
+                // transaction opens new negative balance change
+                inputBuilder = new BalanceChangeBuilder(t);
+            } else if(canAppendToBuilder) {
+                // transaction appends balance change
+                inputBuilder.append(t);
+            }
+        }
+
+        if(inputBuilder != null)
+            inputs.add(inputBuilder.build());
+
+        return inputs;
+    }
+
+    private void assertCompleteAndStructureValid(String action) {
+        if (!complete)
+            throw new IllegalStateException("Bundle has not yet been fetched completely yet. Cannot "+action+".");
+        if (!structureValid)
+            throw new IllegalStateException("Bundle structure is invalid. Cannot "+action+".");
+    }
+
+    static int calcSecurityLevel(String bundleHash) {
+        for(int i = 0; i < 3; i++)
+            if(Trytes.sumTrytes(bundleHash.substring(27*i, 27*i+27)) != 0)
+                return i;
+        return 3;
     }
 
     /**

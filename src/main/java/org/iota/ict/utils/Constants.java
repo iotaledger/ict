@@ -9,6 +9,7 @@ public class Constants {
     public static final int TRANSACTION_SIZE_TRYTES = TRANSACTION_SIZE_TRITS / 3;
     public static final int TRANSACTION_SIZE_BYTES = TRANSACTION_SIZE_TRITS / 9 * 2;
     public static final int CURL_ROUNDS_TRANSACTION_HASH = 123;
+    public static final int CURL_ROUNDS_BUNDLE_HASH = 123;
 
     /**
      * Specifies through which trit of the transaction hash each flag is defined.

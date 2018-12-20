@@ -28,6 +28,7 @@ public class Transaction implements Serializable {
     public final String trytes;
     public String requestHash;
     public final String hash;
+    public final String essence;
 
     public final boolean isBundleHead, isBundleTail;
 
@@ -58,6 +59,7 @@ public class Transaction implements Serializable {
 
         trytes = trytes();
         hash = curlHash();
+        essence = extractField(trytes, Field.ESSENCE);
         isBundleHead = true;
         isBundleTail = true;
 
@@ -90,6 +92,7 @@ public class Transaction implements Serializable {
         requestHash = builder.requestHash;
 
         trytes = trytes();
+        essence = extractField(trytes, Field.ESSENCE);
         if (!Trytes.isTrytes(trytes))
             throw new IllegalArgumentException("at least one field contains non-tryte characters");
 
@@ -142,6 +145,7 @@ public class Transaction implements Serializable {
 
         this.trytes = trytes();
         assert trytes.startsWith(this.trytes.substring(0, Field.REQUEST_HASH.tryteOffset));
+        essence = extractField(trytes, Field.ESSENCE);
         hash = curlHash();
         decodedSignatureFragments = Trytes.toAscii(signatureFragments);
 
@@ -234,7 +238,9 @@ public class Transaction implements Serializable {
                 ATTACHMENT_TIMESTAMP_LOWER_BOUND = new Field(27, ATTACHMENT_TIMESTAMP),
                 ATTACHMENT_TIMESTAMP_UPPER_BOUND = new Field(27, ATTACHMENT_TIMESTAMP_LOWER_BOUND),
                 NONCE = new Field(81, ATTACHMENT_TIMESTAMP_UPPER_BOUND),
-                REQUEST_HASH = new Field(243, NONCE);
+                REQUEST_HASH = new Field(243, NONCE),
+
+                ESSENCE = new Field(TRUNK_HASH.tritOffset - EXTRA_DATA_DIGEST.tritOffset, SIGNATURE_FRAGMENTS);
 
 
         public final int tritOffset, tritLength, tryteOffset, tryteLength;
