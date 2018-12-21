@@ -22,6 +22,7 @@ public class Main {
     static {
         ARG_NAME_BY_ARG_ALIAS.put("-c", ARG_CONFIG);
         ARG_NAME_BY_ARG_ALIAS.put(ARG_CONFIG, ARG_CONFIG);
+        Constants.TESTING = false;
     }
 
     public static void main(String[] args) {

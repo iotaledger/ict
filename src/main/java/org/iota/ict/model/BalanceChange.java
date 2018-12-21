@@ -1,9 +1,6 @@
 package org.iota.ict.model;
 
 import java.math.BigInteger;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 
 public class BalanceChange {
 
@@ -21,21 +18,22 @@ public class BalanceChange {
         this.signatureOrMessage = signatureOrMessage;
     }
 
-    public void appendToBundleBuilder(BundleBuilder bundleBuilder) {
-        List<TransactionBuilder> buildersFromHeadToTail = new LinkedList<>();
-        for (int signatureOrMessageOffset = 0; signatureOrMessageOffset < signatureOrMessage.length(); signatureOrMessageOffset += SIGNATURE_FRAGMENTS_LENGTH) {
-            boolean isFirstTransaction = signatureOrMessageOffset == 0;
-            TransactionBuilder builder = new TransactionBuilder();
-            builder.address = address;
-            builder.value = isFirstTransaction ? value : BigInteger.ZERO;
-            builder.signatureFragments = signatureOrMessage.substring(signatureOrMessageOffset, signatureOrMessageOffset + SIGNATURE_FRAGMENTS_LENGTH);
-            buildersFromHeadToTail.add(builder);
-        }
-        List<TransactionBuilder> buildersFromTailToHead = new LinkedList<>(buildersFromHeadToTail);
-        Collections.reverse(buildersFromTailToHead);
-        bundleBuilder.append(buildersFromTailToHead);
+    public int getAmountOfSignatureOrMessageFragments() {
+        return signatureOrMessage.length() / SIGNATURE_FRAGMENTS_LENGTH;
     }
 
+    public String getSignatureOrMessageFragment(int index) {
+        assert index >= 0 && (index + 1) * SIGNATURE_FRAGMENTS_LENGTH <= signatureOrMessage.length();
+        return signatureOrMessage.substring(index * SIGNATURE_FRAGMENTS_LENGTH + (index + 1) * SIGNATURE_FRAGMENTS_LENGTH);
+    }
+
+    public boolean isInput() {
+        return value.compareTo(BigInteger.ZERO) < 0;
+    }
+
+    public boolean isOutput() {
+        return !isInput();
+    }
 
     @Override
     public boolean equals(Object o) {

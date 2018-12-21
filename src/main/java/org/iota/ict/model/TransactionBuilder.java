@@ -43,4 +43,16 @@ public class TransactionBuilder {
         while (transaction == null || transaction.isBundleTail != isBundleTail || transaction.isBundleHead != isBundleHead);
         return transaction;
     }
+
+    public String getEssence() {
+        String essence = extraDataDigest;
+        essence += address;
+        essence += Trytes.fromNumber(value, Transaction.Field.VALUE.tryteLength);
+        essence += Trytes.fromNumber(BigInteger.valueOf(issuanceTimestamp), Transaction.Field.ISSUANCE_TIMESTAMP.tryteLength);
+        essence += Trytes.fromNumber(BigInteger.valueOf(timelockLowerBound), Transaction.Field.TIMELOCK_LOWER_BOUND.tryteLength);
+        essence += Trytes.fromNumber(BigInteger.valueOf(timelockUpperBound), Transaction.Field.TIMELOCK_UPPER_BOUND.tryteLength);
+        essence += bundleNonce;
+        assert essence.length() == Transaction.Field.ESSENCE.tryteLength;
+        return essence;
+    }
 }

@@ -11,6 +11,8 @@ public class Constants {
     public static final int CURL_ROUNDS_TRANSACTION_HASH = 123;
     public static final int CURL_ROUNDS_BUNDLE_HASH = 123;
 
+    public static boolean TESTING = true;
+
     /**
      * Specifies through which trit of the transaction hash each flag is defined.
      */

@@ -32,10 +32,24 @@ public class TransferTest {
         Bundle bundle = buildBundle(inputs, outputs);
         Transfer transfer = new Transfer(bundle);
 
+        Assert.assertTrue("Signatures are invalid.", transfer.areSignaturesValid());
         Assert.assertEquals("Did not collect as many inputs as submitted transfer had.", inputs.size(), transfer.getInputs().size());
         Assert.assertEquals("Did not collect as many outputs as submitted transfer had.", outputs.size(), transfer.getOutputs().size());
-        Assert.assertTrue("Some inputs of the submitted transfer were not collected.", transfer.getInputs().containsAll(inputs));
         Assert.assertTrue("Some outputs of the submitted transfer were not collected.", transfer.getOutputs().containsAll(outputs));
+        assertReferenceInputAreIncludedInTransfer(inputs, transfer);
+    }
+
+    private void assertReferenceInputAreIncludedInTransfer(Iterable<BalanceChange> referenceInputs, Transfer transfer) {
+        // inputs must be treated differently than outputs because they now have a signature -> equal() does not work -> containsAll() does not work
+
+        for (BalanceChange referenceInput : referenceInputs) {
+            boolean foundReference = false;
+            for (BalanceChange actualInput : transfer.getInputs())
+                if (referenceInput.value.equals(actualInput.value) && referenceInput.address.equals(actualInput.address))
+                    foundReference = true;
+            if (!foundReference)
+                Assert.fail("An input is missing.");
+        }
     }
 
     private Bundle buildBundle(Set<BalanceChange> inputs, Set<BalanceChange> outputs) {
@@ -43,8 +57,7 @@ public class TransferTest {
         allChanges.addAll(inputs);
         allChanges.addAll(outputs);
         Collections.shuffle(allChanges);
-        Transfer transfer = new Transfer(new HashSet<>(allChanges), 1);
-        return transfer.buildBundle();
+        return TransferBuilder.buildBundle(new HashSet<>(allChanges), 1);
     }
 
     private BigInteger calcAvailableFunds(Set<BalanceChange> changes) {

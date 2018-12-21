@@ -1,5 +1,6 @@
 package org.iota.ict.model;
 
+import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.Trytes;
 
 import java.math.BigInteger;
@@ -8,20 +9,15 @@ import java.util.Set;
 
 public class Transfer {
 
+    private final String bundleHash;
     private final Set<BalanceChange> inputs;
     private final Set<BalanceChange> outputs;
     private final int securityLevel;
-
-    public Transfer(Set<BalanceChange> changes, int securityLevel) {
-        ensureSumIsZero(changes);
-        inputs = filterOutChangesWithNegativeValue(changes);
-        outputs = new HashSet<>(changes);
-        outputs.removeAll(inputs);
-        this.securityLevel = securityLevel;
-    }
+    private SignatureVerificationState signatureVerificationState = SignatureVerificationState.SIGNATURE_NOT_VERIFIED;
 
     public Transfer(Bundle bundle) {
-        securityLevel = calcSecurityLevel(bundle.getHash());
+        bundleHash = bundle.getHash();
+        securityLevel = Constants.TESTING ? 1 : calcSecurityLevel(bundle.getHash());
         BalanceChangeCollector collector = new BalanceChangeCollector(bundle);
         inputs = collector.inputs;
         outputs = collector.outputs;
@@ -36,16 +32,47 @@ public class Transfer {
             throw new IllegalArgumentException("Total sum of changes must be 0 but is '" + sum.toString() + "'.");
     }
 
-    void validateSignatures() {
-
+    public boolean areSignaturesValid() {
+        if (signatureVerificationState == SignatureVerificationState.SIGNATURE_NOT_VERIFIED) {
+            signatureVerificationState = verifyAllInputs() ? SignatureVerificationState.SIGNATURE_VALID : SignatureVerificationState.SIGNATURE_INVALID;
+        }
+        return signatureVerificationState == SignatureVerificationState.SIGNATURE_VALID;
     }
 
-    static Set<BalanceChange> filterOutChangesWithNegativeValue(Iterable<BalanceChange> changes) {
-        Set<BalanceChange> inputs = new HashSet<>();
-        for (BalanceChange change : changes)
-            if (change.value.compareTo(BigInteger.ZERO) < 0)
-                inputs.add(change);
-        return inputs;
+    private boolean verifyAllInputs() {
+        boolean allInputsValid = true;
+        for (BalanceChange input : inputs) {
+            if (!verifyInput(input)) {
+                allInputsValid = false;
+                break;
+            }
+        }
+        return allInputsValid;
+    }
+
+    private boolean verifyInput(BalanceChange input) {
+        boolean validSoFar = securityLevel != 0;
+        // security level must equal amount of fragments for level 1 and 2
+        validSoFar = validSoFar && (securityLevel == input.getAmountOfSignatureOrMessageFragments() || securityLevel == 3);
+        validSoFar = validSoFar && signatureFragmentValid(input, 0);
+        if (securityLevel >= 2)
+            validSoFar = validSoFar && signatureFragmentValid(input, 1);
+        if (securityLevel >= 3) {
+            validSoFar = validSoFar && signatureFragmentValid(input, 2);
+            for (int index = 3; index < input.getAmountOfSignatureOrMessageFragments(); index++)
+                validSoFar = validSoFar && signatureFragmentValid(input, index);
+        }
+        return validSoFar;
+    }
+
+    private boolean signatureFragmentValid(BalanceChange input, int fragmentIndex) {
+        return input.getAmountOfSignatureOrMessageFragments() > fragmentIndex
+                && doesSignatureFragmentSignTrytes(input.getSignatureOrMessageFragment(fragmentIndex), bundleHash.substring(27 * fragmentIndex, 27 * fragmentIndex + 27));
+    }
+
+    private boolean doesSignatureFragmentSignTrytes(String signatureFragment, String trytes) {
+        // TODO implement (ask CFB for specification)
+        return true;
     }
 
     static int calcSecurityLevel(String bundleHash) {
@@ -53,15 +80,6 @@ public class Transfer {
             if (Trytes.sumTrytes(bundleHash.substring(27 * i, 27 * i + 27)) != 0)
                 return i;
         return 3;
-    }
-
-    public Bundle buildBundle() {
-        BundleBuilder bundleBuilder = new BundleBuilder();
-        for (BalanceChange change : inputs)
-            change.appendToBundleBuilder(bundleBuilder);
-        for (BalanceChange change : outputs)
-            change.appendToBundleBuilder(bundleBuilder);
-        return bundleBuilder.build();
     }
 
     public int getSecurityLevel() {
@@ -125,5 +143,9 @@ public class Transfer {
         private enum State {
             BUILDING_INPUT, BUILDING_OUTPUT
         }
+    }
+
+    private enum SignatureVerificationState {
+        SIGNATURE_VALID, SIGNATURE_INVALID, SIGNATURE_NOT_VERIFIED
     }
 }
