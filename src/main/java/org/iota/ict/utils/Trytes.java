@@ -41,7 +41,7 @@ public class Trytes {
 
     public static int sumTrytes(String trytes) {
         int sum = 0;
-        for(char c : trytes.toCharArray()) {
+        for (char c : trytes.toCharArray()) {
             byte[] tritTriplet = toTrits(c);
             sum += tritTriplet[0] + 3 * tritTriplet[1] + 9 * tritTriplet[2];
         }

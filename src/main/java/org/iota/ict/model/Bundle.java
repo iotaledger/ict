@@ -3,18 +3,21 @@ package org.iota.ict.model;
 import com.iota.curl.IotaCurlHash;
 import org.iota.ict.Ict;
 import org.iota.ict.utils.Constants;
-import org.iota.ict.utils.Trytes;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * This class allows to operate on the Bundle structure, a linear sequence of linked transactions. Note that anything
+ * related to value transactions and signatures is not modelled by this class. Instead, this class is reduced to the
+ * core Bundle structure.
+ *
+ * @see Transfer for value and signature related functionality.
+ */
 public class Bundle {
     private final ArrayList<Transaction> transactions = new ArrayList<>();
     private boolean complete, structureValid;
     private String hash;
-    private int securityLevel;
 
     /**
      * Fetches the bundle from a bundle head transaction which points to the entire bundle.
@@ -52,7 +55,6 @@ public class Bundle {
     private void complete(boolean structureValid) {
         this.structureValid = structureValid;
         hash = calcHash();
-        securityLevel = calcSecurityLevel(hash);
         complete = true;
     }
 
@@ -93,66 +95,18 @@ public class Bundle {
         return hash;
     }
 
-    public int getSecurityLevel() {
-        return securityLevel;
-    }
-
     private String calcHash() {
         StringBuilder bundleEssence = new StringBuilder();
-        for(Transaction transaction : transactions)
+        for (Transaction transaction : transactions)
             bundleEssence.append(transaction.essence);
         return IotaCurlHash.iotaCurlHash(bundleEssence.toString(), bundleEssence.length(), Constants.CURL_ROUNDS_BUNDLE_HASH);
     }
 
-    void validateSignatures() {
-        assertCompleteAndStructureValid("validate signatures");
-        List<BalanceChange> changes = collectInputs();
-    }
-
-    List<BalanceChange> collectInputs() {
-        assertCompleteAndStructureValid("validate signatures");
-        List<BalanceChange> inputs = new LinkedList<>();
-
-        BalanceChangeBuilder inputBuilder = null;
-        for(Transaction t : transactions) {
-
-            boolean valueNegative = t.value.compareTo(BigInteger.ZERO) < 0;
-            boolean valueZero = t.value.compareTo(BigInteger.ZERO) == 0;
-            boolean canAppendToBuilder = inputBuilder != null && valueZero && inputBuilder.address.equals(t.address);
-
-            if(!canAppendToBuilder && inputBuilder != null) {
-                // transaction closes negative balance change
-                inputs.add(inputBuilder.build());
-                inputBuilder = null;
-            }
-
-            if(inputBuilder == null && valueNegative) {
-                // transaction opens new negative balance change
-                inputBuilder = new BalanceChangeBuilder(t);
-            } else if(canAppendToBuilder) {
-                // transaction appends balance change
-                inputBuilder.append(t);
-            }
-        }
-
-        if(inputBuilder != null)
-            inputs.add(inputBuilder.build());
-
-        return inputs;
-    }
-
     private void assertCompleteAndStructureValid(String action) {
         if (!complete)
-            throw new IllegalStateException("Bundle has not yet been fetched completely yet. Cannot "+action+".");
+            throw new IllegalStateException("Bundle has not yet been fetched completely yet. Cannot " + action + ".");
         if (!structureValid)
-            throw new IllegalStateException("Bundle structure is invalid. Cannot "+action+".");
-    }
-
-    static int calcSecurityLevel(String bundleHash) {
-        for(int i = 0; i < 3; i++)
-            if(Trytes.sumTrytes(bundleHash.substring(27*i, 27*i+27)) != 0)
-                return i;
-        return 3;
+            throw new IllegalStateException("Bundle structure is invalid. Cannot " + action + ".");
     }
 
     /**

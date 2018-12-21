@@ -14,8 +14,8 @@ public class BalanceChange {
     public final String signatureOrMessage;
 
     public BalanceChange(String address, BigInteger value, String signatureOrMessage) {
-        if(signatureOrMessage.length()%SIGNATURE_FRAGMENTS_LENGTH != 0)
-            throw new IllegalArgumentException("length of signatureOrMessage must be multiple of "+SIGNATURE_FRAGMENTS_LENGTH);
+        if (signatureOrMessage.length() % SIGNATURE_FRAGMENTS_LENGTH != 0)
+            throw new IllegalArgumentException("length of signatureOrMessage must be multiple of " + SIGNATURE_FRAGMENTS_LENGTH);
         this.address = address;
         this.value = value;
         this.signatureOrMessage = signatureOrMessage;
@@ -23,7 +23,7 @@ public class BalanceChange {
 
     public void appendToBundleBuilder(BundleBuilder bundleBuilder) {
         List<TransactionBuilder> buildersFromHeadToTail = new LinkedList<>();
-        for(int signatureOrMessageOffset = 0; signatureOrMessageOffset < signatureOrMessage.length(); signatureOrMessageOffset += SIGNATURE_FRAGMENTS_LENGTH) {
+        for (int signatureOrMessageOffset = 0; signatureOrMessageOffset < signatureOrMessage.length(); signatureOrMessageOffset += SIGNATURE_FRAGMENTS_LENGTH) {
             boolean isFirstTransaction = signatureOrMessageOffset == 0;
             TransactionBuilder builder = new TransactionBuilder();
             builder.address = address;
@@ -39,7 +39,7 @@ public class BalanceChange {
 
     @Override
     public boolean equals(Object o) {
-        if(o instanceof BalanceChange) {
+        if (o instanceof BalanceChange) {
             BalanceChange bc = (BalanceChange) o;
             return address.equals(bc.address) && value.equals(bc.value) && signatureOrMessage.equals(bc.signatureOrMessage);
         }
@@ -48,6 +48,6 @@ public class BalanceChange {
 
     @Override
     public int hashCode() {
-        return (address+signatureOrMessage+value).hashCode();
+        return (address + signatureOrMessage + value).hashCode();
     }
 }

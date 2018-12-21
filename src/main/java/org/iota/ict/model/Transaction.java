@@ -240,7 +240,7 @@ public class Transaction implements Serializable {
                 NONCE = new Field(81, ATTACHMENT_TIMESTAMP_UPPER_BOUND),
                 REQUEST_HASH = new Field(243, NONCE),
 
-                ESSENCE = new Field(TRUNK_HASH.tritOffset - EXTRA_DATA_DIGEST.tritOffset, SIGNATURE_FRAGMENTS);
+        ESSENCE = new Field(TRUNK_HASH.tritOffset - EXTRA_DATA_DIGEST.tritOffset, SIGNATURE_FRAGMENTS);
 
 
         public final int tritOffset, tritLength, tryteOffset, tryteLength;

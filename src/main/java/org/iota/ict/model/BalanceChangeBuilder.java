@@ -21,7 +21,7 @@ public class BalanceChangeBuilder {
     }
 
     public void append(Transaction transaction) {
-        if(!address.equals(transaction.address))
+        if (!address.equals(transaction.address))
             throw new IllegalArgumentException("cannot append transaction from different address");
         value = value.add(transaction.value);
         signatureOrMessage.append(transaction.signatureFragments);

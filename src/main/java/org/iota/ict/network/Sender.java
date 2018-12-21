@@ -1,5 +1,7 @@
 package org.iota.ict.network;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.iota.ict.Ict;
 import org.iota.ict.utils.Properties;
 import org.iota.ict.model.Tangle;
@@ -22,6 +24,7 @@ public class Sender extends Thread {
     private final SendingTaskQueue queue = new SendingTaskQueue();
     private final DatagramSocket socket;
     private final Queue<String> transactionsToRequest = new PriorityBlockingQueue<>();
+    private static final Logger logger = LogManager.getLogger();
 
 
     public Sender(final Ict ict, Properties properties, final Tangle tangle, DatagramSocket socket) {
@@ -61,7 +64,8 @@ public class Sender extends Thread {
                 queue.wait(queue.isEmpty() ? 0 : Math.max(1, queue.peek().sendingTime - System.currentTimeMillis()));
             }
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            if (ict.isRunning())
+                logger.warn(e);
         }
     }
 
@@ -79,9 +83,8 @@ public class Sender extends Thread {
             packet.setSocketAddress(nb.getAddress());
             socket.send(packet);
         } catch (Exception e) {
-            // TODO more advanced handling
             if (ict.isRunning())
-                e.printStackTrace();
+                logger.warn(e);
         }
     }
 

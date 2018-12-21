@@ -8,7 +8,7 @@ public class BundleBuilder {
     private final LinkedList<TransactionBuilder> tailToHead = new LinkedList<>();
 
     public void append(List<TransactionBuilder> unfinishedTransactionsFromTailToHead) {
-        for(TransactionBuilder unfinishedTransaction : unfinishedTransactionsFromTailToHead)
+        for (TransactionBuilder unfinishedTransaction : unfinishedTransactionsFromTailToHead)
             append(unfinishedTransaction);
     }
 
@@ -28,7 +28,7 @@ public class BundleBuilder {
         for (int i = 0; i < tailToHead.size(); i++) {
             boolean isFirst = i == 0;
             TransactionBuilder unfinished = tailToHead.get(i);
-            if(!isFirst)
+            if (!isFirst)
                 unfinished.trunkHash = lastTransaction.hash;
             Transaction currentTransaction = unfinished.build();
             currentTransaction.trunk = lastTransaction;
@@ -39,7 +39,7 @@ public class BundleBuilder {
     }
 
     private void setFlags() {
-        for(TransactionBuilder unfinished : tailToHead) {
+        for (TransactionBuilder unfinished : tailToHead) {
             unfinished.isBundleHead = false;
             unfinished.isBundleTail = false;
         }
