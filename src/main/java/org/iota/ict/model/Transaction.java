@@ -26,14 +26,14 @@ public class Transaction implements Serializable {
     public final String decodedSignatureFragments;
 
     public final String trytes;
-    public String requestHash;
+    public transient String requestHash;
     public final String hash;
     public final String essence;
 
     public final boolean isBundleHead, isBundleTail;
 
-    Transaction branch;
-    Transaction trunk;
+    transient Transaction branch;
+    transient Transaction trunk;
 
     /**
      * Creates the NULL transaction. All trits are 0. Requires separate constructor because

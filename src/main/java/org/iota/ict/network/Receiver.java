@@ -67,6 +67,7 @@ public class Receiver extends Thread {
         if (transaction.requestHash.equals(Trytes.NULL_HASH))
             return; // no transaction requested
         Transaction requested = tangle.findTransactionByHash(transaction.requestHash);
+        requester.stats.requested++;
         if (requested == null)
             return; // unknown transaction
         sendRequested(requested, requester);

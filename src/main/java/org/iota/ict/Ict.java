@@ -197,6 +197,7 @@ public class Ict {
             eventDispatcher.terminate();
             if (remoteIctImplementation != null)
                 remoteIctImplementation.terminate();
+            // TODO notify IXI modules
         }
     }
 

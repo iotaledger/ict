@@ -136,7 +136,7 @@ We also avoided duplication of `Thread.sleep()`. And the itendation level is low
 ### Class Complexity
 
 * Avoid god classes. Keep classes slim (no more than 100-200 lines of code).
-* Each class should have a well defined resposibility.
+* Each class should have a well defined responsibility.
 * Each class should be well separated from other classes and have few dependencies to others.
 * A package should ideally contain 3-7 classes but no more than 10. Otherwise distribute your classes across sub-packages.
 * Consider using nested classes where it makes sense to make things appear more simple from outside.
@@ -148,7 +148,7 @@ We also avoided duplication of `Thread.sleep()`. And the itendation level is low
     * use `@link{}` instead of plain text names
     * optionally use `@see` if it helps
     * do not use `@version`, `@author`
-* Use comments sparingly. Your code should be expressive enough to not require comments. Sometimes, a comment is necessary though (see the good code example where the comment prevents others from accidentally braking the code).
+* Use comments sparingly. Your code should be expressive enough to not require comments. Sometimes, a comment is necessary though (see the good code example where the comment prevents others from accidentally breaking the code).
 * Use `// TODO: ...` if something is not implemented yet. But make sure others understand what meant.
 
 ```java
@@ -176,5 +176,5 @@ synchronized (queue) {
 ```
 
 Notice the "rice" instead of "spaghetti"? This method was copied from `makeRice()`, the author just forgot to adjust the comment.
-Someone might see this comment and change `boilSpaghetti()` into `boilRice()`, thus braking the method. Comments require
+Someone might see this comment and change `boilSpaghetti()` into `boilRice()`, thus breaking the method. Comments require
 constant maintaining, otherwise they turn into lies. That's why we try to avoid them.

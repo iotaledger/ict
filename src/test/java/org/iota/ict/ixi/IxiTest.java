@@ -9,26 +9,29 @@ import org.iota.ict.utils.Properties;
 import org.iota.ict.network.event.GossipReceiveEvent;
 import org.iota.ict.network.event.GossipSubmitEvent;
 import org.iota.ict.utils.Trytes;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.*;
 
 import java.util.HashSet;
 
 public class IxiTest {
 
-    private Ict ict;
+    private static Ict ict;
+    private static TestIxi ixi;
 
-    @Test
-    public void testIxI() {
-        TestIxi ixi = new TestIxi();
-
+    @BeforeClass
+    public static void setUp() {
+        ixi = new TestIxi();
         Properties properties = new Properties();
+        properties.minForwardDelay = 1;
+        properties.maxForwardDelay = 5;
         properties.ixis.add(TestIxi.NAME);
         properties.ixiEnabled = true;
         ict = new Ict(properties);
-
         Assert.assertTrue("ict could not connect to ixi", ixi.connected);
+    }
+
+    @Test
+    public void testIxiFilter() {
 
         String message = "Hello World";
         TransactionBuilder builder = new TransactionBuilder();
@@ -48,23 +51,39 @@ public class IxiTest {
         builder.address = Trytes.randomSequenceOfLength(Transaction.Field.ADDRESS.tryteLength);
         transaction = builder.build();
         ixi.submit(transaction);
-        sleep(100);
+        sleep(200);
 
         Assert.assertNull("Gossip filter let transaction from unwatched address pass.", ixi.receivedGossipSubmitEvent);
     }
 
-    @After
-    public void tearDown() {
+    @Test
+    public void testNotTransmittingBranchOrTrunk() {
+
+        ixi.setGossipFilter(new GossipFilter());
+
+        TransactionBuilder builder = new TransactionBuilder();
+        Transaction branch = builder.build();
+
+        builder.branchHash = branch.hash;
+        Transaction referencer = builder.build();
+
+        ict.submit(branch);
+        ict.submit(referencer);
+
+        Transaction requestedReferencer = ixi.findTransactionByHash(referencer.hash);
+        Transaction requestedBranch = ixi.findTransactionByHash(referencer.branchHash);
+
+        Assert.assertNotNull("IXI module could not request referencing transaction.", requestedReferencer);
+        Assert.assertNotNull("IXI module could not request referenced transaction.", requestedBranch);
+        Assert.assertNull("Transaction sent to IXI module included object reference to branch", requestedReferencer.getBranch());
+    }
+
+    @AfterClass
+    public static void tearDown() {
         if (ict != null)
             ict.terminate();
-
-        // TODO terminate ixi
-
-        try {
-            Thread.sleep(50);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        // TODO terminate ixi (should be done by ict.terminate())
+        sleep(50);
     }
 
     private static void sleep(long ms) {

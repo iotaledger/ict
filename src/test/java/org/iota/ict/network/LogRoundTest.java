@@ -1,6 +1,8 @@
 package org.iota.ict.network;
 
 import org.iota.ict.Ict;
+import org.iota.ict.model.Transaction;
+import org.iota.ict.utils.Trytes;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -12,6 +14,7 @@ public class LogRoundTest extends GossipTest {
         Ict b = createIct();
         connect(a, b);
 
+        a.request(Trytes.randomSequenceOfLength(Transaction.Field.ADDRESS.tryteLength));
         sendMessages(a, 10);
         waitUntilCommunicationEnds(200);
 
@@ -22,6 +25,7 @@ public class LogRoundTest extends GossipTest {
         Assert.assertEquals("neighbor did not receive all transactions", 10, statsForA.receivedAll);
         Assert.assertEquals("neighbor considered new transaction as not new", 10, statsForA.receivedNew);
         Assert.assertEquals("neighbor received invalid transactions", 0, statsForA.receivedInvalid);
+        Assert.assertEquals("neighbor did not add request to stats", 1, statsForA.requested);
 
         statsForA.newRound();
         Assert.assertEquals("stats was not reset upon new round", 0, statsForA.receivedAll);

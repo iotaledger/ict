@@ -54,16 +54,19 @@ public final class TransferBuilder {
 
         List<BalanceChangeBuilder> orderedChanges = new LinkedList<>(inputBuilders);
         orderedChanges.addAll(outputBuilders);
-        createAllSignatures(orderedChanges);
+
+        String determinedBundleHash = determineBundleHash(orderedChanges);;
+        createAllSignatures(determinedBundleHash, orderedChanges);
 
         for (BalanceChangeBuilder changeBuilder : orderedChanges)
             bundleBuilder.append(changeBuilder.buildersFromTailToHead);
 
+        Bundle bundle = bundleBuilder.build();
+        assert determinedBundleHash.equals(bundle.getHash());
         return bundleBuilder.build();
     }
 
-    private void createAllSignatures(List<BalanceChangeBuilder> orderedChanges) {
-        String bundleHash = determineBundleHash(orderedChanges);
+    private void createAllSignatures(String bundleHash, List<BalanceChangeBuilder> orderedChanges) {
         for (BalanceChangeBuilder inputBuilder : inputBuilders) {
             inputBuilder.signatureOrMessage.setLength(0);
             inputBuilder.signatureOrMessage.append(createSignature(bundleHash));
@@ -82,11 +85,12 @@ public final class TransferBuilder {
         return Trytes.randomSequenceOfLength(Transaction.Field.SIGNATURE_FRAGMENTS.tryteLength);
     }
 
-    private static String determineBundleHash(List<BalanceChangeBuilder> orderedChanges) {
+    static String determineBundleHash(List<BalanceChangeBuilder> orderedChanges) {
         StringBuilder concat = new StringBuilder();
         for (BalanceChangeBuilder change : orderedChanges)
-            for (TransactionBuilder builder : change.buildersFromTailToHead)
-                concat.append(change.isOutput() ? IotaCurlHash.iotaCurlHash(builder.signatureFragments, builder.signatureFragments.length(), Constants.CURL_ROUNDS_BUNDLE_HASH) : "").append(builder.getEssence());
+            for (TransactionBuilder builder : change.buildersFromTailToHead) {
+                concat.insert(0, builder.getEssence()).insert(0, change.isOutput() ? IotaCurlHash.iotaCurlHash(builder.signatureFragments, builder.signatureFragments.length(), Constants.CURL_ROUNDS_BUNDLE_HASH) : "");
+            }
         return IotaCurlHash.iotaCurlHash(concat.toString(), concat.length(), Constants.CURL_ROUNDS_BUNDLE_HASH);
     }
 }

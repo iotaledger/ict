@@ -16,16 +16,18 @@ public class Neighbor {
     }
 
     public class Stats {
-        public int receivedAll, receivedNew, receivedInvalid;
-        public int prevReceivedAll, prevReceivedNew, prevReceivedInvalid;
+        public int receivedAll, receivedNew, receivedInvalid, requested;
+        public int prevReceivedAll, prevReceivedNew, prevReceivedInvalid, prevRequested;
 
         public void newRound() {
             prevReceivedAll = receivedAll;
             prevReceivedNew = receivedNew;
             prevReceivedInvalid = receivedInvalid;
+            prevRequested = requested;
             receivedAll = 0;
             receivedNew = 0;
             receivedInvalid = 0;
+            requested = 0;
         }
     }
 
@@ -33,11 +35,13 @@ public class Neighbor {
         StringBuilder report = new StringBuilder();
         report.append(stats.receivedAll).append('/');
         report.append(stats.receivedNew).append('/');
+        report.append(stats.requested).append('/');
         report.append(stats.receivedInvalid);
 
         report.append(" [");
         report.append(stats.prevReceivedAll).append('/');
         report.append(stats.prevReceivedNew).append('/');
+        report.append(stats.prevRequested).append('/');
         report.append(stats.prevReceivedInvalid).append(']');
 
         report.append("   ").append(address);

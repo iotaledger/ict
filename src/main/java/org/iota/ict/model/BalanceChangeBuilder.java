@@ -3,6 +3,8 @@ package org.iota.ict.model;
 import org.iota.ict.utils.Trytes;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
