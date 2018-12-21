@@ -62,4 +62,5 @@ An example/template for an IXI module can be found on [iotaledger/ixi](https://g
 
 ## Development
 
-This project is still in early development. Community contributions are highly appreciated.
+This project is still in early development. Community contributions are highly appreciated. Please read our [contribution
+sheet](/docs/CONTRIBUTE.md) first.

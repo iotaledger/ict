@@ -16,12 +16,23 @@ Quality is important. Therefore we urge you to follow these guidelines if you wa
 
 * A commit should contain a self-contained change. So complete and commit a single task first before starting a new one - instead of mixing them together.
 * Avoid excessive over-committing. Most commits should represent work that has been done within a 30-180 minute timeframe. Do not push 10 tiny commits with very few line changes. Instead, try to pack them into a bigger commit if possible. Depending on context, exceptions are possible here.
-* Before committing, all unit tests must be run successfully and the code must be reformatted (see section ...).
+* Before committing, all unit tests must be run successfully and the code must be reformatted (according to section [Syntax](#syntax)).
 * Where feasible, write a unit test which captures the essence of your changes.
 
 ## Code Style
 
 We follow the "Clean Code" guidelines by Robert C. Martin:
+
+### Syntax
+
+* We use 4-space indentation.
+* Opening brackets are on the same line.
+
+```
+public void myFunction() { // <--- '{' on same line
+    // <-- 4 spaces
+}
+```
 
 ### Naming
 * Names are important. Keep them short and expressive.
@@ -94,9 +105,7 @@ private void buyIngredients() {
 private void boilSpaghetti() {
     boilWater();
     pot.putInSpaghetti()
-    sleep(30000);
-    while(!pot.isContentBoiled())
-        sleep(60000);
+    waitUntilBoiled();
 }
 
 private void boilWater() {
@@ -104,6 +113,12 @@ private void boilWater() {
     hotPlate.activate();
     while(!pot.isBoiling())
         sleep(20000);
+}
+
+private void waitUntilBoiled() {
+    sleep(30000);
+    while(!pot.isContentBoiled())
+        sleep(60000);
 }
 
 private static void sleep(long ms) {
@@ -140,7 +155,7 @@ We also avoided duplication of `Thread.sleep()`. And the itendation level is low
 // ===== Bad Code Example (Useless Comments) =====
 
 /**
-* This function makes spaghetti.
+* This method makes spaghetti.
 */
 public void makeSpaghetti() {
     // first buy ingredients

@@ -41,8 +41,7 @@ task validateRelease() {
 }
 
 task release {
+    dependsOn(validateRelease)
+    dependsOn(test)
+    finalizedBy(fatJar)
 }
-
-release.dependsOn validateRelease
-release.dependsOn test
-release.finalizedBy fatJar

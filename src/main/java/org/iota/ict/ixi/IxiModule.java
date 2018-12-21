@@ -3,6 +3,8 @@ package org.iota.ict.ixi;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.model.Transaction;
+import org.iota.ict.network.event.GossipFilter;
+import org.iota.ict.network.event.GossipListener;
 import org.iota.ict.network.event.GossipReceiveEvent;
 import org.iota.ict.network.event.GossipSubmitEvent;
 
@@ -23,13 +25,24 @@ public abstract class IxiModule {
         }
     }
 
+    private final String name;
     private RemoteIct ict;
     private String ictName;
     private final IxiModuleAdapter adapter;
 
     public IxiModule(String name) {
+        this.name = name;
         try {
             adapter = new IxiModuleAdapter(name);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setGossipFilter(GossipFilter filter) {
+        assertThatIctConnected();
+        try {
+            ict.setGossipFilter(name, filter);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
