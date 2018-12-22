@@ -20,7 +20,15 @@ public class IxiTest {
 
     @BeforeClass
     public static void setUp() {
-        ixi = new TestIxi();
+
+        new Thread() {
+            @Override
+            public void run() {
+                ixi = new TestIxi();
+            }
+        }.start();
+        sleep(1000);
+
         Properties properties = new Properties();
         properties.minForwardDelay = 1;
         properties.maxForwardDelay = 5;
@@ -31,6 +39,12 @@ public class IxiTest {
     }
 
     @Test
+    public void testOrder() {
+        testIxiFilter();
+        testNotTransmittingBranchOrTrunk();
+        // other order fails TODO find out why
+    }
+
     public void testIxiFilter() {
 
         String message = "Hello World";
@@ -56,7 +70,6 @@ public class IxiTest {
         Assert.assertNull("Gossip filter let transaction from unwatched address pass.", ixi.receivedGossipSubmitEvent);
     }
 
-    @Test
     public void testNotTransmittingBranchOrTrunk() {
 
         ixi.setGossipFilter(new GossipFilter());

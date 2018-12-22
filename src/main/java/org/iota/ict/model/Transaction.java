@@ -66,7 +66,7 @@ public class Transaction implements Serializable {
         branch = this;
         trunk = this;
 
-        assert trytes().matches("^[9]{" + Constants.TRANSACTION_SIZE_TRYTES + "}$");
+        assert trytes().equals(Trytes.padRight("", Constants.TRANSACTION_SIZE_TRYTES));
     }
 
     private static String generateNullTrytes(Transaction.Field field) {
