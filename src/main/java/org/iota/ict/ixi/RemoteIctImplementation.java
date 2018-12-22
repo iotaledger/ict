@@ -13,8 +13,6 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 public class RemoteIctImplementation extends UnicastRemoteObject implements RemoteIct {
@@ -73,7 +71,7 @@ public class RemoteIctImplementation extends UnicastRemoteObject implements Remo
             ixiModulesByName.put(name, ixiModule);
             ixiModule.onIctConnect(this.name);
         } catch (Throwable t) {
-            ict.logger.error("Failed connecting to IXI", t);
+            ict.LOGGER.error("Failed connecting to IXI", t);
             t.printStackTrace();
         }
     }
@@ -94,7 +92,7 @@ public class RemoteIctImplementation extends UnicastRemoteObject implements Remo
             RemoteIxiModule ixiModule = ixiModulesByName.get(moduleName);
             ixiModuleFilters.put(ixiModule, filter);
         } catch (Throwable t) {
-            ict.logger.error("Failed connecting to IXI", t);
+            ict.LOGGER.error("Failed connecting to IXI", t);
             t.printStackTrace();
         }
     }

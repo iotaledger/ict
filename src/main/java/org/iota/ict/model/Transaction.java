@@ -18,7 +18,7 @@ import java.net.DatagramPacket;
  * @see TransactionBuilder to create new instances.
  * @see Tangle as database for transactions during tuntime.
  * @see Bundle which is a structure consisting of multiple transactions.
- * */
+ */
 public class Transaction implements Serializable {
 
     public static final Transaction NULL_TRANSACTION = new Transaction();

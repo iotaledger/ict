@@ -56,7 +56,7 @@ public class Receiver extends Thread {
         try {
             transaction = new Transaction(Trytes.fromBytes((packet.getData())));
         } catch (Throwable t) {
-            ict.logger.warn("Received invalid transaction from neighbor: " + sender.getAddress() + " (" + t.getMessage() + ")");
+            ict.LOGGER.warn("Received invalid transaction from neighbor: " + sender.getAddress() + " (" + t.getMessage() + ")");
             sender.stats.receivedInvalid++;
             return;
         }
@@ -86,7 +86,7 @@ public class Receiver extends Thread {
     private void sendRequested(Transaction requested, Neighbor requester) {
         Tangle.TransactionLog requestedLog = tangle.findTransactionLog(requested);
         requestedLog.senders.remove(requester); // remove so requester is no longer marked as already knowing this transaction
-        ict.rebroadcast(requested);
+        ict.broadcast(requested);
     }
 
     private Neighbor determineNeighborWhoSent(DatagramPacket packet) {

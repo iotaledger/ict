@@ -7,7 +7,7 @@ import java.util.List;
  * Similar to {@link TransactionBuilder}, {@link BundleBuilder} makes it possible to create a {@link Bundle}.
  * Bundles are read from head to tail but created from tail to head. This is why it makes sense to have a dedicated class
  * for this purpose.
- * */
+ */
 public class BundleBuilder {
 
     private final LinkedList<TransactionBuilder> tailToHead = new LinkedList<>();

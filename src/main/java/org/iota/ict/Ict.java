@@ -29,18 +29,22 @@ import java.util.List;
  * therefore be seen as a hub of all those components which, when working together, form an Ict node.
  */
 public class Ict {
-    private final List<Neighbor> neighbors = new LinkedList<>();
-    private final Sender sender;
-    private final Receiver receiver;
-    private State state;
-    private Tangle tangle;
-    private final Properties properties;
-    private final DatagramSocket socket;
-    private final InetSocketAddress address;
-    private final GossipEventDispatcher eventDispatcher = new GossipEventDispatcher();
-    private final RemoteIctImplementation remoteIctImplementation;
-    public final Logger logger = LogManager.getLogger();
+    protected final List<Neighbor> neighbors = new LinkedList<>();
+    protected final Sender sender;
+    protected final Receiver receiver;
+    protected State state;
+    protected final Tangle tangle;
+    protected final Properties properties;
+    protected final DatagramSocket socket;
+    protected final InetSocketAddress address;
+    protected final GossipEventDispatcher eventDispatcher = new GossipEventDispatcher();
+    protected final RemoteIctImplementation remoteIctImplementation;
+    public final static Logger LOGGER = LogManager.getLogger(Ict.class);
 
+    /**
+     * @param properties The properties to use for this Ict. Changing them afterwards might or might not work for some properties.
+     *                   TODO allow them to be configured afterwards.
+     */
     public Ict(Properties properties) {
         this.properties = properties;
         this.tangle = new Tangle(this);
@@ -52,6 +56,7 @@ public class Ict {
         try {
             this.socket = new DatagramSocket(address);
         } catch (SocketException socketException) {
+            LOGGER.error("could not create socket for Ict", socketException);
             throw new RuntimeException(socketException);
         }
 
@@ -73,7 +78,7 @@ public class Ict {
                 remoteIctImplementation.connectToIxi(ixi);
             return remoteIctImplementation;
         } catch (RemoteException e) {
-            e.printStackTrace();
+            LOGGER.error("failed to connect to IXI modules", e);
             return null;
         }
     }
@@ -81,8 +86,8 @@ public class Ict {
     /**
      * Opens a new connection to a neighbor. Both nodes will directly gossip transactions.
      *
-     * @param neighborAddress address of neighbor to connect to.
-     * @throws IllegalStateException if already has {@link Constants#MAX_NEIGHBOR_COUNT} neighbors.
+     * @param neighborAddress Address of neighbor to connect to.
+     * @throws IllegalStateException If already has {@link Constants#MAX_NEIGHBOR_COUNT} neighbors.
      */
     public void neighbor(InetSocketAddress neighborAddress) {
         if (neighbors.size() >= Constants.MAX_NEIGHBOR_COUNT)
@@ -100,7 +105,7 @@ public class Ict {
     }
 
     /**
-     * @return the address of this node. Required by other nodes to neighbor.
+     * @return The address of this node. Required by other nodes to neighbor.
      */
     public InetSocketAddress getAddress() {
         return address;
@@ -124,6 +129,7 @@ public class Ict {
     /**
      * Submits a new message to the protocol. The message will be packaged as a Transaction and sent to all neighbors.
      *
+     * @param asciiMessage ASCII encoded message which will be encoded to trytes and used as transaction message.
      * @return Hash of sent transaction.
      */
     public Transaction submit(String asciiMessage) {
@@ -136,6 +142,8 @@ public class Ict {
 
     /**
      * Submits a new transaction to the protocol. It will be sent to all neighbors.
+     *
+     * @param transaction Transaction to submit.
      */
     public void submit(Transaction transaction) {
         tangle.createTransactionLogIfAbsent(transaction);
@@ -143,7 +151,7 @@ public class Ict {
         notifyListeners(new GossipSubmitEvent(transaction));
     }
 
-    public void rebroadcast(Transaction transaction) {
+    public void broadcast(Transaction transaction) {
         sender.queueTransaction(transaction);
     }
 
@@ -173,18 +181,18 @@ public class Ict {
     }
 
     private class State {
-        private final String name;
+        protected final String name;
 
         private State(String name) {
             this.name = name;
         }
 
-        private void illegalState(String actionName) {
+        private void throwIllegalStateException(String actionName) {
             throw new IllegalStateException("Action '" + actionName + "' cannot be performed from state '" + name + "'.");
         }
 
         void terminate() {
-            illegalState("terminate");
+            throwIllegalStateException("terminate");
         }
     }
 

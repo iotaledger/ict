@@ -12,11 +12,11 @@ import java.util.List;
  * This class allows to operate on the bundle structure, a linear sequence of linked {@link Transaction} objects.
  * Note that anything related to value transactions and signatures is not modelled by this class but by {@link Transfer}.
  * Instead, this classes scope is reduced to the core bundle structure, regardless of their content and interpretation.
- *
+ * <p>
  * Since it is not guaranteed that all transactions of a bundle become available at the same time, a bundle is not always
  * complete after instantiation. Whether it is can be checked with {@link #isComplete()}. To fetch missing parts of a bundle,
  * unknown transactions must be requested from neighbors - which can be done via {@link #tryToComplete(Ict)}.
- *
+ * <p>
  * Each transaction can be a bundle head or not (see {@link Transaction#isBundleHead}). The same applies to being a bundle
  * tail (see {@link Transaction#isBundleTail}). A bundle must always start with a bundle head and must end with a bundle
  * tail. Each inner transaction must be neither. If this principle is violated, the bundle structure is considered invalid.
@@ -113,7 +113,7 @@ public class Bundle {
         for (Transaction transaction : transactions) {
             currentInput = determineInputOfTransaction(currentInput, transaction);
             boolean transactionIsOutput = currentInput == null;
-            if(transactionIsOutput) {
+            if (transactionIsOutput) {
                 String hashOfMessage = IotaCurlHash.iotaCurlHash(transaction.signatureFragments, transaction.signatureFragments.length(), Constants.CURL_ROUNDS_BUNDLE_HASH);
                 concat.append(hashOfMessage);
             }
@@ -124,9 +124,9 @@ public class Bundle {
     }
 
     private static BalanceChange determineInputOfTransaction(BalanceChange currentInput, Transaction transaction) {
-        if(currentInput != null && (transaction.value.compareTo(BigInteger.ZERO) != 0 || !currentInput.address.equals(transaction.address)))
+        if (currentInput != null && (transaction.value.compareTo(BigInteger.ZERO) != 0 || !currentInput.address.equals(transaction.address)))
             currentInput = null;
-        if(currentInput == null && transaction.value.compareTo(BigInteger.ZERO) < 0)
+        if (currentInput == null && transaction.value.compareTo(BigInteger.ZERO) < 0)
             currentInput = new BalanceChange(transaction.address, transaction.value, "");
         return currentInput;
 

@@ -21,20 +21,14 @@ public class IxiTest {
     @BeforeClass
     public static void setUp() {
 
-        new Thread() {
-            @Override
-            public void run() {
-                ixi = new TestIxi();
-            }
-        }.start();
-        sleep(1000);
-
+        ixi = new TestIxi();
         Properties properties = new Properties();
         properties.minForwardDelay = 1;
         properties.maxForwardDelay = 5;
         properties.ixis.add(TestIxi.NAME);
         properties.ixiEnabled = true;
         ict = new Ict(properties);
+        sleep(100);
         Assert.assertTrue("ict could not connect to ixi", ixi.connected);
     }
 

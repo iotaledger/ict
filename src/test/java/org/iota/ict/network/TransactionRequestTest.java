@@ -74,7 +74,7 @@ public class TransactionRequestTest extends GossipTest {
         Transaction carrier = sender.getTangle().findTransactionByHash(carrierHash);
         Tangle.TransactionLog log = sender.getTangle().findTransactionLog(carrier);
         log.senders.removeAll(log.senders);
-        sender.rebroadcast(carrier);
+        sender.broadcast(carrier);
         waitUntilCommunicationEnds(100);
     }
 }

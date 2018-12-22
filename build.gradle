@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'org.iota'
-version '0.2-SNAPSHOT'
+version '0.2'
 
 sourceCompatibility = 1.7
 
@@ -43,7 +43,7 @@ task validateRelease() {
     doFirst {
         println "=== RELEASING VERSION " + version + " ==="
         assert !version.contains("SNAPSHOT")
-        assert 'git status --porcelain -uno'.execute().text == null
+        assert 'git status --porcelain -uno'.execute().text.length() == 0
     }
 }
 

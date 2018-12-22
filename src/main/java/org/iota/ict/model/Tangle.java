@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Instances of this class provide a database which stores {@link Transaction} objects during runtime and allows to find
  * them by their hash, address or tag. Each {@link Ict} uses a {@link Tangle} object to keep track of all received transactions.
- * */
+ */
 public class Tangle {
     private final Ict ict;
     private final Map<String, TransactionLog> transactionsByHash = new ConcurrentHashMap<>();

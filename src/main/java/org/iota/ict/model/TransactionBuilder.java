@@ -7,7 +7,7 @@ import java.math.BigInteger;
 /**
  * Since {@link Transaction} objects are final and their fields cannot be modified during runtime, the {@link TransactionBuilder}
  * can be used to define transaction fields before the transaction is created. This class is intended to create <b>new</b> transactions.
- * */
+ */
 public class TransactionBuilder {
     public String signatureFragments = generateNullTrytes(Transaction.Field.SIGNATURE_FRAGMENTS);
     public String extraDataDigest = generateNullTrytes(Transaction.Field.EXTRA_DATA_DIGEST);

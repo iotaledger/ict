@@ -12,7 +12,7 @@ import java.util.Set;
 
 /**
  * {@link TransferBuilder} is a tool to create a new {@link Transfer} via {@link #buildBundle(Set, int)}.
- * */
+ */
 public final class TransferBuilder {
 
     private final Set<BalanceChangeBuilder> inputBuilders;
@@ -58,7 +58,8 @@ public final class TransferBuilder {
         List<BalanceChangeBuilder> orderedChanges = new LinkedList<>(inputBuilders);
         orderedChanges.addAll(outputBuilders);
 
-        String determinedBundleHash = determineBundleHash(orderedChanges);;
+        String determinedBundleHash = determineBundleHash(orderedChanges);
+        ;
         createAllSignatures(determinedBundleHash, orderedChanges);
 
         for (BalanceChangeBuilder changeBuilder : orderedChanges)
