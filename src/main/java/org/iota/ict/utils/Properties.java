@@ -10,6 +10,12 @@ import java.net.InetSocketAddress;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * With instances of this class, the Ict and its sub-components can be easily configured. The properties can be read from
+ * files or defined during runtime. Some properties might not be changeable yet after passing them to the Ict.
+ *
+ * @see org.iota.ict.Ict#Ict(Properties)
+ */
 public class Properties {
 
     private static final String LIST_DELIMITER = ",";

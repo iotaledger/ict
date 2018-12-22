@@ -5,6 +5,11 @@ import org.apache.logging.log4j.Logger;
 
 import java.net.*;
 
+/**
+ * This class defines a neighbored Ict node. Neighbor nodes usually run remotely on a different device and connection
+ * is established via the Internet. Besides the address, this class collect stats about the transaction flow to the
+ * neighbor.
+ */
 public class Neighbor {
 
     public static final Logger logger = LogManager.getLogger();

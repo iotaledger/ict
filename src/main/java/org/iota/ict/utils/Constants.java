@@ -2,6 +2,10 @@ package org.iota.ict.utils;
 
 import org.iota.ict.model.Transaction;
 
+/**
+ * Important constants which are not changed during runtime but might be changed during development or are used by
+ * multiple classes are kept together here to make them easier to find and adjust.
+ */
 public class Constants {
     public static final String ICT_VERSION = "0.2-SNAPSHOT";
     public static final int MAX_NEIGHBOR_COUNT = 3;

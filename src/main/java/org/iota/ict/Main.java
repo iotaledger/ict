@@ -10,6 +10,11 @@ import java.net.BindException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This class controls what happens when the program is run by a user. It is the entry point when starting this application
+ * and helps the user to set up a new Ict node. As such it is a convenience and not technically required to create Ict nodes.
+ * A good example are the jUnit tests which work entirely independently from this class.
+ */
 public class Main {
 
     private static final String DEFAULT_PROPERTY_FILE_PATH = "ict.cfg";

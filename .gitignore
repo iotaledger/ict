@@ -5,3 +5,10 @@ build/
 out/
 ict.iml
 !.gitignore
+docs/gen_classes.py
+docs/*.pyc
+CodeStyleCheckTool.xml
+gradle/
+settings.gradle
+gradlew.bat
+gradlew

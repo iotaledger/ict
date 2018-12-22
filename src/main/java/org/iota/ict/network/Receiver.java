@@ -11,6 +11,14 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
+/**
+ * This class receives transactions from neighbors. Together with the {@link Sender}, they are the two important gateways
+ * for transaction gossip between Ict nodes. Each Ict instance has exactly one {@link Receiver} and one {@link Sender}
+ * to communicate with its neighbors.
+ *
+ * @see Ict
+ * @see Sender
+ */
 public class Receiver extends Thread {
     private final Tangle tangle;
     private final Ict ict;

@@ -3,7 +3,15 @@ package org.iota.ict.utils;
 import java.math.BigInteger;
 import java.util.Arrays;
 
-public class Trytes {
+/**
+ * This class is a helper tool which allows to perform basic tryte operations, such as conversion between trytes and
+ * trits, bytes, numbers and ascii strings. Each tryte String must consist entirely of the uppercase letters A-Z and
+ * he digit 9 (see {@link #TRYTES}. Each trit is a number -1, 0 or 1. 3 trits form one tryte (see {@link #TRITS_BY_TRYTE}).
+ * <p>
+ * When compressed to bytes, 3 trytes (= 9 trits) are stored in 2 bytes. The first byte encodes the first 5 trits, the
+ * second byte the other 4 trits.
+ */
+public final class Trytes {
 
     public static final String NULL_HASH = fromTrits(new byte[81 * 3]);
     public static final String TRYTES = "9ABCDEFGHIJKLMNOPQRSTUVWXYZ";

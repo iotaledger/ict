@@ -23,6 +23,11 @@ import java.rmi.RemoteException;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * This class is the central component of the project. Each instance is an independent Ict node that can communicate with
+ * other Icts. This class is not supposed to perform complex tasks but to delegate them to the correct submodule. It can
+ * therefore be seen as a hub of all those components which, when working together, form an Ict node.
+ */
 public class Ict {
     private final List<Neighbor> neighbors = new LinkedList<>();
     private final Sender sender;

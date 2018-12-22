@@ -32,7 +32,14 @@ task fatJar(type: Jar) {
     with jar
 }
 
+task runDocGen(type:Exec) {
+    // gen_classes.py cannot be included in this repository because of license issues.
+    workingDir("$rootDir/docs")
+    commandLine 'python', 'gen.py'
+}
+
 task validateRelease() {
+    dependsOn(runDocGen)
     doFirst {
         println "=== RELEASING VERSION " + version + " ==="
         assert !version.contains("SNAPSHOT")

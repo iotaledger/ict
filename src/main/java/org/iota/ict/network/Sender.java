@@ -17,6 +17,18 @@ import java.util.Queue;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * This class sends transactions to neighbors. Together with the {@link Receiver}, they are the two important gateways
+ * for transaction gossip between Ict nodes. Each Ict instance has exactly one {@link Receiver} and one {@link Sender}
+ * to communicate with its neighbors.
+ * <p>
+ * The sending process happens in its own Thread to not block other components. Before being sent, transactions are put
+ * into a {@link #queue}. This class also requests transactions which are not known to the Ict but were referenced by
+ * received transactions either through the branch or trunk.
+ *
+ * @see Ict
+ * @see Receiver
+ */
 public class Sender extends Thread {
     private final Tangle tangle;
     private final Properties properties;
