@@ -10,6 +10,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * {@link TransferBuilder} is a tool to create a new {@link Transfer} via {@link #buildBundle(Set, int)}.
+ * */
 public final class TransferBuilder {
 
     private final Set<BalanceChangeBuilder> inputBuilders;

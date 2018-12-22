@@ -42,7 +42,7 @@ public void myFunction() { // <--- '{' on same line
 
 ### Visibility and Data Encapsulation
 * Data must be encapsulated where possible.
-* Public attributes must be avoided. Exceptions: Data Objects (e.g. Transaction) and Builders (e.g. TransactionBuilders). Public attributes of Data Objects should be final.
+* Public attributes must be avoided. Exceptions: Data Objects (e.g. Transaction) and Builders (e.g. TransactionBuilder). Public attributes of Data Objects should be final.
 * The inner workings of a class should be hidden as much as possible. Provide a public interface to operate on objects but keep the implementation secret.
 * Visibility should be as private as possible. Only methods that are supposed to be called externally should be public.
 * If you need to call a method from your jUnit tests, you are of course allowed to make them package-private.

@@ -7,6 +7,20 @@ import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * A {@link Transfer} is a {@link Bundle} which transfers value. Every transfer can be interpreted as a bundle and every
+ * bundle as transfer. They provide different views on the same thing. The bundle perspective puts its focus on the
+ * transactions and how they are linked together, while the transfer abstracts from the individual transactions and
+ * groups them together into {@link BalanceChange} objects.
+ *
+ * Compared to {@link Bundle}, this class also provides additional functionality which is only useful in the context of
+ * value transfers but not for general data bundles (which do not actually transfer a value). Examples are {@link #getSecurityLevel()}
+ * and {@link #areSignaturesValid()}.
+ *
+ * @see Bundle as generalization.
+ * @see TransferBuilder to create new transfers.
+ * */
+
 public class Transfer {
 
     private final String bundleHash;

@@ -3,11 +3,14 @@ package org.iota.ict.model;
 import org.iota.ict.utils.Trytes;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * The {@link BalanceChangeBuilder} makes it possible to accumulate transactions which are part of the same {@link BalanceChange}
+ * via {@link #append(Transaction)} or as container of {@link TransactionBuilder} (stored in {@link #buildersFromTailToHead})
+ * during the creation of a new {@link Transfer}.
+ * */
 public class BalanceChangeBuilder {
 
     private static final int SIGNATURE_FRAGMENTS_LENGTH = Transaction.Field.SIGNATURE_FRAGMENTS.tryteLength;

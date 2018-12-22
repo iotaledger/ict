@@ -8,6 +8,17 @@ import java.io.Serializable;
 import java.math.BigInteger;
 import java.net.DatagramPacket;
 
+/**
+ * Instances of this class are IOTA transactions which together form a tangle. Actually an IOTA transaction is no more
+ * than a sequence of trytes. This class makes it possible to interpret these trytes and operate on them. A transaction's
+ * tryte sequence consists of multiple tryte fields (e.g. {@link #address}, {@link #value}, {@link #nonce}, see {@link Transaction.Field}).
+ * of static length. With this class, these fields can be easily accessed. {@link Transaction} objects are data  objects,
+ * and their fields are not supposed to change after instantiation. To create custom transaction, one should use {@link TransactionBuilder#build()}.
+ *
+ * @see TransactionBuilder to create new instances.
+ * @see Tangle as database for transactions during tuntime.
+ * @see Bundle which is a structure consisting of multiple transactions.
+ * */
 public class Transaction implements Serializable {
 
     public static final Transaction NULL_TRANSACTION = new Transaction();

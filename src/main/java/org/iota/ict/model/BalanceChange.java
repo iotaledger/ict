@@ -2,6 +2,22 @@ package org.iota.ict.model;
 
 import java.math.BigInteger;
 
+/**
+ * A {@link BalanceChange} models a proposed change for the IOTA token balance of an IOTA address. Since tokens can neither be
+ * burned nor created, no positive or negative {@link BalanceChange} cannot exist on its own but requires other balance
+ * changes so the sum of their proposed changes is zero. They are grouped together in a {@link Transfer}.
+ *
+ * Depending on its proposed change, each instance is either an input or an output (see {@link #isInput()} and {@link #isOutput()}).
+ * Inputs have a negative {@link #value} (they remove funds from an address so that another address can receive them). Outputs have a positive or a zero {@link #value}.
+ * In inputs, the {@link #signatureOrMessage} is used as signature signing the proposed change with the addresses private key,
+ * in outputs as optional message.
+ *
+ * Each {@link BalanceChange} is realized through at least one transactions. The required amount depends on the length
+ * of {@link #signatureOrMessage}.
+ *
+ * @see Transfer as structure consisting of multiple {@link BalanceChange} instances.
+ * @see BalanceChangeBuilder as builder for this class.
+ * */
 public class BalanceChange {
 
     private static final int SIGNATURE_FRAGMENTS_LENGTH = Transaction.Field.SIGNATURE_FRAGMENTS.tryteLength;

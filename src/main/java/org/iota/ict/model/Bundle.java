@@ -9,11 +9,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class allows to operate on the Bundle structure, a linear sequence of linked transactions. Note that anything
- * related to value transactions and signatures is not modelled by this class. Instead, this class is reduced to the
- * core Bundle structure.
+ * This class allows to operate on the bundle structure, a linear sequence of linked {@link Transaction} objects.
+ * Note that anything related to value transactions and signatures is not modelled by this class but by {@link Transfer}.
+ * Instead, this classes scope is reduced to the core bundle structure, regardless of their content and interpretation.
+ *
+ * Since it is not guaranteed that all transactions of a bundle become available at the same time, a bundle is not always
+ * complete after instantiation. Whether it is can be checked with {@link #isComplete()}. To fetch missing parts of a bundle,
+ * unknown transactions must be requested from neighbors - which can be done via {@link #tryToComplete(Ict)}.
+ *
+ * Each transaction can be a bundle head or not (see {@link Transaction#isBundleHead}). The same applies to being a bundle
+ * tail (see {@link Transaction#isBundleTail}). A bundle must always start with a bundle head and must end with a bundle
+ * tail. Each inner transaction must be neither. If this principle is violated, the bundle structure is considered invalid.
+ * This can be queried with {@link #isStructureValid()}.
  *
  * @see Transfer for value and signature related functionality.
+ * @see BundleBuilder as a tool to create a new bundles.
  */
 public class Bundle {
     private final ArrayList<Transaction> transactions = new ArrayList<>();
