@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'org.iota'
-version '0.2'
+version '0.2.1'
 
 sourceCompatibility = 1.7
 

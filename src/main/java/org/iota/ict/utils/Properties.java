@@ -22,6 +22,7 @@ public class Properties {
     private static final Properties DEFAULT_PROPERTIES = new Properties();
     private static final Logger logger = LogManager.getLogger();
 
+    public boolean spamEnabled = false;
     public boolean ixiEnabled = false;
     public long minForwardDelay = 0;
     public long maxForwardDelay = 200;
@@ -54,6 +55,7 @@ public class Properties {
         port = (int) readLongProperty(propObject, Property.port, 1, 65535, DEFAULT_PROPERTIES.port);
         logRoundDuration = readLongProperty(propObject, Property.log_round_duration, 100, Long.MAX_VALUE, DEFAULT_PROPERTIES.logRoundDuration);
         neighbors = neighborsFromString(propObject.getProperty(Property.neighbors.name(), ""));
+        spamEnabled = propObject.getProperty(Property.spam_enabled.name(), DEFAULT_PROPERTIES.spamEnabled + "").toLowerCase().equals("true");
         ixiEnabled = propObject.getProperty(Property.ixi_enabled.name(), DEFAULT_PROPERTIES.ixiEnabled + "").toLowerCase().equals("true");
         ixis = stringListFromString(propObject.getProperty(Property.ixis.name(), ""));
     }
@@ -139,6 +141,7 @@ public class Properties {
         propObject.setProperty(Property.port.name(), port + "");
         propObject.setProperty(Property.log_round_duration.name(), logRoundDuration + "");
         propObject.setProperty(Property.neighbors.name(), neighborsToString());
+        propObject.setProperty(Property.spam_enabled.name(), spamEnabled + "");
         propObject.setProperty(Property.ixi_enabled.name(), ixiEnabled + "");
         propObject.setProperty(Property.ixis.name(), stringListToString(ixis));
         return propObject;
@@ -155,6 +158,6 @@ public class Properties {
     }
 
     private static enum Property {
-        min_forward_delay, max_forward_delay, port, host, log_round_duration, neighbors, ixi_enabled, ixis, name;
+        min_forward_delay, max_forward_delay, port, host, log_round_duration, neighbors, spam_enabled, ixi_enabled, ixis, name;
     }
 }

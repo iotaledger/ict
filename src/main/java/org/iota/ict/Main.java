@@ -52,10 +52,6 @@ public class Main {
         }
         logger.info("Ict started on " + ict.getAddress() + ".\n");
 
-        Ict b = new Ict(new Properties().port(1338));
-        ict.neighbor(b.getAddress());
-        ict.logRound();
-
         final Ict finalRefToIct = ict;
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override

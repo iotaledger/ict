@@ -170,9 +170,16 @@ public class Ict {
         return state instanceof StateRunning;
     }
 
-    public void logRound() {
+    public void newRound() {
+        // two separate FOR-loops to prevent delays between printStats() calls
         for (Neighbor neighbor : neighbors)
             neighbor.printStats();
+        for (Neighbor neighbor : neighbors)
+            neighbor.resolveHost();
+        if(properties.spamEnabled) {
+            String spamHash = submit("spam transaction from node '" + properties.name + "'").hash;
+            LOGGER.info("submitted spam transaction: " + spamHash);
+        }
     }
 
     public void terminate() {

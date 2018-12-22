@@ -23,7 +23,6 @@ public class Receiver extends Thread {
     private final Tangle tangle;
     private final Ict ict;
     private final DatagramSocket socket;
-    private long roundStart;
 
 
     public Receiver(Ict ict, Tangle tangle, DatagramSocket socket) {
@@ -35,9 +34,7 @@ public class Receiver extends Thread {
 
     @Override
     public void run() {
-        roundStart = System.currentTimeMillis();
         while (ict.isRunning()) {
-            manageRounds();
 
             DatagramPacket packet = new DatagramPacket(new byte[Constants.TRANSACTION_SIZE_BYTES], Constants.TRANSACTION_SIZE_BYTES);
             try {
@@ -95,12 +92,5 @@ public class Receiver extends Thread {
                 return nb;
             }
         throw new RuntimeException("Received transaction from unknown address: " + packet.getSocketAddress());
-    }
-
-    private void manageRounds() {
-        if (roundStart + ict.getProperties().logRoundDuration < System.currentTimeMillis()) {
-            ict.logRound();
-            roundStart = System.currentTimeMillis();
-        }
     }
 }

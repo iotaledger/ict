@@ -13,7 +13,7 @@ import java.net.*;
 public class Neighbor {
 
     public static final Logger logger = LogManager.getLogger();
-    private final InetSocketAddress address;
+    private InetSocketAddress address;
     public final Stats stats = new Stats();
 
     public Neighbor(InetSocketAddress address) {
@@ -33,6 +33,15 @@ public class Neighbor {
             receivedNew = 0;
             receivedInvalid = 0;
             requested = 0;
+        }
+    }
+
+    public void resolveHost() {
+        try {
+            if(address.getAddress().equals(InetAddress.getByName(address.getHostName())))
+                address = new InetSocketAddress(address.getHostName(), address.getPort());
+        } catch (UnknownHostException e) {
+            logger.warn(e);
         }
     }
 

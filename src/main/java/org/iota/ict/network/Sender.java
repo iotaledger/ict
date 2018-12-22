@@ -37,6 +37,7 @@ public class Sender extends Thread {
     private final DatagramSocket socket;
     private final Queue<String> transactionsToRequest = new PriorityBlockingQueue<>();
     private static final Logger logger = LogManager.getLogger();
+    private long roundStart = System.currentTimeMillis();
 
 
     public Sender(final Ict ict, Properties properties, final Tangle tangle, DatagramSocket socket) {
@@ -66,6 +67,14 @@ public class Sender extends Thread {
             } else {
                 waitForNextTransaction();
             }
+            manageRounds();
+        }
+    }
+
+    private void manageRounds() {
+        if (roundStart + ict.getProperties().logRoundDuration < System.currentTimeMillis()) {
+            ict.newRound();
+            roundStart = System.currentTimeMillis();
         }
     }
 
@@ -73,7 +82,7 @@ public class Sender extends Thread {
         try {
             synchronized (queue) {
                 // keep queue.isEmpty() within the synchronized block so notify is not called after the empty check and before queue.wait()
-                queue.wait(queue.isEmpty() ? 0 : Math.max(1, queue.peek().sendingTime - System.currentTimeMillis()));
+                queue.wait(queue.isEmpty() ? properties.logRoundDuration : Math.max(1, queue.peek().sendingTime - System.currentTimeMillis()));
             }
         } catch (InterruptedException e) {
             if (ict.isRunning())
