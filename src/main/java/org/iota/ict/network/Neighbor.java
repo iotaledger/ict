@@ -38,29 +38,44 @@ public class Neighbor {
 
     public void resolveHost() {
         try {
-            if(address.getAddress().equals(InetAddress.getByName(address.getHostName())))
+            if(!address.getAddress().equals(InetAddress.getByName(address.getHostName())))
                 address = new InetSocketAddress(address.getHostName(), address.getPort());
         } catch (UnknownHostException e) {
             logger.warn(e);
         }
     }
 
-    public void printStats() {
+    public static void logHeader() {
         StringBuilder report = new StringBuilder();
-        report.append(stats.receivedAll).append('/');
-        report.append(stats.receivedNew).append('/');
-        report.append(stats.requested).append('/');
-        report.append(stats.receivedInvalid);
+        report.append(pad("ALL")).append('|');
+        report.append(pad("NEW")).append('|');
+        report.append(pad("REQ")).append('|');
+        report.append(pad("INV"));
 
-        report.append(" [");
-        report.append(stats.prevReceivedAll).append('/');
-        report.append(stats.prevReceivedNew).append('/');
-        report.append(stats.prevRequested).append('/');
-        report.append(stats.prevReceivedInvalid).append(']');
+        report.append("   ").append("ADDRESS");
+        logger.info(report);
+    }
+
+
+    public void newRound() {
+        StringBuilder report = new StringBuilder();
+        report.append(pad(stats.receivedAll)).append('|');
+        report.append(pad(stats.receivedNew)).append('|');
+        report.append(pad(stats.requested)).append('|');
+        report.append(pad(stats.receivedInvalid));
 
         report.append("   ").append(address);
-
         logger.info(report);
+
+        stats.newRound();
+    }
+
+    private static String pad(int value) {
+        return pad(value + "");
+    }
+
+    private static String pad(String str) {
+        return String.format("%1$-5s", str);
     }
 
     public InetSocketAddress getAddress() {

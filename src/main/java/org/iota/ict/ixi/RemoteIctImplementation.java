@@ -71,8 +71,7 @@ public class RemoteIctImplementation extends UnicastRemoteObject implements Remo
             ixiModulesByName.put(name, ixiModule);
             ixiModule.onIctConnect(this.name);
         } catch (Throwable t) {
-            ict.LOGGER.error("Failed connecting to IXI", t);
-            t.printStackTrace();
+            Ict.LOGGER.warn("Failed connecting to IXI: " + t.getMessage());
         }
     }
 
@@ -88,13 +87,8 @@ public class RemoteIctImplementation extends UnicastRemoteObject implements Remo
 
     @Override
     public void setGossipFilter(String moduleName, GossipFilter filter) {
-        try {
-            RemoteIxiModule ixiModule = ixiModulesByName.get(moduleName);
-            ixiModuleFilters.put(ixiModule, filter);
-        } catch (Throwable t) {
-            ict.LOGGER.error("Failed connecting to IXI", t);
-            t.printStackTrace();
-        }
+        RemoteIxiModule ixiModule = ixiModulesByName.get(moduleName);
+        ixiModuleFilters.put(ixiModule, filter);
     }
 
     public void terminate() {

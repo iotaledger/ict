@@ -27,7 +27,7 @@ public class Properties {
     public long minForwardDelay = 0;
     public long maxForwardDelay = 200;
     public String name = "ict";
-    public String host = "localhost";
+    public String host = "0.0.0.0";
     public int port = 1337;
     public long logRoundDuration = 60000;
     public List<InetSocketAddress> neighbors = new LinkedList<>();

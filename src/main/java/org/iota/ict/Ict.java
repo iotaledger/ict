@@ -40,6 +40,7 @@ public class Ict {
     protected final GossipEventDispatcher eventDispatcher = new GossipEventDispatcher();
     protected final RemoteIctImplementation remoteIctImplementation;
     public final static Logger LOGGER = LogManager.getLogger(Ict.class);
+    protected int round = 0;
 
     /**
      * @param properties The properties to use for this Ict. Changing them afterwards might or might not work for some properties.
@@ -77,8 +78,8 @@ public class Ict {
             for (String ixi : ixis)
                 remoteIctImplementation.connectToIxi(ixi);
             return remoteIctImplementation;
-        } catch (RemoteException e) {
-            LOGGER.error("failed to connect to IXI modules", e);
+        } catch (Throwable t) {
+            LOGGER.error("failed to enable IXI: " + t.getMessage());
             return null;
         }
     }
@@ -171,15 +172,18 @@ public class Ict {
     }
 
     public void newRound() {
-        // two separate FOR-loops to prevent delays between printStats() calls
+        if(round % 10 == 0)
+            Neighbor.logHeader();
+        // two separate FOR-loops to prevent delays between newRound() calls
         for (Neighbor neighbor : neighbors)
-            neighbor.printStats();
+            neighbor.newRound();
         for (Neighbor neighbor : neighbors)
             neighbor.resolveHost();
         if(properties.spamEnabled) {
             String spamHash = submit("spam transaction from node '" + properties.name + "'").hash;
             LOGGER.info("submitted spam transaction: " + spamHash);
         }
+        round++;
     }
 
     public void terminate() {

@@ -24,7 +24,6 @@ public class Receiver extends Thread {
     private final Ict ict;
     private final DatagramSocket socket;
 
-
     public Receiver(Ict ict, Tangle tangle, DatagramSocket socket) {
         super("Receiver");
         this.ict = ict;
@@ -49,6 +48,8 @@ public class Receiver extends Thread {
 
     private void processIncoming(DatagramPacket packet) {
         Neighbor sender = determineNeighborWhoSent(packet);
+        if(sender == null)
+            return;
         Transaction transaction;
         try {
             transaction = new Transaction(Trytes.fromBytes((packet.getData())));
@@ -88,9 +89,9 @@ public class Receiver extends Thread {
 
     private Neighbor determineNeighborWhoSent(DatagramPacket packet) {
         for (Neighbor nb : ict.getNeighbors())
-            if (nb.getAddress().equals(packet.getSocketAddress())) {
+            if (nb.getAddress().equals(packet.getSocketAddress()))
                 return nb;
-            }
-        throw new RuntimeException("Received transaction from unknown address: " + packet.getSocketAddress());
+        Ict.LOGGER.warn("Received transaction from unknown address: " + packet.getAddress());
+        return null;
     }
 }

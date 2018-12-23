@@ -7,6 +7,8 @@ import org.iota.ict.utils.Properties;
 
 import java.io.File;
 import java.net.BindException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
