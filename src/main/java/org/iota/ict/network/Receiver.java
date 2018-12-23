@@ -63,10 +63,11 @@ public class Receiver extends Thread {
         if (log == null) {
             log = tangle.createTransactionLogIfAbsent(transaction);
             sender.stats.receivedNew++;
+            log.senders.add(sender);
+            ict.notifyListeners(new GossipReceiveEvent(transaction));
         }
         log.senders.add(sender);
         processRequest(transaction, sender);
-        ict.notifyListeners(new GossipReceiveEvent(transaction));
     }
 
     private void processRequest(Transaction transaction, Neighbor requester) {
