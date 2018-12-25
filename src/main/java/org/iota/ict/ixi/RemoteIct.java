@@ -6,8 +6,11 @@ import org.iota.ict.network.event.GossipListener;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.Set;
 
 public interface RemoteIct extends Remote {
+
+    Set<Transaction> findTransactionsByAddress(String address) throws RemoteException;
 
     Transaction findTransactionByHash(String hash) throws RemoteException;
 

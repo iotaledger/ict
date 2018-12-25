@@ -14,6 +14,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class RemoteIctImplementation extends UnicastRemoteObject implements RemoteIct {
 
@@ -98,5 +99,10 @@ public class RemoteIctImplementation extends UnicastRemoteObject implements Remo
     @Override
     public Transaction findTransactionByHash(String hash) {
         return ict.getTangle().findTransactionByHash(hash);
+    }
+
+    @Override
+    public Set<Transaction> findTransactionsByAddress(String address) {
+        return ict.getTangle().findTransactionsByAddress(address);
     }
 }

@@ -54,6 +54,7 @@ public class IxiTest {
         Assert.assertNotNull("Ixi did not receive event.", ixi.receivedGossipSubmitEvent);
         Assert.assertEquals("Ixi did not receive correct information.", message, ixi.receivedGossipSubmitEvent.getTransaction().decodedSignatureFragments);
         Assert.assertNotNull("Ict did not store transaction submitted by ixi.", ict.getTangle().findTransactionByHash(transaction.hash));
+        Assert.assertEquals("Ict did not store transaction submitted by ixi.", ixi.findTransactionsByAddress(transaction.address).size(), 1);
 
         ixi.receivedGossipSubmitEvent = null;
         builder.address = Trytes.randomSequenceOfLength(Transaction.Field.ADDRESS.tryteLength);
@@ -76,6 +77,7 @@ public class IxiTest {
 
         ict.submit(branch);
         ict.submit(referencer);
+        sleep(200);
 
         Transaction requestedReferencer = ixi.findTransactionByHash(referencer.hash);
         Transaction requestedBranch = ixi.findTransactionByHash(referencer.branchHash);
