@@ -4,14 +4,10 @@ import org.iota.ict.model.Transaction;
 
 import java.io.Serializable;
 
-public class GossipReceiveEvent extends GossipEvent implements Serializable {
-    private final Transaction transaction;
+public class GossipReceiveEvent extends GossipEvent {
 
     public GossipReceiveEvent(Transaction transaction) {
-        this.transaction = transaction;
+        super(transaction);
     }
 
-    public Transaction getTransaction() {
-        return transaction;
-    }
 }
