@@ -51,6 +51,15 @@ public class Tangle {
         return transactions;
     }
 
+    public Set<Transaction> findTransactionsByTag(String tag) {
+        Set<Transaction> transactions = new HashSet<>();
+        if(transactionsByTag.containsKey(tag)) {
+            for(TransactionLog log : transactionsByTag.get(tag))
+                transactions.add(log.transaction);
+        }
+        return transactions;
+    }
+
     public void deleteTransaction(Transaction transaction) {
         transactionsByHash.remove(transaction.hash);
         transactionsByAddress.remove(transaction.address);

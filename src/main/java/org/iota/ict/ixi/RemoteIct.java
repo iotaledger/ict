@@ -12,6 +12,8 @@ public interface RemoteIct extends Remote {
 
     Set<Transaction> findTransactionsByAddress(String address) throws RemoteException;
 
+    Set<Transaction> findTransactionsByTag(String tag) throws RemoteException;
+
     Transaction findTransactionByHash(String hash) throws RemoteException;
 
     Transaction submit(String asciiMessage) throws RemoteException;

@@ -105,4 +105,9 @@ public class RemoteIctImplementation extends UnicastRemoteObject implements Remo
     public Set<Transaction> findTransactionsByAddress(String address) {
         return ict.getTangle().findTransactionsByAddress(address);
     }
+
+    @Override
+    public Set<Transaction> findTransactionsByTag(String tag) {
+        return ict.getTangle().findTransactionsByTag(tag);
+    }
 }

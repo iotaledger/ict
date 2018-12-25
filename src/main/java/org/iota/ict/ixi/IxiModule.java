@@ -67,6 +67,15 @@ public abstract class IxiModule {
         }
     }
 
+    public Set<Transaction> findTransactionsByTag(String tag) {
+        assertThatIctConnected();
+        try {
+            return ict.findTransactionsByAddress(tag);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public Transaction submit(String asciiMessage) {
         assertThatIctConnected();
         try {
