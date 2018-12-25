@@ -2,43 +2,31 @@ package org.iota.ict.network.event;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class GossipEventDispatcher extends Thread {
 
     public final List<GossipListener> listeners = new LinkedList<>();
-    private final ConcurrentLinkedQueue<GossipEvent> eventQueue = new ConcurrentLinkedQueue<>();
-    private boolean running = true;
+    private final BlockingQueue<GossipEvent> eventQueue = new LinkedBlockingQueue<>();
 
     @Override
     public void run() {
-        while (running) {
-            synchronized (eventQueue) {
-                try {
-                    eventQueue.wait(10000);
-                } catch (InterruptedException e) {
-                }
-            }
-
-            if (eventQueue.peek() != null) {
-                GossipEvent event = eventQueue.poll();
+        while (!interrupted()) {
+            try {
+                GossipEvent event = eventQueue.take();
                 for (GossipListener listener : listeners)
                     listener.on(event);
-            }
+            } catch(InterruptedException e) { Thread.currentThread().interrupt(); }
         }
     }
 
     public void terminate() {
-        running = false;
-        synchronized (eventQueue) {
-            eventQueue.notify();
-        }
+        interrupt();
     }
 
     public void notifyListeners(GossipEvent event) {
         eventQueue.add(event);
-        synchronized (eventQueue) {
-            eventQueue.notify();
-        }
     }
+
 }
