@@ -70,7 +70,7 @@ public abstract class IxiModule {
     public Set<Transaction> findTransactionsByTag(String tag) {
         assertThatIctConnected();
         try {
-            return ict.findTransactionsByAddress(tag);
+            return ict.findTransactionsByTag(tag);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
