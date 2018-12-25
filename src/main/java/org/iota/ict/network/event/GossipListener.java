@@ -1,6 +1,7 @@
 package org.iota.ict.network.event;
 
 public class GossipListener {
+
     void on(GossipEvent e) {
         if (e instanceof GossipReceiveEvent)
             onTransactionReceived((GossipReceiveEvent) e);
@@ -10,9 +11,8 @@ public class GossipListener {
             throw new IllegalArgumentException("Unknown event: " + e.getClass().getName());
     }
 
-    public void onTransactionReceived(GossipReceiveEvent e) {
-    }
+    public void onTransactionReceived(GossipReceiveEvent e) { ; }
 
-    public void onTransactionSubmitted(GossipSubmitEvent e) {
-    }
+    public void onTransactionSubmitted(GossipSubmitEvent e) { ; }
+
 }
