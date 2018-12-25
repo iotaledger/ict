@@ -13,6 +13,7 @@ import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Set;
 
 public abstract class IxiModule {
 
@@ -52,6 +53,15 @@ public abstract class IxiModule {
         assertThatIctConnected();
         try {
             return ict.findTransactionByHash(hash);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Set<Transaction> findTransactionsByAddress(String address) {
+        assertThatIctConnected();
+        try {
+            return ict.findTransactionsByAddress(address);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }

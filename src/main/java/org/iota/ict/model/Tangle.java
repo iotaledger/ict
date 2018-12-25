@@ -5,6 +5,7 @@ import org.iota.ict.network.Neighbor;
 import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.Trytes;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -39,6 +40,15 @@ public class Tangle {
 
     public Transaction findTransactionByHash(String hash) {
         return transactionsByHash.containsKey(hash) ? transactionsByHash.get(hash).transaction : null;
+    }
+
+    public Set<Transaction> findTransactionsByAddress(String address) {
+        Set<Transaction> transactions = new HashSet<>();
+        if(transactionsByAddress.containsKey(address)) {
+            for(TransactionLog log : transactionsByAddress.get(address))
+                transactions.add(log.transaction);
+        }
+        return transactions;
     }
 
     public void deleteTransaction(Transaction transaction) {
