@@ -17,7 +17,7 @@ import java.util.Set;
 
 public abstract class IxiModule {
 
-    final Logger logger = LogManager.getLogger();
+    final Logger logger = LogManager.getLogger(IxiModule.class);
 
     static {
         try {

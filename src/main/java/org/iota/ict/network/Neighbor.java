@@ -12,7 +12,7 @@ import java.net.*;
  */
 public class Neighbor {
 
-    public static final Logger logger = LogManager.getLogger();
+    public static final Logger logger = LogManager.getLogger(Neighbor.class);
     private InetSocketAddress address;
     public final Stats stats = new Stats();
 
