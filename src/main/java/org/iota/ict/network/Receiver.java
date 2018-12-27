@@ -116,7 +116,7 @@ public class Receiver extends Thread {
 
     private boolean shouldIgnoreNeighbor(Neighbor sender) {
 
-        if(sender.stats.receivedAll > ict.getProperties().maxTransactionsPerRound)
+        if(sender.stats.receivedAll >= ict.getProperties().maxTransactionsPerRound)
             return true;
 
         int sumReceived = 0;

@@ -50,7 +50,7 @@ public class SpamProtectionTest extends GossipTest {
         connect(a, d);
 
         a.getNeighbors().get(0).stats.prevReceivedAll = 7;
-        a.getNeighbors().get(1).stats.prevReceivedAll = 25;
+        a.getNeighbors().get(1).stats.prevReceivedAll = 25; // = Neighbor c
         a.getNeighbors().get(2).stats.prevReceivedAll = 3;
 
         testUnidirectionalCommunication(c,a,1);
@@ -71,7 +71,7 @@ public class SpamProtectionTest extends GossipTest {
         connect(a, d);
 
         a.getNeighbors().get(0).stats.prevReceivedAll = 7;
-        a.getNeighbors().get(1).stats.prevReceivedAll = 26;
+        a.getNeighbors().get(1).stats.prevReceivedAll = 26; // = Neighbor c
         a.getNeighbors().get(2).stats.prevReceivedAll = 3;
 
         testUnidirectionalCommunication(c,a,1);
