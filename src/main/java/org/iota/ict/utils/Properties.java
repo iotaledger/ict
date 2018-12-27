@@ -20,7 +20,7 @@ public class Properties {
 
     private static final String LIST_DELIMITER = ",";
     private static final Properties DEFAULT_PROPERTIES = new Properties();
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogManager.getLogger(Properties.class);
 
     public long maxTransactionsPerRound = 1000;
     public boolean spamEnabled = false;

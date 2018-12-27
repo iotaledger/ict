@@ -22,7 +22,7 @@ public class Main {
     private static final String DEFAULT_PROPERTY_FILE_PATH = "ict.cfg";
     private static final Map<String, String> ARG_NAME_BY_ARG_ALIAS = new HashMap<>();
 
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogManager.getLogger(Main.class);
 
     public static final String ARG_CONFIG = "-config";
 

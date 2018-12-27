@@ -36,7 +36,7 @@ public class Sender extends Thread {
     private final SendingTaskQueue queue = new SendingTaskQueue();
     private final DatagramSocket socket;
     private final Queue<String> transactionsToRequest = new PriorityBlockingQueue<>();
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogManager.getLogger(Sender.class);
     private long roundStart = System.currentTimeMillis();
 
 
