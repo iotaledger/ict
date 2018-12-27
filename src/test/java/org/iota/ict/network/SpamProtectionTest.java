@@ -1,29 +1,39 @@
 package org.iota.ict.network;
 
 import org.iota.ict.Ict;
+import org.iota.ict.utils.Properties;
+import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class SpamProtectionTest extends GossipTest {
 
+    @Test
+    public void testMaxTransactionsPerRoundJustEnough() {
+        testMaxTransactionsPerRound(666, 666-3, 3);
+    }
+
     @Test(expected = AssertionError.class)
-    public void testMaxTransactionsPerRound() {
+    public void testMaxTransactionsPerRoundTooMany() {
+        testMaxTransactionsPerRound(666, 666-3, 4);
+    }
+
+    public void testMaxTransactionsPerRound(int maxTransactionsPerRound, int alreadySent, int sendTransactions) {
+
+        Properties properties = new Properties();
+        properties.maxTransactionsPerRound = maxTransactionsPerRound;
 
         Ict a = createIct();
-
-        Ict b = createIct();
-        Ict c = createIct();
-        Ict d = createIct();
+        Ict b = createIct(properties);
 
         connect(a, b);
-        connect(a, c);
-        connect(a, d);
 
-        a.getNeighbors().get(0).stats.prevReceivedAll = 7;
-        a.getNeighbors().get(1).stats.prevReceivedAll = 5000;
-        a.getNeighbors().get(2).stats.prevReceivedAll = 3;
+        Neighbor.Stats statsForA = b.getNeighbors().get(0).stats;
+        statsForA.receivedAll = alreadySent;
 
-        testUnidirectionalCommunication(c,a,1);
-
+        testUnidirectionalCommunication(a, b, sendTransactions);
     }
 
     @Test(expected = Test.None.class /* no AssertionError expected */)
