@@ -62,7 +62,10 @@ public class Receiver extends Thread {
 
     private Transaction loadTransaction(DatagramPacket packet, Neighbor sender) {
         try {
-            return new Transaction(Trytes.fromBytes((packet.getData())));
+            Transaction transaction = new Transaction(Trytes.fromBytes((packet.getData())));
+            if(Math.abs(transaction.issuanceTimestamp - System.currentTimeMillis()) > Constants.TIMESTAMP_DIFFERENCE_TOLERANCE_IN_MILLIS)
+                throw new RuntimeException("issuance timestamp not in tolerated interval");
+            return transaction;
         } catch (Throwable t) {
             sender.stats.receivedInvalid++;
             ict.LOGGER.warn("Received invalid transaction from neighbor: " + sender.getAddress() + " (" + t.getMessage() + ")");
