@@ -18,9 +18,9 @@ public class SpamProtectionTest extends GossipTest {
         connect(a, c);
         connect(a, d);
 
-        a.getNeighbors().get(0).stats.prevReceivedAll = 7;
-        a.getNeighbors().get(1).stats.prevReceivedAll = 5000;
-        a.getNeighbors().get(2).stats.prevReceivedAll = 3;
+        a.getNeighbors().get(0).stats.receivedAll = 7;
+        a.getNeighbors().get(1).stats.receivedAll = 5000;
+        a.getNeighbors().get(2).stats.receivedAll = 3;
 
         testUnidirectionalCommunication(c,a,1);
 
