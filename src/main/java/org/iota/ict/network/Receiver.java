@@ -52,7 +52,10 @@ public class Receiver extends Thread {
         if(sender == null)
             return;
 
-        Transaction transaction = loadTransaction(packet, sender);
+        if(ignoreNeighbor(sender))
+            return;
+
+        Transaction transaction = unpack(packet, sender);
         if(transaction == null)
             return;
 
@@ -60,7 +63,7 @@ public class Receiver extends Thread {
         processRequest(sender, transaction);
     }
 
-    private Transaction loadTransaction(DatagramPacket packet, Neighbor sender) {
+    private Transaction unpack(DatagramPacket packet, Neighbor sender) {
         try {
             Transaction transaction = new Transaction(Trytes.fromBytes((packet.getData())));
             if(Math.abs(transaction.issuanceTimestamp - System.currentTimeMillis()) > Constants.TIMESTAMP_DIFFERENCE_TOLERANCE_IN_MILLIS)
@@ -110,4 +113,9 @@ public class Receiver extends Thread {
         Ict.LOGGER.warn("Received transaction from unknown address: " + packet.getAddress());
         return null;
     }
+
+    private boolean ignoreNeighbor(Neighbor sender) {
+        return sender.stats.receivedNew > ict.getProperties().maxTransactionsPerRound;
+    }
+
 }
