@@ -26,7 +26,7 @@ public class SpamProtectionTest extends GossipTest {
 
     }
 
-    @Test
+    @Test(expected = Test.None.class /* no AssertionError expected */)
     public void testGoodTransactionsCanPass() {
 
         Ict a = createIct();
