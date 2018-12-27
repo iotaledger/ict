@@ -10,6 +10,8 @@ import org.iota.ict.utils.Trytes;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 
 /**
  * This class receives transactions from neighbors. Together with the {@link Sender}, they are the two important gateways
@@ -108,7 +110,10 @@ public class Receiver extends Thread {
 
     private Neighbor determineNeighborWhoSent(DatagramPacket packet) {
         for (Neighbor nb : ict.getNeighbors())
-            if (nb.getAddress().equals(packet.getSocketAddress()))
+            if(nb.sentPacket(packet))
+                return nb;
+        for (Neighbor nb : ict.getNeighbors())
+            if(nb.sentPacketFromSameIP(packet))
                 return nb;
         Ict.LOGGER.warn("Received transaction from unknown address: " + packet.getAddress());
         return null;
@@ -117,5 +122,6 @@ public class Receiver extends Thread {
     private boolean ignoreNeighbor(Neighbor sender) {
         return sender.stats.receivedNew > ict.getProperties().maxTransactionsPerRound;
     }
+
 
 }

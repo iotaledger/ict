@@ -45,6 +45,18 @@ public class Neighbor {
         }
     }
 
+    public boolean sentPacket(DatagramPacket packet) {
+        //if (address.equals(packet.getSocketAddress()))
+        //    return true;
+        boolean sameIP = sentPacketFromSameIP(packet);
+        boolean samePort = address.getPort() == packet.getPort();
+        return sameIP && samePort;
+    }
+
+    public boolean sentPacketFromSameIP(DatagramPacket packet) {
+        return address.getAddress().getHostAddress().equals(packet.getAddress().getHostAddress());
+    }
+
     public static void logHeader() {
         StringBuilder report = new StringBuilder();
         report.append(pad("ALL")).append('|');
