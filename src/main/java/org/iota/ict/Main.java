@@ -37,6 +37,8 @@ public class Main {
         Map<String, String> argMap = mapArgs(args);
 
         Properties properties = loadOrCreatedProperties(argMap);
+        properties.store(DEFAULT_PROPERTY_FILE_PATH);
+
         logger.info("Starting new Ict '" + properties.name + "' (version: " + Constants.ICT_VERSION + ")");
 
         if (!properties.ixiEnabled && properties.ixis.size() > 0)
@@ -81,9 +83,7 @@ public class Main {
             return Properties.fromFile(DEFAULT_PROPERTY_FILE_PATH);
         } else {
             logger.warn("No property file found, creating new: '" + DEFAULT_PROPERTY_FILE_PATH + "'.");
-            Properties properties = new Properties();
-            properties.store(DEFAULT_PROPERTY_FILE_PATH);
-            return properties;
+            return new Properties();
         }
     }
 
