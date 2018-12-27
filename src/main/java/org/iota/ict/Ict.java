@@ -3,6 +3,7 @@ package org.iota.ict;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.ixi.RemoteIctImplementation;
+import org.iota.ict.model.RingTangle;
 import org.iota.ict.model.Tangle;
 import org.iota.ict.model.TransactionBuilder;
 import org.iota.ict.network.Neighbor;
@@ -48,7 +49,7 @@ public class Ict {
      */
     public Ict(Properties properties) {
         this.properties = properties;
-        this.tangle = new Tangle(this);
+        this.tangle = new RingTangle(this, properties.tangleCapacity);
         this.address = new InetSocketAddress(properties.host, properties.port);
 
         for (InetSocketAddress neighborAddress : properties.neighbors)

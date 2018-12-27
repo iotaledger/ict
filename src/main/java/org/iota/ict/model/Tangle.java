@@ -16,11 +16,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * them by their hash, address or tag. Each {@link Ict} uses a {@link Tangle} object to keep track of all received transactions.
  */
 public class Tangle {
-    private final Ict ict;
-    private final Map<String, TransactionLog> transactionsByHash = new ConcurrentHashMap<>();
-    private final Map<String, Set<TransactionLog>> transactionsByAddress = new ConcurrentHashMap<>();
-    private final Map<String, Set<TransactionLog>> transactionsByTag = new ConcurrentHashMap<>();
-    private final Map<String, Set<Transaction>> waitingReferrersTransactionsByHash = new ConcurrentHashMap<>();
+    protected final Ict ict;
+    protected final Map<String, TransactionLog> transactionsByHash = new ConcurrentHashMap<>();
+    protected final Map<String, Set<TransactionLog>> transactionsByAddress = new ConcurrentHashMap<>();
+    protected final Map<String, Set<TransactionLog>> transactionsByTag = new ConcurrentHashMap<>();
+    protected final Map<String, Set<Transaction>> waitingReferrersTransactionsByHash = new ConcurrentHashMap<>();
 
     public Tangle(Ict ict) {
         this.ict = ict;
@@ -61,9 +61,11 @@ public class Tangle {
     }
 
     public void deleteTransaction(Transaction transaction) {
-        transactionsByHash.remove(transaction.hash);
-        transactionsByAddress.remove(transaction.address);
-        transactionsByTag.remove(transaction.tag);
+        TransactionLog log = transactionsByHash.remove(transaction.hash);
+        if(log != null) {
+            log.removeFromSetMap(transactionsByTag, transaction.tag);
+            log.removeFromSetMap(transactionsByAddress, transaction.address);
+        }
     }
 
     private void buildEdges(Transaction transaction) {
@@ -105,7 +107,7 @@ public class Tangle {
     }
 
     public class TransactionLog {
-        private final Transaction transaction;
+        final Transaction transaction;
         public final Set<Neighbor> senders = new HashSet<>();
         public boolean sent;
 
@@ -124,6 +126,14 @@ public class Tangle {
                 map.put(key, new HashSet<TransactionLog>());
             }
             map.get(key).add(this);
+        }
+
+        protected  <K> void removeFromSetMap(Map<K, Set<TransactionLog>> map, K key) {
+            if (map.containsKey(key)) {
+                map.get(key).remove(this);
+                if(map.get(key).size() == 0)
+                    map.remove(key);
+            }
         }
     }
 }

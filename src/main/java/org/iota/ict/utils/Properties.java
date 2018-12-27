@@ -24,6 +24,7 @@ public class Properties {
 
     public boolean spamEnabled = false;
     public boolean ixiEnabled = false;
+    public long tangleCapacity = 10000;
     public long minForwardDelay = 0;
     public long maxForwardDelay = 200;
     public String name = "ict";
@@ -48,6 +49,7 @@ public class Properties {
     }
 
     Properties(java.util.Properties propObject) {
+        tangleCapacity = readLongProperty(propObject, Property.tangle_capacity, 10,  Long.MAX_VALUE, DEFAULT_PROPERTIES.tangleCapacity);
         minForwardDelay = readLongProperty(propObject, Property.min_forward_delay, 0, 10000, DEFAULT_PROPERTIES.minForwardDelay);
         maxForwardDelay = readLongProperty(propObject, Property.max_forward_delay, 0, 10000, DEFAULT_PROPERTIES.maxForwardDelay);
         host = propObject.getProperty(Property.host.name(), DEFAULT_PROPERTIES.host);
@@ -134,6 +136,7 @@ public class Properties {
 
     java.util.Properties toPropObject() {
         java.util.Properties propObject = new java.util.Properties();
+        propObject.setProperty(Property.tangle_capacity.name(), tangleCapacity + "");
         propObject.setProperty(Property.min_forward_delay.name(), minForwardDelay + "");
         propObject.setProperty(Property.max_forward_delay.name(), maxForwardDelay + "");
         propObject.setProperty(Property.name.name(), name);
@@ -158,6 +161,16 @@ public class Properties {
     }
 
     private static enum Property {
-        min_forward_delay, max_forward_delay, port, host, log_round_duration, neighbors, spam_enabled, ixi_enabled, ixis, name;
+        tangle_capacity,
+        min_forward_delay,
+        max_forward_delay,
+        port,
+        host,
+        log_round_duration,
+        neighbors,
+        spam_enabled,
+        ixi_enabled,
+        ixis,
+        name;
     }
 }

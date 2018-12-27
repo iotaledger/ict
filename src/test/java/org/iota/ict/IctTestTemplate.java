@@ -13,7 +13,11 @@ public abstract class IctTestTemplate {
     private final static int DEFAULT_PORT = 1337;
 
     protected Ict createIct() {
-        Properties properties = new Properties().host("localhost").port(DEFAULT_PORT + runningIcts.size());
+        return createIct(new Properties());
+    }
+
+    protected Ict createIct(Properties properties) {
+        properties.host("localhost").port(DEFAULT_PORT + runningIcts.size());
         properties.minForwardDelay = 0;
         properties.maxForwardDelay = 10;
         Ict ict = new Ict(properties);
