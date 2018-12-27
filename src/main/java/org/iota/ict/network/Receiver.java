@@ -47,17 +47,30 @@ public class Receiver extends Thread {
     }
 
     private void processIncoming(DatagramPacket packet) {
+
         Neighbor sender = determineNeighborWhoSent(packet);
         if(sender == null)
             return;
-        Transaction transaction;
-        try {
-            transaction = new Transaction(Trytes.fromBytes((packet.getData())));
-        } catch (Throwable t) {
-            ict.LOGGER.warn("Received invalid transaction from neighbor: " + sender.getAddress() + " (" + t.getMessage() + ")");
-            sender.stats.receivedInvalid++;
+
+        Transaction transaction = loadTransaction(packet, sender);
+        if(transaction == null)
             return;
+
+        createTransactionLog(sender, transaction);
+        processRequest(sender, transaction);
+    }
+
+    private Transaction loadTransaction(DatagramPacket packet, Neighbor sender) {
+        try {
+            return new Transaction(Trytes.fromBytes((packet.getData())));
+        } catch (Throwable t) {
+            sender.stats.receivedInvalid++;
+            ict.LOGGER.warn("Received invalid transaction from neighbor: " + sender.getAddress() + " (" + t.getMessage() + ")");
+            return null;
         }
+    }
+
+    private void createTransactionLog(Neighbor sender, Transaction transaction) {
         sender.stats.receivedAll++;
         Tangle.TransactionLog log = tangle.findTransactionLog(transaction);
         if (log == null) {
@@ -67,10 +80,9 @@ public class Receiver extends Thread {
             ict.notifyListeners(new GossipReceiveEvent(transaction));
         }
         log.senders.add(sender);
-        processRequest(transaction, sender);
     }
 
-    private void processRequest(Transaction transaction, Neighbor requester) {
+    private void processRequest(Neighbor requester, Transaction transaction) {
         if (transaction.requestHash.equals(Trytes.NULL_HASH))
             return; // no transaction requested
         Transaction requested = tangle.findTransactionByHash(transaction.requestHash);
@@ -80,7 +92,7 @@ public class Receiver extends Thread {
         sendRequested(requested, requester);
         // unset requestHash because it's header information and does not actually belong to the transaction
         transaction.requestHash = Trytes.NULL_HASH;
-    }
+}
 
     private void sendRequested(Transaction requested, Neighbor requester) {
         Tangle.TransactionLog requestedLog = tangle.findTransactionLog(requested);

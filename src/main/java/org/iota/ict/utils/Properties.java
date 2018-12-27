@@ -22,6 +22,7 @@ public class Properties {
     private static final Properties DEFAULT_PROPERTIES = new Properties();
     private static final Logger logger = LogManager.getLogger();
 
+    public long maxTransactionsPerMinute = 1000;
     public boolean spamEnabled = false;
     public boolean ixiEnabled = false;
     public long tangleCapacity = 10000;
@@ -50,6 +51,7 @@ public class Properties {
 
     Properties(java.util.Properties propObject) {
         tangleCapacity = readLongProperty(propObject, Property.tangle_capacity, 10,  Long.MAX_VALUE, DEFAULT_PROPERTIES.tangleCapacity);
+        maxTransactionsPerMinute = readLongProperty(propObject, Property.max_transactions_per_minute, 1, Long.MAX_VALUE, DEFAULT_PROPERTIES.maxTransactionsPerMinute);
         minForwardDelay = readLongProperty(propObject, Property.min_forward_delay, 0, 10000, DEFAULT_PROPERTIES.minForwardDelay);
         maxForwardDelay = readLongProperty(propObject, Property.max_forward_delay, 0, 10000, DEFAULT_PROPERTIES.maxForwardDelay);
         host = propObject.getProperty(Property.host.name(), DEFAULT_PROPERTIES.host);
@@ -137,6 +139,7 @@ public class Properties {
     java.util.Properties toPropObject() {
         java.util.Properties propObject = new java.util.Properties();
         propObject.setProperty(Property.tangle_capacity.name(), tangleCapacity + "");
+        propObject.setProperty(Property.max_transactions_per_minute.name(), maxTransactionsPerMinute + "");
         propObject.setProperty(Property.min_forward_delay.name(), minForwardDelay + "");
         propObject.setProperty(Property.max_forward_delay.name(), maxForwardDelay + "");
         propObject.setProperty(Property.name.name(), name);
@@ -161,6 +164,7 @@ public class Properties {
     }
 
     private static enum Property {
+        max_transactions_per_minute,
         tangle_capacity,
         min_forward_delay,
         max_forward_delay,
@@ -173,4 +177,5 @@ public class Properties {
         ixis,
         name;
     }
+
 }
