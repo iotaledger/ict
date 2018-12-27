@@ -10,9 +10,13 @@ import java.util.*;
 
 public abstract class GossipTest extends IctTestTemplate {
 
+    void testUnidirectionalCommunication(Ict sender, Ict receiver, int messagesPerDirection) {
+        testCommunicationPath(sender, receiver, messagesPerDirection);
+    }
+
     void testBidirectionalCommunication(Ict ictA, Ict ictB, int messagesPerDirection) {
-        testCommunicationPath(ictA, ictB, messagesPerDirection);
-        testCommunicationPath(ictB, ictA, messagesPerDirection);
+        testUnidirectionalCommunication(ictA, ictB, messagesPerDirection);
+        testUnidirectionalCommunication(ictB, ictA, messagesPerDirection);
     }
 
     private void testCommunicationPath(Ict sender, Ict receiver, int amountOfMessages) {

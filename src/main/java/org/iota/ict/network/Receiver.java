@@ -52,7 +52,7 @@ public class Receiver extends Thread {
         if(sender == null)
             return;
 
-        if(ignoreNeighbor(sender))
+        if(shouldIgnoreNeighbor(sender))
             return;
 
         Transaction transaction = unpack(packet, sender);
@@ -114,8 +114,30 @@ public class Receiver extends Thread {
         return null;
     }
 
-    private boolean ignoreNeighbor(Neighbor sender) {
-        return sender.stats.receivedNew > ict.getProperties().maxTransactionsPerRound;
+    private boolean shouldIgnoreNeighbor(Neighbor sender) {
+
+        if(sender.stats.prevReceivedAll > ict.getProperties().maxTransactionsPerRound)
+            return true;
+
+        int sumReceived = 0;
+        for(Neighbor neighbor: ict.getNeighbors())
+            if(!neighbor.getAddress().equals(sender.getAddress()))
+                sumReceived += neighbor.stats.prevReceivedAll;
+
+        if(sumReceived == 0)
+            return false;
+
+        double divisor = ict.getNeighbors().size() - 1;
+        if(divisor <= 0)
+            return false;
+
+        double avgReceived = sumReceived / divisor;
+
+        if(sender.stats.prevReceivedAll > 5 * avgReceived)
+            return true;
+
+        return false;
+
     }
 
 }
