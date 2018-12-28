@@ -3,6 +3,7 @@ package org.iota.ict;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.utils.Constants;
+import org.iota.ict.utils.ErrorHandler;
 import org.iota.ict.utils.Properties;
 
 import java.io.File;
@@ -20,6 +21,8 @@ import java.util.Map;
 public class Main {
 
     private static final String DEFAULT_PROPERTY_FILE_PATH = "ict.cfg";
+    private static final File DEFAULT_LOG_DIR = new File("logs/");
+
     private static final Map<String, String> ARG_NAME_BY_ARG_ALIAS = new HashMap<>();
 
     private static final Logger logger = LogManager.getLogger(Main.class);
@@ -48,10 +51,11 @@ public class Main {
         try {
             ict = new Ict(properties);
         } catch (Throwable t) {
-            if (t.getCause() instanceof BindException)
-                logger.error("Could not start Ict on " + properties.host + ":" + properties.port + " (" + t.getCause().getMessage() + "). Make sure that the address is correct and you are not already running an Ict instance or any other service on that port. You can change the port in your properties file.");
-            else
-                logger.error(t);
+            if (t.getCause() instanceof BindException) {
+                ErrorHandler.handleError(logger, t, "\"Could not start Ict on \" + properties.host + \":\" + properties.port.");
+                logger.info("Make sure that the address is correct and you are not already running an Ict instance or any other service on that port. You can change the port in your properties file.");
+            } else
+                ErrorHandler.handleError(logger, t, "Could not start Ict.");
             return;
         }
         logger.info("Ict started on " + ict.getAddress() + ".\n");
@@ -61,6 +65,7 @@ public class Main {
             @Override
             public void run() {
                 logger.info("Terminating Ict ...");
+                ErrorHandler.dump(DEFAULT_LOG_DIR);
                 finalRefToIct.terminate();
             }
         });
@@ -71,7 +76,7 @@ public class Main {
         try {
             properties = tryToLoadOrCreateProperties(argMap);
         } catch (Throwable t) {
-            logger.error("Failed loading properties", t);
+            ErrorHandler.handleError(logger, t, "Failed loading properties");
         }
         return properties;
     }

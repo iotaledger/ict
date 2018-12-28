@@ -40,7 +40,7 @@ public class Properties {
         try {
             propObject.load(new FileInputStream(path));
         } catch (IOException e) {
-            logger.error("Failed loading properties from file", e);
+            ErrorHandler.handleError(logger, e, "Failed loading properties from file");
         }
         return new Properties(propObject);
     }
@@ -82,7 +82,7 @@ public class Properties {
             try {
                 neighbors.add(inetSocketAddressFromString(address));
             } catch (Throwable t) {
-                logger.error("Invalid neighbor address: '" + address + "'", t);
+                ErrorHandler.handleError(logger, t, "Invalid neighbor address: '" + address + "'");
             }
         }
         return neighbors;
@@ -117,11 +117,11 @@ public class Properties {
             if (string != null)
                 value = Integer.parseInt(string);
         } catch (NumberFormatException e) {
-            logger.error("Property '" + property.name() + "' must be an integer.");
+            ErrorHandler.handleWarning(logger, e, "Property '" + property.name() + "' must be an integer.");
         }
 
         if (value < min || value > max) {
-            logger.error("Property '" + property.name() + "' must be in range: " + min + "-" + max);
+            logger.warn("Property '" + property.name() + "' must be in range: " + min + "-" + max);
             value = Math.min(max, Math.max(min, value));
         }
 
@@ -132,7 +132,7 @@ public class Properties {
         try {
             toPropObject().store(new FileOutputStream(path), null);
         } catch (IOException e) {
-            logger.error("Failed storing properties in file: " + path, e);
+            ErrorHandler.handleWarning(logger, e, "Failed storing properties in file: " + path);
         }
     }
 

@@ -5,6 +5,7 @@ import org.iota.ict.model.Tangle;
 import org.iota.ict.model.Transaction;
 import org.iota.ict.network.event.GossipReceiveEvent;
 import org.iota.ict.utils.Constants;
+import org.iota.ict.utils.ErrorHandler;
 import org.iota.ict.utils.Trytes;
 
 import java.io.IOException;
@@ -52,14 +53,19 @@ public class Receiver extends Thread {
         if(sender == null)
             return;
 
-        if(shouldIgnoreNeighbor(sender))
+        if(shouldIgnoreNeighbor(sender)) {
+            sender.stats.ignored++;
             return;
+        }
 
         Transaction transaction = unpack(packet, sender);
-        if(transaction == null)
+        if(transaction == null) {
+            sender.stats.receivedInvalid++;
             return;
+        }
 
-        createTransactionLog(sender, transaction);
+        sender.stats.receivedAll++;
+        updateTransactionLog(sender, transaction);
         processRequest(sender, transaction);
     }
 
@@ -70,14 +76,12 @@ public class Receiver extends Thread {
                 throw new RuntimeException("issuance timestamp not in tolerated interval");
             return transaction;
         } catch (Throwable t) {
-            sender.stats.receivedInvalid++;
-            ict.LOGGER.warn("Received invalid transaction from neighbor: " + sender.getAddress() + " (" + t.getMessage() + ")");
+            ErrorHandler.handleWarning(Ict.LOGGER, t, "Failed storing properties in file: " + "Received invalid transaction from neighbor: " + sender.getAddress());
             return null;
         }
     }
 
-    private void createTransactionLog(Neighbor sender, Transaction transaction) {
-        sender.stats.receivedAll++;
+    private void updateTransactionLog(Neighbor sender, Transaction transaction) {
         Tangle.TransactionLog log = tangle.findTransactionLog(transaction);
         if (log == null) {
             log = tangle.createTransactionLogIfAbsent(transaction);

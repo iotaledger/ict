@@ -7,6 +7,7 @@ import org.iota.ict.network.event.GossipFilter;
 import org.iota.ict.network.event.GossipListener;
 import org.iota.ict.network.event.GossipReceiveEvent;
 import org.iota.ict.network.event.GossipSubmitEvent;
+import org.iota.ict.utils.ErrorHandler;
 
 import java.net.MalformedURLException;
 import java.rmi.Naming;
@@ -99,8 +100,7 @@ public abstract class IxiModule {
             ict = (RemoteIct) Naming.lookup("//localhost/" + name);
             ictName = name;
         } catch (Throwable t) {
-            logger.error("Failed to accept connection to ict '" + name + "'", t);
-            t.printStackTrace();
+            ErrorHandler.handleError(logger, t, "Failed to accept connection to ict '" + name + "'");
             throw new RuntimeException(t);
         }
     }

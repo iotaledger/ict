@@ -3,6 +3,7 @@ package org.iota.ict.network;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.Ict;
+import org.iota.ict.utils.ErrorHandler;
 import org.iota.ict.utils.Properties;
 import org.iota.ict.model.Tangle;
 import org.iota.ict.model.Transaction;
@@ -86,7 +87,7 @@ public class Sender extends Thread {
             }
         } catch (InterruptedException e) {
             if (ict.isRunning())
-                logger.warn(e);
+                ErrorHandler.handleError(logger, e, "Unexpected interrupt.");
         }
     }
 
@@ -105,7 +106,7 @@ public class Sender extends Thread {
             socket.send(packet);
         } catch (Exception e) {
             if (ict.isRunning())
-                logger.warn(e);
+                ErrorHandler.handleError(logger, e, "Failed to send transaction to neighbor.");
         }
     }
 

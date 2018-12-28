@@ -2,6 +2,7 @@ package org.iota.ict.network;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.iota.ict.utils.ErrorHandler;
 
 import java.net.*;
 
@@ -21,18 +22,20 @@ public class Neighbor {
     }
 
     public class Stats {
-        public int receivedAll, receivedNew, receivedInvalid, requested;
-        public int prevReceivedAll, prevReceivedNew, prevReceivedInvalid, prevRequested;
+        public int receivedAll, receivedNew, receivedInvalid, requested, ignored;
+        public int prevReceivedAll, prevReceivedNew, prevReceivedInvalid, prevRequested, prevIgnored;
 
         public void newRound() {
             prevReceivedAll = receivedAll;
             prevReceivedNew = receivedNew;
             prevReceivedInvalid = receivedInvalid;
             prevRequested = requested;
+            prevIgnored = ignored;
             receivedAll = 0;
             receivedNew = 0;
             receivedInvalid = 0;
             requested = 0;
+            ignored = 0;
         }
     }
 
@@ -41,7 +44,7 @@ public class Neighbor {
             if(!address.getAddress().equals(InetAddress.getByName(address.getHostName())))
                 address = new InetSocketAddress(address.getHostName(), address.getPort());
         } catch (UnknownHostException e) {
-            logger.warn(e);
+            ErrorHandler.handleWarning(logger, e, "Unknown Host for: " + address.getHostString());
         }
     }
 
@@ -50,7 +53,8 @@ public class Neighbor {
         report.append(pad("ALL")).append('|');
         report.append(pad("NEW")).append('|');
         report.append(pad("REQ")).append('|');
-        report.append(pad("INV"));
+        report.append(pad("INV")).append('|');
+        report.append(pad("IGN"));
 
         report.append("   ").append("ADDRESS");
         logger.info(report);
@@ -62,7 +66,8 @@ public class Neighbor {
         report.append(pad(stats.receivedAll)).append('|');
         report.append(pad(stats.receivedNew)).append('|');
         report.append(pad(stats.requested)).append('|');
-        report.append(pad(stats.receivedInvalid));
+        report.append(pad(stats.receivedInvalid)).append('|');
+        report.append(pad(stats.ignored));
 
         report.append("   ").append(address);
         logger.info(report);

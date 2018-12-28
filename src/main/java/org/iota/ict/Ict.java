@@ -15,6 +15,7 @@ import org.iota.ict.network.Receiver;
 import org.iota.ict.network.Sender;
 import org.iota.ict.model.Transaction;
 import org.iota.ict.utils.Constants;
+import org.iota.ict.utils.ErrorHandler;
 import org.iota.ict.utils.Properties;
 
 import java.net.DatagramSocket;
@@ -58,7 +59,7 @@ public class Ict {
         try {
             this.socket = new DatagramSocket(address);
         } catch (SocketException socketException) {
-            LOGGER.error("could not create socket for Ict", socketException);
+            ErrorHandler.handleError(LOGGER, socketException, "could not create socket for Ict");
             throw new RuntimeException(socketException);
         }
 
@@ -80,7 +81,7 @@ public class Ict {
                 remoteIctImplementation.connectToIxi(ixi);
             return remoteIctImplementation;
         } catch (Throwable t) {
-            LOGGER.error("failed to enable IXI: " + t.getMessage());
+            ErrorHandler.handleError(LOGGER, t, "failed to enable IXI");
             return null;
         }
     }
