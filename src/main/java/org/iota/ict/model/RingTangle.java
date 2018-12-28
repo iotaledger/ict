@@ -25,14 +25,42 @@ public class RingTangle extends Tangle {
         if(transactionsOrderedByTimestamp != null) {
             // == null only when calling the super constructor and adding NULL transaction
             // do not add NULL transaction to transactionsOrderedByTimestamp to prevent it from being pruned
-            transactionsOrderedByTimestamp.add(log);
+            insertIntoSorted(transactionsOrderedByTimestamp, TimestampComparator.INSTANCE, log);
            if (transactionsOrderedByTimestamp.size()+1 > transactionCapacity) { // +1 fpr NULL transaction
-               Collections.sort(transactionsOrderedByTimestamp, TimestampComparator.INSTANCE);
                deleteTransaction(transactionsOrderedByTimestamp.get(0).transaction);
            }
             assert size() <= transactionCapacity;
        }
         return log;
+    }
+
+    synchronized <T> void insertIntoSorted(List<T> list, Comparator<T> comparator, T element) {
+
+        // TODO this can probably be rewritten much shorter
+
+        int lowerBound = 0;
+        int upperBound = list.size()-1;
+
+        if(list.size() == 0 || comparator.compare(element, list.get(upperBound)) >= 0) {
+            list.add(element);
+            return;
+        }
+
+        if(comparator.compare(element, list.get(lowerBound)) <= 0) {
+            list.add(0, element);
+            return;
+        }
+
+        while (upperBound - lowerBound > 1) {
+            int referenceIndex = lowerBound + (upperBound - lowerBound)/2;
+            T reference = list.get(referenceIndex);
+            if(comparator.compare(reference, element) <= 0) {
+                lowerBound = referenceIndex;
+            } else {
+                upperBound = referenceIndex;
+            }
+        }
+        list.add(lowerBound+1, element);
     }
 
     @Override
@@ -53,7 +81,7 @@ public class RingTangle extends Tangle {
         @Override
         public int compare(Tangle.TransactionLog tl1, Tangle.TransactionLog tl2) {
             int cmp = Long.compare(tl1.transaction.issuanceTimestamp, tl2.transaction.issuanceTimestamp);
-            return cmp == 0 ? (tl1.equals(tl2) ? 0 : -1) : cmp;
+            return cmp == 0 ? tl1.transaction.hash.compareTo(tl2.transaction.hash) : cmp;
         }
 
         @Override
