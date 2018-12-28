@@ -22,6 +22,7 @@ public class Properties {
     private static final Properties DEFAULT_PROPERTIES = new Properties();
     private static final Logger logger = LogManager.getLogger(Properties.class);
 
+    public long maxTransactionsRelative = 5;
     public long maxTransactionsPerRound = 1000;
     public boolean spamEnabled = false;
     public boolean ixiEnabled = false;
@@ -51,6 +52,7 @@ public class Properties {
 
     Properties(java.util.Properties propObject) {
         tangleCapacity = readLongProperty(propObject, Property.tangle_capacity, 10,  Long.MAX_VALUE, DEFAULT_PROPERTIES.tangleCapacity);
+        maxTransactionsRelative = readLongProperty(propObject, Property.max_transactions_relative, 1, Long.MAX_VALUE, DEFAULT_PROPERTIES.maxTransactionsRelative);
         maxTransactionsPerRound = readLongProperty(propObject, Property.max_transactions_per_round, 1, Long.MAX_VALUE, DEFAULT_PROPERTIES.maxTransactionsPerRound);
         minForwardDelay = readLongProperty(propObject, Property.min_forward_delay, 0, 10000, DEFAULT_PROPERTIES.minForwardDelay);
         maxForwardDelay = readLongProperty(propObject, Property.max_forward_delay, 0, 10000, DEFAULT_PROPERTIES.maxForwardDelay);
@@ -139,6 +141,7 @@ public class Properties {
     java.util.Properties toPropObject() {
         java.util.Properties propObject = new java.util.Properties();
         propObject.setProperty(Property.tangle_capacity.name(), tangleCapacity + "");
+        propObject.setProperty(Property.max_transactions_relative.name(), maxTransactionsRelative + "");
         propObject.setProperty(Property.max_transactions_per_round.name(), maxTransactionsPerRound + "");
         propObject.setProperty(Property.min_forward_delay.name(), minForwardDelay + "");
         propObject.setProperty(Property.max_forward_delay.name(), maxForwardDelay + "");
@@ -164,6 +167,7 @@ public class Properties {
     }
 
     private static enum Property {
+        max_transactions_relative,
         max_transactions_per_round,
         tangle_capacity,
         min_forward_delay,

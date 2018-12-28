@@ -6,9 +6,6 @@ import org.iota.ict.utils.Properties;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.HashSet;
-import java.util.Set;
-
 public class SpamProtectionTest extends GossipTest {
 
     @Test
@@ -44,17 +41,17 @@ public class SpamProtectionTest extends GossipTest {
         connect(a, c);
         connect(a, d);
 
-        int all1 = 7, all2 = 3;
-        int avg = (int)Math.floor((all1 + all2)/2.0);
-        int tolerance = avg * 5;
+        final int all1 = 3, all2 = 8, all3 = 12;
+        final int median = 8;
+        int tolerance = median * (int) a.getProperties().maxTransactionsRelative;
 
         a.getNeighbors().get(0).stats.prevReceivedAll = all1;
         a.getNeighbors().get(1).stats.prevReceivedAll = all2;
+        a.getNeighbors().get(2).stats.prevReceivedAll = all3;
 
-        a.getNeighbors().get(2).stats.prevReceivedAll = tolerance;
-        testUnidirectionalCommunication(d, a,1);
+        a.getNeighbors().get(2).stats.receivedAll = tolerance;
 
-        a.getNeighbors().get(2).stats.prevReceivedAll = tolerance+1;
+        a.getNeighbors().get(2).stats.receivedAll = tolerance+1;
         assertTransactionDoesNotMakeItThrough(d, a);
     }
 

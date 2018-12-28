@@ -11,6 +11,9 @@ import org.iota.ict.utils.Trytes;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * This class receives transactions from neighbors. Together with the {@link Sender}, they are the two important gateways
@@ -123,22 +126,28 @@ public class Receiver extends Thread {
         if(sender.stats.receivedAll >= ict.getProperties().maxTransactionsPerRound)
             return true;
 
-        int sumReceived = 0;
+        List<Integer> values = new ArrayList<>();
         for(Neighbor neighbor: ict.getNeighbors())
-            if(!neighbor.getAddress().equals(sender.getAddress()))
-                sumReceived += neighbor.stats.prevReceivedAll;
+            values.add(neighbor.stats.prevReceivedAll);
 
-        if(sumReceived == 0)
+        if(values.size() <= 1)
             return false;
 
-        double divisor = ict.getNeighbors().size() - 1;
-        if(divisor <= 0)
+        double median = 0;
+        if(values.size() == 2)
+            median = Math.min(values.get(0), values.get(1));
+        else if(values.size() == 3) {
+            Collections.sort(values);
+            median = (double) values.get(values.size() / 2);
+        }
+
+        if(median == 0)
             return false;
 
-        double avgReceived = sumReceived / divisor;
-
-        if(sender.stats.prevReceivedAll > 5 * avgReceived)
+        if(sender.stats.receivedAll > ict.getProperties().maxTransactionsRelative * median) {
+            Ict.LOGGER.warn("Ignoring neighbor " + sender.getAddress() + " because of abnormal behavior.");
             return true;
+        }
 
         return false;
 
