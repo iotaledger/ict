@@ -37,6 +37,7 @@ public class Main {
 
     public static void main(String[] args) {
 
+        System.out.println(Constants.TRANSACTION_SIZE_TRYTES);
         Map<String, String> argMap = mapArgs(args);
 
         Properties properties = loadOrCreatedProperties(argMap);

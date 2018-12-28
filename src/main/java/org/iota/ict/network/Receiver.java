@@ -115,7 +115,10 @@ public class Receiver extends Thread {
 
     private Neighbor determineNeighborWhoSent(DatagramPacket packet) {
         for (Neighbor nb : ict.getNeighbors())
-            if (nb.getAddress().equals(packet.getSocketAddress()))
+            if(nb.sentPacket(packet))
+                return nb;
+        for (Neighbor nb : ict.getNeighbors())
+            if(nb.sentPacketFromSameIP(packet))
                 return nb;
         Ict.LOGGER.warn("Received transaction from unknown address: " + packet.getAddress());
         return null;
@@ -152,5 +155,6 @@ public class Receiver extends Thread {
         return false;
 
     }
+
 
 }
