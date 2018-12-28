@@ -138,7 +138,7 @@ public class Receiver extends Thread {
             median = Math.min(values.get(0), values.get(1));
         else if(values.size() == 3) {
             Collections.sort(values);
-            median = (double) values.get(values.size() / 2);
+            median = values.get(1);
         }
 
         if(median == 0)
