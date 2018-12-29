@@ -11,9 +11,6 @@ import org.iota.ict.utils.Trytes;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * This class receives transactions from neighbors. Together with the {@link Sender}, they are the two important gateways
@@ -56,7 +53,7 @@ public class Receiver extends Thread {
         if(sender == null)
             return;
 
-        if(shouldIgnoreNeighbor(sender)) {
+        if(sender.reachedLimitOfAllowedTransactions()) {
             sender.stats.ignored++;
             return;
         }
@@ -123,38 +120,4 @@ public class Receiver extends Thread {
         Ict.LOGGER.warn("Received transaction from unknown address: " + packet.getAddress());
         return null;
     }
-
-    private boolean shouldIgnoreNeighbor(Neighbor sender) {
-
-        if(sender.stats.receivedAll >= ict.getProperties().maxTransactionsPerRound)
-            return true;
-
-        List<Integer> values = new ArrayList<>();
-        for(Neighbor neighbor: ict.getNeighbors())
-            values.add(neighbor.stats.prevReceivedAll);
-
-        if(values.size() <= 1)
-            return false;
-
-        double median = 0;
-        if(values.size() == 2)
-            median = Math.min(values.get(0), values.get(1));
-        else if(values.size() == 3) {
-            Collections.sort(values);
-            median = values.get(1);
-        }
-
-        if(median == 0)
-            return false;
-
-        if(sender.stats.receivedAll > ict.getProperties().maxTransactionsRelative * median) {
-            Ict.LOGGER.warn("Ignoring neighbor " + sender.getAddress() + " because of abnormal behavior.");
-            return true;
-        }
-
-        return false;
-
-    }
-
-
 }

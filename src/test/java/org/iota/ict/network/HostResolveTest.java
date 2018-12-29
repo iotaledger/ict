@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
  * */
 public class HostResolveTest {
 
-    private final Neighbor neighbor = new Neighbor(new InetSocketAddress("localhost", 42));
+    private final Neighbor neighbor = new Neighbor(new InetSocketAddress("localhost", 42), 0);
 
     @Test
     public void sameIpWhenSentPacketFromSameIpThenTrue() {

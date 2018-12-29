@@ -25,7 +25,7 @@ public class SpamProtectionTest extends GossipTest {
 
         statsForA.receivedAll = maxTransactionsPerRound - 10;
         testUnidirectionalCommunication(a, b, 10);
-
+        assertTransactionDoesNotMakeItThrough(a,b);
     }
 
     @Test
@@ -41,23 +41,22 @@ public class SpamProtectionTest extends GossipTest {
         connect(a, c);
         connect(a, d);
 
-        final int all1 = 3, all2 = 8, all3 = 12;
-        final int median = 8;
+        int[] prevReceivedAll = {3, 8, 12};
+        int median = prevReceivedAll[1];
         int tolerance = median * (int) a.getProperties().maxTransactionsRelative;
 
-        a.getNeighbors().get(0).stats.prevReceivedAll = all1;
-        a.getNeighbors().get(1).stats.prevReceivedAll = all2;
-        a.getNeighbors().get(2).stats.prevReceivedAll = all3;
+        for(int i = 0; i < 3; i++)
+           a.getNeighbors().get(i).stats.receivedAll = prevReceivedAll[i];
+        a.newRound();
 
-        a.getNeighbors().get(2).stats.receivedAll = tolerance;
-
-        a.getNeighbors().get(2).stats.receivedAll = tolerance+1;
+        a.getNeighbors().get(2).stats.receivedAll = tolerance - 10;
+        testUnidirectionalCommunication(d, a, 10);
         assertTransactionDoesNotMakeItThrough(d, a);
     }
 
     private void assertTransactionDoesNotMakeItThrough(Ict sender, Ict receiver) {
         Transaction toIgnore = sender.submit("");
         waitUntilCommunicationEnds(100);
-        Assert.assertNull("Spam protection failed: more transactions than max_transactions_per_round passed.", receiver.getTangle().findTransactionByHash(toIgnore.hash));
+        Assert.assertNull("Spam protection failed: transaction passed.", receiver.getTangle().findTransactionByHash(toIgnore.hash));
     }
 }

@@ -11,7 +11,7 @@ public class TimestampTest extends GossipTest {
     @Test
     public void testTimestampDiffTolerance() {
         TransactionBuilder builder = new TransactionBuilder();
-        builder.issuanceTimestamp = System.currentTimeMillis() - Constants.TIMESTAMP_DIFFERENCE_TOLERANCE_IN_MILLIS;
+        builder.issuanceTimestamp = System.currentTimeMillis() -(long)(Constants.TIMESTAMP_DIFFERENCE_TOLERANCE_IN_MILLIS * 1.1);
 
         Ict a = createIct();
         Ict b = createIct();

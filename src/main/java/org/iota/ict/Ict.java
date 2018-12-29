@@ -95,7 +95,7 @@ public class Ict {
     public void neighbor(InetSocketAddress neighborAddress) {
         if (neighbors.size() >= Constants.MAX_NEIGHBOR_COUNT)
             throw new IllegalStateException("Already reached maximum amount of neighbors.");
-        neighbors.add(new Neighbor(neighborAddress));
+        neighbors.add(new Neighbor(neighborAddress, properties.maxTransactionsPerRound));
     }
 
     /**
@@ -174,13 +174,7 @@ public class Ict {
     }
 
     public void newRound() {
-        if(round % 10 == 0)
-            Neighbor.logHeader();
-        // two separate FOR-loops to prevent delays between newRound() calls
-        for (Neighbor neighbor : neighbors)
-            neighbor.newRound();
-        for (Neighbor neighbor : neighbors)
-            neighbor.resolveHost();
+        Neighbor.newRound(this, round);
         if(properties.spamEnabled) {
             String spamHash = submit("spam transaction from node '" + properties.name + "'").hash;
             LOGGER.info("submitted spam transaction: " + spamHash);
