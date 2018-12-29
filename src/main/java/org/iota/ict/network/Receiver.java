@@ -53,6 +53,8 @@ public class Receiver extends Thread {
         if(sender == null)
             return;
 
+        sender.stats.receivedAll++;
+
         if(sender.reachedLimitOfAllowedTransactions()) {
             sender.stats.ignored++;
             return;
@@ -64,7 +66,6 @@ public class Receiver extends Thread {
             return;
         }
 
-        sender.stats.receivedAll++;
         updateTransactionLog(sender, transaction);
         processRequest(sender, transaction);
     }

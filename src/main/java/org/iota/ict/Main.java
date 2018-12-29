@@ -45,9 +45,6 @@ public class Main {
 
         logger.info("Starting new Ict '" + properties.name + "' (version: " + Constants.ICT_VERSION + ")");
 
-        if (!properties.ixiEnabled && properties.ixis.size() > 0)
-            logger.warn("Not running any IXI modules because IXI is disabled. To enable IXI, set 'ixi_enabled = true' in your config file.");
-
         Ict ict;
         try {
             ict = new Ict(properties);

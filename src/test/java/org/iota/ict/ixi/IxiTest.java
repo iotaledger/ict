@@ -21,15 +21,14 @@ public class IxiTest {
     @BeforeClass
     public static void setUp() {
 
-        ixi = new TestIxi();
         Properties properties = new Properties();
-        properties.minForwardDelay = 1;
+        properties.minForwardDelay = 0;
         properties.maxForwardDelay = 5;
-        properties.ixis.add(TestIxi.NAME);
         properties.ixiEnabled = true;
         ict = new Ict(properties);
         sleep(100);
-        Assert.assertTrue("ict could not connect to ixi", ixi.connected);
+
+        ixi = new TestIxi(properties.name);
     }
 
     @Test
@@ -106,22 +105,15 @@ public class IxiTest {
 class TestIxi extends IxiModule {
 
     static final String NAME = "simple.ixi";
-
-    boolean connected = false;
     GossipSubmitEvent receivedGossipSubmitEvent = null;
 
-    TestIxi() {
-        super(NAME);
+    TestIxi(String ictName) {
+        super(NAME, ictName);
     }
 
     @Override
     public void onTransactionReceived(GossipReceiveEvent event) {
 
-    }
-
-    @Override
-    public void onIctConnect(String name) {
-        connected = true;
     }
 
     @Override

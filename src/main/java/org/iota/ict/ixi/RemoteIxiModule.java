@@ -11,6 +11,4 @@ public interface RemoteIxiModule extends Remote {
     void onTransactionReceived(GossipReceiveEvent event) throws RemoteException;
 
     void onTransactionSubmitted(GossipSubmitEvent event) throws RemoteException;
-
-    void onIctConnect(String name) throws RemoteException;
 }

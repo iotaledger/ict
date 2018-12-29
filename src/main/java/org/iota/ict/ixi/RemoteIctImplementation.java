@@ -10,6 +10,7 @@ import org.iota.ict.utils.ErrorHandler;
 
 import java.net.MalformedURLException;
 import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
@@ -67,13 +68,13 @@ public class RemoteIctImplementation extends UnicastRemoteObject implements Remo
         });
     }
 
-    public void connectToIxi(String name) {
+    @Override
+    public void onIxiConnect(String ixiName) {
         try {
-            RemoteIxiModule ixiModule = (RemoteIxiModule) Naming.lookup("//localhost/" + name);
-            ixiModulesByName.put(name, ixiModule);
-            ixiModule.onIctConnect(this.name);
-        } catch (Throwable t) {
-            ErrorHandler.handleError(Ict.LOGGER, t, "Failed connecting to IXI");
+            RemoteIxiModule ixiModule = (RemoteIxiModule) Naming.lookup("//localhost/" + ixiName);
+            ixiModulesByName.put(ixiName, ixiModule);
+        } catch (NotBoundException | MalformedURLException | RemoteException e) {
+            ErrorHandler.handleError(Ict.LOGGER, e, "Failed to accept connecting IXI module '"+ixiName+"'.");
         }
     }
 

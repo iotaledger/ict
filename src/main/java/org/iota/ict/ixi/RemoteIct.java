@@ -21,4 +21,6 @@ public interface RemoteIct extends Remote {
     void setGossipFilter(String moduleName, GossipFilter filter) throws RemoteException;
 
     void submit(Transaction transaction) throws RemoteException;
+
+    void onIxiConnect(String name) throws RemoteException;
 }

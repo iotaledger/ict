@@ -2,6 +2,7 @@ package org.iota.ict.ixi;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.iota.ict.Ict;
 import org.iota.ict.model.Transaction;
 import org.iota.ict.network.event.GossipFilter;
 import org.iota.ict.network.event.GossipListener;
@@ -11,6 +12,7 @@ import org.iota.ict.utils.ErrorHandler;
 
 import java.net.MalformedURLException;
 import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
@@ -28,15 +30,15 @@ public abstract class IxiModule {
     }
 
     private final String name;
-    private RemoteIct ict;
-    private String ictName;
-    private final IxiModuleAdapter adapter;
+    private final RemoteIct ict;
 
-    public IxiModule(String name) {
-        this.name = name;
+    public IxiModule(String name, String ictName) {
         try {
-            adapter = new IxiModuleAdapter(name);
-        } catch (RemoteException e) {
+            this.name = name;
+            new IxiModuleAdapter(name);
+            ict = (RemoteIct) Naming.lookup("//localhost/" + ictName);
+            ict.onIxiConnect(name);
+        } catch (RemoteException | NotBoundException | MalformedURLException e) {
             throw new RuntimeException(e);
         }
     }
@@ -95,18 +97,6 @@ public abstract class IxiModule {
         }
     }
 
-    private void setIct(String name) {
-        try {
-            ict = (RemoteIct) Naming.lookup("//localhost/" + name);
-            ictName = name;
-        } catch (Throwable t) {
-            ErrorHandler.handleError(logger, t, "Failed to accept connection to ict '" + name + "'");
-            throw new RuntimeException(t);
-        }
-    }
-
-    public abstract void onIctConnect(String name);
-
     public abstract void onTransactionReceived(GossipReceiveEvent event);
 
     public abstract void onTransactionSubmitted(GossipSubmitEvent event);
@@ -135,16 +125,6 @@ public abstract class IxiModule {
         @Override
         public void onTransactionSubmitted(GossipSubmitEvent event) {
             IxiModule.this.onTransactionSubmitted(event);
-        }
-
-        @Override
-        public void onIctConnect(String name) throws RemoteException {
-            if (ict != null) {
-                logger.warn("Refusing Ict '" + name + "' (already connected to '" + ictName + "').");
-                throw new RemoteException("IXI is already connected to Ict '" + ictName + "'");
-            }
-            IxiModule.this.setIct(name);
-            IxiModule.this.onIctConnect(name);
         }
     }
 }

@@ -71,15 +71,12 @@ public class Ict {
         sender.start();
         receiver.start();
 
-        remoteIctImplementation = properties.ixiEnabled ? createRemoteIctImplementation(properties.ixis) : null;
+        remoteIctImplementation = properties.ixiEnabled ? createRemoteIctImplementation() : null;
     }
 
-    private RemoteIctImplementation createRemoteIctImplementation(List<String> ixis) {
+    private RemoteIctImplementation createRemoteIctImplementation() {
         try {
-            RemoteIctImplementation remoteIctImplementation = new RemoteIctImplementation(this);
-            for (String ixi : ixis)
-                remoteIctImplementation.connectToIxi(ixi);
-            return remoteIctImplementation;
+            return new RemoteIctImplementation(this);
         } catch (Throwable t) {
             ErrorHandler.handleError(LOGGER, t, "failed to enable IXI");
             return null;
