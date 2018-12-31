@@ -32,7 +32,7 @@ public class Properties {
     public String name = "ict";
     public String host = "0.0.0.0";
     public int port = 1337;
-    public long logRoundDuration = 60000;
+    public long roundDuration = 60000;
     public List<InetSocketAddress> neighbors = new LinkedList<>();
 
     public static Properties fromFile(String path) {
@@ -49,16 +49,16 @@ public class Properties {
 
     }
 
-    Properties(java.util.Properties propObject) {
-        tangleCapacity = readLongProperty(propObject, Property.tangle_capacity, 10,  Long.MAX_VALUE, DEFAULT_PROPERTIES.tangleCapacity);
-        maxTransactionsRelative = readLongProperty(propObject, Property.max_transactions_relative, 1, Long.MAX_VALUE, DEFAULT_PROPERTIES.maxTransactionsRelative);
-        maxTransactionsPerRound = readLongProperty(propObject, Property.max_transactions_per_round, 1, Long.MAX_VALUE, DEFAULT_PROPERTIES.maxTransactionsPerRound);
+    private Properties(java.util.Properties propObject) {
+        tangleCapacity = readLongProperty(propObject, Property.tangle_capacity, 10, Long.MAX_VALUE, DEFAULT_PROPERTIES.tangleCapacity);
+        maxTransactionsRelative = readLongProperty(propObject, Property.max_tx_abs, 1, Long.MAX_VALUE, DEFAULT_PROPERTIES.maxTransactionsRelative);
+        maxTransactionsPerRound = readLongProperty(propObject, Property.max_tx_rel, 1, Long.MAX_VALUE, DEFAULT_PROPERTIES.maxTransactionsPerRound);
         minForwardDelay = readLongProperty(propObject, Property.min_forward_delay, 0, 10000, DEFAULT_PROPERTIES.minForwardDelay);
         maxForwardDelay = readLongProperty(propObject, Property.max_forward_delay, 0, 10000, DEFAULT_PROPERTIES.maxForwardDelay);
         host = propObject.getProperty(Property.host.name(), DEFAULT_PROPERTIES.host);
         name = propObject.getProperty(Property.name.name(), DEFAULT_PROPERTIES.name);
         port = (int) readLongProperty(propObject, Property.port, 1, 65535, DEFAULT_PROPERTIES.port);
-        logRoundDuration = readLongProperty(propObject, Property.log_round_duration, 100, Long.MAX_VALUE, DEFAULT_PROPERTIES.logRoundDuration);
+        roundDuration = readLongProperty(propObject, Property.round_duration, 100, Long.MAX_VALUE, DEFAULT_PROPERTIES.roundDuration);
         neighbors = neighborsFromString(propObject.getProperty(Property.neighbors.name(), ""));
         spamEnabled = propObject.getProperty(Property.spam_enabled.name(), DEFAULT_PROPERTIES.spamEnabled + "").toLowerCase().equals("true");
         ixiEnabled = propObject.getProperty(Property.ixi_enabled.name(), DEFAULT_PROPERTIES.ixiEnabled + "").toLowerCase().equals("true");
@@ -139,14 +139,14 @@ public class Properties {
     java.util.Properties toPropObject() {
         java.util.Properties propObject = new java.util.Properties();
         propObject.setProperty(Property.tangle_capacity.name(), tangleCapacity + "");
-        propObject.setProperty(Property.max_transactions_relative.name(), maxTransactionsRelative + "");
-        propObject.setProperty(Property.max_transactions_per_round.name(), maxTransactionsPerRound + "");
+        propObject.setProperty(Property.max_tx_abs.name(), maxTransactionsRelative + "");
+        propObject.setProperty(Property.max_tx_rel.name(), maxTransactionsPerRound + "");
         propObject.setProperty(Property.min_forward_delay.name(), minForwardDelay + "");
         propObject.setProperty(Property.max_forward_delay.name(), maxForwardDelay + "");
         propObject.setProperty(Property.name.name(), name);
         propObject.setProperty(Property.host.name(), host);
         propObject.setProperty(Property.port.name(), port + "");
-        propObject.setProperty(Property.log_round_duration.name(), logRoundDuration + "");
+        propObject.setProperty(Property.round_duration.name(), roundDuration + "");
         propObject.setProperty(Property.neighbors.name(), neighborsToString());
         propObject.setProperty(Property.spam_enabled.name(), spamEnabled + "");
         propObject.setProperty(Property.ixi_enabled.name(), ixiEnabled + "");
@@ -163,19 +163,18 @@ public class Properties {
         return this;
     }
 
-    private static enum Property {
-        max_transactions_relative,
-        max_transactions_per_round,
+    private enum Property {
+        max_tx_abs,
+        max_tx_rel,
         tangle_capacity,
         min_forward_delay,
         max_forward_delay,
         port,
         host,
-        log_round_duration,
+        round_duration,
         neighbors,
         spam_enabled,
         ixi_enabled,
-        ixis,
         name;
     }
 

@@ -47,7 +47,7 @@ public class Neighbor {
 
     public void resolveHost() {
         try {
-            if(!address.getAddress().equals(InetAddress.getByName(address.getHostName())))
+            if (!address.getAddress().equals(InetAddress.getByName(address.getHostName())))
                 address = new InetSocketAddress(address.getHostName(), address.getPort());
         } catch (UnknownHostException e) {
             ErrorHandler.handleWarning(logger, e, "Unknown Host for: " + address.getHostString());
@@ -79,7 +79,7 @@ public class Neighbor {
     }
 
     public static void newRound(Ict ict, int round) {
-        if(round % 10 == 0)
+        if (round % 10 == 0)
             Neighbor.logHeader();
         // two separate FOR-loops to prevent delays between newRound() calls
         for (Neighbor neighbor : ict.getNeighbors()) {
@@ -103,7 +103,7 @@ public class Neighbor {
 
     private static long calcUpperMedianOfPrevReceivedAll(List<Neighbor> neighbors) {
         List<Long> values = new LinkedList<>();
-        for(Neighbor nb : neighbors)
+        for (Neighbor nb : neighbors)
             values.add(nb.stats.prevReceivedAll);
         return calcUpperMedian(values);
     }
@@ -111,7 +111,7 @@ public class Neighbor {
     private static long calcUpperMedian(List<Long> values) {
         assert values.size() > 0;
         Collections.sort(values);
-        return values.get((int)Math.ceil((values.size()-1) / 2.0));
+        return values.get((int) Math.ceil((values.size() - 1) / 2.0));
     }
 
     private void newRound(long maxAllowedTransactionsForRound) {

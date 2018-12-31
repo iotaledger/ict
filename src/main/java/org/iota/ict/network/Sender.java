@@ -73,7 +73,7 @@ public class Sender extends Thread {
     }
 
     private void manageRounds() {
-        if (roundStart + ict.getProperties().logRoundDuration < System.currentTimeMillis()) {
+        if (roundStart + ict.getProperties().roundDuration < System.currentTimeMillis()) {
             ict.newRound();
             roundStart = System.currentTimeMillis();
         }
@@ -83,7 +83,7 @@ public class Sender extends Thread {
         try {
             synchronized (queue) {
                 // keep queue.isEmpty() within the synchronized block so notify is not called after the empty check and before queue.wait()
-                queue.wait(queue.isEmpty() ? properties.logRoundDuration : Math.max(1, queue.peek().sendingTime - System.currentTimeMillis()));
+                queue.wait(queue.isEmpty() ? properties.roundDuration : Math.max(1, queue.peek().sendingTime - System.currentTimeMillis()));
             }
         } catch (InterruptedException e) {
             if (ict.isRunning())

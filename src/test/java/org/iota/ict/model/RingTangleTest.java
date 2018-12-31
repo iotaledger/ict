@@ -19,10 +19,10 @@ public class RingTangleTest extends IctTestTemplate {
         Ict ict = createIct(properties);
 
         TransactionBuilder builder = new TransactionBuilder();
-        for(int i = 0; i < ringTangleCapacity * 2; i++) {
+        for (int i = 0; i < ringTangleCapacity * 2; i++) {
             ict.submit(builder.build());
             int amountSubmitted = i + 1;
-            int expectedTangleSize = Math.min(amountSubmitted+1, ringTangleCapacity); // +1 for NULL transaction
+            int expectedTangleSize = Math.min(amountSubmitted + 1, ringTangleCapacity); // +1 for NULL transaction
             Assert.assertEquals("Unexpected amount of transactions.", expectedTangleSize, ict.getTangle().size());
         }
     }
@@ -39,11 +39,11 @@ public class RingTangleTest extends IctTestTemplate {
 
         List<Transaction> transactionsOrderedByTimestamps = generateTransactionsOrderedByTimestamps(totalTransactions);
 
-        Set<Transaction> previousTransactions = new HashSet<>(transactionsOrderedByTimestamps.subList(0, offset + ringTangleCapacity-1));
-        Set<Transaction> tangleContentBefore = new HashSet<>(transactionsOrderedByTimestamps.subList(offset, offset + ringTangleCapacity-1));
+        Set<Transaction> previousTransactions = new HashSet<>(transactionsOrderedByTimestamps.subList(0, offset + ringTangleCapacity - 1));
+        Set<Transaction> tangleContentBefore = new HashSet<>(transactionsOrderedByTimestamps.subList(offset, offset + ringTangleCapacity - 1));
 
-        Set<Transaction> newTransactions = new HashSet<>(transactionsOrderedByTimestamps.subList(offset + ringTangleCapacity-1, transactionsOrderedByTimestamps.size()));
-        Set<Transaction> tangleContentAfter = new HashSet<>(transactionsOrderedByTimestamps.subList(transactionsOrderedByTimestamps.size() - ringTangleCapacity+1, transactionsOrderedByTimestamps.size()));
+        Set<Transaction> newTransactions = new HashSet<>(transactionsOrderedByTimestamps.subList(offset + ringTangleCapacity - 1, transactionsOrderedByTimestamps.size()));
+        Set<Transaction> tangleContentAfter = new HashSet<>(transactionsOrderedByTimestamps.subList(transactionsOrderedByTimestamps.size() - ringTangleCapacity + 1, transactionsOrderedByTimestamps.size()));
 
 
         submit(ict, previousTransactions);
@@ -64,25 +64,25 @@ public class RingTangleTest extends IctTestTemplate {
             }
         };
 
-        for(int i = 0; i < 100; i++)
-            ringTangle.insertIntoSorted(list, integerComparator, (int)(Math.random() * 1000));
+        for (int i = 0; i < 100; i++)
+            ringTangle.insertIntoSorted(list, integerComparator, (int) (Math.random() * 1000));
 
         Integer prevInteger = list.get(0);
-        for(Integer i : list) {
+        for (Integer i : list) {
             Assert.assertTrue("List not sorted in ascending order: " + prevInteger + " > " + i, prevInteger <= i);
             prevInteger = i;
         }
     }
 
     private static void submit(Ict ict, Iterable<Transaction> transactions) {
-        for(Transaction transaction : transactions)
+        for (Transaction transaction : transactions)
             ict.submit(transaction);
     }
 
     private static void assertTangleContainsExactlyPlusNullTx(Tangle tangle, Set<Transaction> transactionsToContain) {
-        Assert.assertEquals("Unexpected amount of transactions.", transactionsToContain.size()+1, tangle.size());
+        Assert.assertEquals("Unexpected amount of transactions.", transactionsToContain.size() + 1, tangle.size());
         Assert.assertNotNull(tangle.findTransactionLog(Transaction.NULL_TRANSACTION));
-        for(Transaction transaction : transactionsToContain)
+        for (Transaction transaction : transactionsToContain)
             Assert.assertNotNull("A transaction is missing.", tangle.findTransactionLog(transaction));
     }
 

@@ -21,7 +21,6 @@ import org.iota.ict.utils.Properties;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
-import java.rmi.RemoteException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -172,7 +171,7 @@ public class Ict {
 
     public void newRound() {
         Neighbor.newRound(this, round);
-        if(properties.spamEnabled) {
+        if (properties.spamEnabled) {
             String spamHash = submit("spam transaction from node '" + properties.name + "'").hash;
             LOGGER.info("submitted spam transaction: " + spamHash);
         }

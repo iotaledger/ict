@@ -74,7 +74,7 @@ public class RemoteIctImplementation extends UnicastRemoteObject implements Remo
             RemoteIxiModule ixiModule = (RemoteIxiModule) Naming.lookup("//localhost/" + ixiName);
             ixiModulesByName.put(ixiName, ixiModule);
         } catch (NotBoundException | MalformedURLException | RemoteException e) {
-            ErrorHandler.handleError(Ict.LOGGER, e, "Failed to accept connecting IXI module '"+ixiName+"'.");
+            ErrorHandler.handleError(Ict.LOGGER, e, "Failed to accept connecting IXI module '" + ixiName + "'.");
         }
     }
 

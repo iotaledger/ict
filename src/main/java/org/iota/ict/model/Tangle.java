@@ -44,8 +44,8 @@ public class Tangle {
 
     public Set<Transaction> findTransactionsByAddress(String address) {
         Set<Transaction> transactions = new HashSet<>();
-        if(transactionsByAddress.containsKey(address)) {
-            for(TransactionLog log : transactionsByAddress.get(address))
+        if (transactionsByAddress.containsKey(address)) {
+            for (TransactionLog log : transactionsByAddress.get(address))
                 transactions.add(log.transaction);
         }
         return transactions;
@@ -53,8 +53,8 @@ public class Tangle {
 
     public Set<Transaction> findTransactionsByTag(String tag) {
         Set<Transaction> transactions = new HashSet<>();
-        if(transactionsByTag.containsKey(tag)) {
-            for(TransactionLog log : transactionsByTag.get(tag))
+        if (transactionsByTag.containsKey(tag)) {
+            for (TransactionLog log : transactionsByTag.get(tag))
                 transactions.add(log.transaction);
         }
         return transactions;
@@ -62,7 +62,7 @@ public class Tangle {
 
     public void deleteTransaction(Transaction transaction) {
         TransactionLog log = transactionsByHash.remove(transaction.hash);
-        if(log != null) {
+        if (log != null) {
             log.removeFromSetMap(transactionsByTag, transaction.tag);
             log.removeFromSetMap(transactionsByAddress, transaction.address);
         }
@@ -128,10 +128,10 @@ public class Tangle {
             map.get(key).add(this);
         }
 
-        protected  <K> void removeFromSetMap(Map<K, Set<TransactionLog>> map, K key) {
+        protected <K> void removeFromSetMap(Map<K, Set<TransactionLog>> map, K key) {
             if (map.containsKey(key)) {
                 map.get(key).remove(this);
-                if(map.get(key).size() == 0)
+                if (map.get(key).size() == 0)
                     map.remove(key);
             }
         }

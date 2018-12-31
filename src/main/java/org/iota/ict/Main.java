@@ -43,6 +43,11 @@ public class Main {
         Properties properties = loadOrCreatedProperties(argMap);
         properties.store(DEFAULT_PROPERTY_FILE_PATH);
 
+        if(properties.roundDuration < 30000 && properties.spamEnabled) {
+            logger.warn("Disabling spam because of low round duration.");
+            properties.spamEnabled = false;
+        }
+
         logger.info("Starting new Ict '" + properties.name + "' (version: " + Constants.ICT_VERSION + ")");
 
         Ict ict;

@@ -9,7 +9,7 @@ import static org.junit.Assert.*;
 
 /**
  * @author https://github.com/georgmittendorfer (https://github.com/iotaledger/ict/issues/3#issuecomment-450352986)
- * */
+ */
 public class HostResolveTest {
 
     private final Neighbor neighbor = new Neighbor(new InetSocketAddress("localhost", 42), 0);
@@ -29,7 +29,7 @@ public class HostResolveTest {
     }
 
     private DatagramPacket packetFrom(String hostOrIp, int port) {
-        return new DatagramPacket(new byte[] {}, 0, new InetSocketAddress(hostOrIp, port));
+        return new DatagramPacket(new byte[]{}, 0, new InetSocketAddress(hostOrIp, port));
     }
 
 }

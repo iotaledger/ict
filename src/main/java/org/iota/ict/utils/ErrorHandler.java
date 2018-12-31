@@ -11,7 +11,7 @@ public final class ErrorHandler {
     private static List<ThrowableLog> logs = new LinkedList<>();
 
     public static void handleWarning(Logger logger, Throwable throwable, String message) {
-        logger.warn(message + " ("+throwable.getMessage()+")");
+        logger.warn(message + " (" + throwable.getMessage() + ")");
         logs.add(new ThrowableLog(throwable));
     }
 
@@ -22,7 +22,7 @@ public final class ErrorHandler {
 
     public static void dump(File dir) {
         dir.mkdirs();
-        File logFile = new File(dir, "error_"+System.currentTimeMillis()+".log");
+        File logFile = new File(dir, "error_" + System.currentTimeMillis() + ".log");
         // TODO write to File
     }
 

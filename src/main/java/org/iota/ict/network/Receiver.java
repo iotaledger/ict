@@ -50,18 +50,18 @@ public class Receiver extends Thread {
     private void processIncoming(DatagramPacket packet) {
 
         Neighbor sender = determineNeighborWhoSent(packet);
-        if(sender == null)
+        if (sender == null)
             return;
 
         sender.stats.receivedAll++;
 
-        if(sender.reachedLimitOfAllowedTransactions()) {
+        if (sender.reachedLimitOfAllowedTransactions()) {
             sender.stats.ignored++;
             return;
         }
 
         Transaction transaction = unpack(packet, sender);
-        if(transaction == null) {
+        if (transaction == null) {
             sender.stats.receivedInvalid++;
             return;
         }
@@ -73,7 +73,7 @@ public class Receiver extends Thread {
     private Transaction unpack(DatagramPacket packet, Neighbor sender) {
         try {
             Transaction transaction = new Transaction(Trytes.fromBytes((packet.getData())));
-            if(Math.abs(transaction.issuanceTimestamp - System.currentTimeMillis()) > Constants.TIMESTAMP_DIFFERENCE_TOLERANCE_IN_MILLIS)
+            if (Math.abs(transaction.issuanceTimestamp - System.currentTimeMillis()) > Constants.TIMESTAMP_DIFFERENCE_TOLERANCE_IN_MILLIS)
                 throw new RuntimeException("issuance timestamp not in tolerated interval");
             return transaction;
         } catch (Throwable t) {
@@ -103,7 +103,7 @@ public class Receiver extends Thread {
         sendRequested(requested, requester);
         // unset requestHash because it's header information and does not actually belong to the transaction
         transaction.requestHash = Trytes.NULL_HASH;
-}
+    }
 
     private void sendRequested(Transaction requested, Neighbor requester) {
         Tangle.TransactionLog requestedLog = tangle.findTransactionLog(requested);
@@ -113,10 +113,10 @@ public class Receiver extends Thread {
 
     private Neighbor determineNeighborWhoSent(DatagramPacket packet) {
         for (Neighbor nb : ict.getNeighbors())
-            if(nb.sentPacket(packet))
+            if (nb.sentPacket(packet))
                 return nb;
         for (Neighbor nb : ict.getNeighbors())
-            if(nb.sentPacketFromSameIP(packet))
+            if (nb.sentPacketFromSameIP(packet))
                 return nb;
         Ict.LOGGER.warn("Received transaction from unknown address: " + packet.getAddress());
         return null;

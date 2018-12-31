@@ -11,8 +11,12 @@ public class GossipListener {
             throw new IllegalArgumentException("Unknown event: " + e.getClass().getName());
     }
 
-    public void onTransactionReceived(GossipReceiveEvent e) { ; }
+    public void onTransactionReceived(GossipReceiveEvent e) {
+        ;
+    }
 
-    public void onTransactionSubmitted(GossipSubmitEvent e) { ; }
+    public void onTransactionSubmitted(GossipSubmitEvent e) {
+        ;
+    }
 
 }

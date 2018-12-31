@@ -17,7 +17,9 @@ public class GossipEventDispatcher extends Thread {
                 GossipEvent event = eventQueue.take();
                 for (GossipListener listener : listeners)
                     listener.on(event);
-            } catch(InterruptedException e) { Thread.currentThread().interrupt(); }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
     }
 

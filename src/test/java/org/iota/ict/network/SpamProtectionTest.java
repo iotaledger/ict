@@ -25,7 +25,7 @@ public class SpamProtectionTest extends GossipTest {
 
         statsForA.receivedAll = maxTransactionsPerRound - 10;
         testUnidirectionalCommunication(a, b, 10);
-        assertTransactionDoesNotMakeItThrough(a,b);
+        assertTransactionDoesNotMakeItThrough(a, b);
     }
 
     @Test
@@ -45,8 +45,8 @@ public class SpamProtectionTest extends GossipTest {
         int median = prevReceivedAll[1];
         int tolerance = median * (int) a.getProperties().maxTransactionsRelative;
 
-        for(int i = 0; i < 3; i++)
-           a.getNeighbors().get(i).stats.receivedAll = prevReceivedAll[i];
+        for (int i = 0; i < 3; i++)
+            a.getNeighbors().get(i).stats.receivedAll = prevReceivedAll[i];
         a.newRound();
 
         a.getNeighbors().get(2).stats.receivedAll = tolerance - 10;
