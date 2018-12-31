@@ -77,7 +77,7 @@ public class Receiver extends Thread {
                 throw new RuntimeException("issuance timestamp not in tolerated interval");
             return transaction;
         } catch (Throwable t) {
-            ErrorHandler.handleWarning(Ict.LOGGER, t, "Failed storing properties in file: " + "Received invalid transaction from neighbor: " + sender.getAddress());
+            ErrorHandler.handleWarning(Ict.LOGGER, t,"Received invalid transaction from neighbor: " + sender.getAddress());
             return null;
         }
     }
