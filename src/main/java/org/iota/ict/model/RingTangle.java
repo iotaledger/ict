@@ -3,6 +3,8 @@ package org.iota.ict.model;
 import org.iota.ict.Ict;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 
 /**
  * This Tangle prunes transactions after reaching a certain size. It works similar to a ring memory (hence the name).
@@ -11,12 +13,13 @@ import java.util.*;
  */
 public class RingTangle extends Tangle {
 
-    private final List<TransactionLog> transactionsOrderedByTimestamp = new ArrayList<>();
+    private final PriorityBlockingQueue<Transaction> transactionsOrderedByTimestamp ;
     private long transactionCapacity;
 
     public RingTangle(Ict ict, long transactionCapacity) {
         super(ict);
         this.transactionCapacity = transactionCapacity;
+        transactionsOrderedByTimestamp = new PriorityBlockingQueue<>((int)Math.min(Integer.MAX_VALUE, transactionCapacity), TimestampComparator.INSTANCE);
     }
 
     public TransactionLog createTransactionLogIfAbsent(Transaction transaction) {
@@ -25,42 +28,13 @@ public class RingTangle extends Tangle {
         if (transactionsOrderedByTimestamp != null) {
             // == null only when calling the super constructor and adding NULL transaction
             // do not add NULL transaction to transactionsOrderedByTimestamp to prevent it from being pruned
-            insertIntoSorted(transactionsOrderedByTimestamp, TimestampComparator.INSTANCE, log);
+            transactionsOrderedByTimestamp.put(transaction);
             if (transactionsOrderedByTimestamp.size() + 1 > transactionCapacity) { // +1 fpr NULL transaction
-                deleteTransaction(transactionsOrderedByTimestamp.get(0).transaction);
+                deleteTransaction(transactionsOrderedByTimestamp.poll());
             }
             assert size() <= transactionCapacity;
         }
         return log;
-    }
-
-    synchronized <T> void insertIntoSorted(List<T> list, Comparator<T> comparator, T element) {
-
-        // TODO this can probably be rewritten much shorter
-
-        int lowerBound = 0;
-        int upperBound = list.size() - 1;
-
-        if (list.size() == 0 || comparator.compare(element, list.get(upperBound)) >= 0) {
-            list.add(element);
-            return;
-        }
-
-        if (comparator.compare(element, list.get(lowerBound)) <= 0) {
-            list.add(0, element);
-            return;
-        }
-
-        while (upperBound - lowerBound > 1) {
-            int referenceIndex = lowerBound + (upperBound - lowerBound) / 2;
-            T reference = list.get(referenceIndex);
-            if (comparator.compare(reference, element) <= 0) {
-                lowerBound = referenceIndex;
-            } else {
-                upperBound = referenceIndex;
-            }
-        }
-        list.add(lowerBound + 1, element);
     }
 
     @Override
@@ -74,14 +48,14 @@ public class RingTangle extends Tangle {
         }
     }
 
-    private static class TimestampComparator implements Comparator<Tangle.TransactionLog> {
+    private static class TimestampComparator implements Comparator<Transaction> {
 
         static final TimestampComparator INSTANCE = new TimestampComparator();
 
         @Override
-        public int compare(Tangle.TransactionLog tl1, Tangle.TransactionLog tl2) {
-            int cmp = Long.compare(tl1.transaction.issuanceTimestamp, tl2.transaction.issuanceTimestamp);
-            return cmp == 0 ? tl1.transaction.hash.compareTo(tl2.transaction.hash) : cmp;
+        public int compare(Transaction tl1, Transaction tl2) {
+            int cmp = Long.compare(tl1.issuanceTimestamp, tl2.issuanceTimestamp);
+            return cmp == 0 ? tl1.hash.compareTo(tl2.hash) : cmp;
         }
 
         @Override

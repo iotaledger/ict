@@ -53,27 +53,6 @@ public class RingTangleTest extends IctTestTemplate {
         assertTangleContainsExactlyPlusNullTx(ict.getTangle(), tangleContentAfter);
     }
 
-    @Test
-    public void testInsertIntoSorted() {
-        List<Integer> list = new ArrayList<>();
-        RingTangle ringTangle = new RingTangle(null, 0);
-        Comparator<Integer> integerComparator = new Comparator<Integer>() {
-            @Override
-            public int compare(Integer integer, Integer t1) {
-                return integer.compareTo(t1);
-            }
-        };
-
-        for (int i = 0; i < 100; i++)
-            ringTangle.insertIntoSorted(list, integerComparator, (int) (Math.random() * 1000));
-
-        Integer prevInteger = list.get(0);
-        for (Integer i : list) {
-            Assert.assertTrue("List not sorted in ascending order: " + prevInteger + " > " + i, prevInteger <= i);
-            prevInteger = i;
-        }
-    }
-
     private static void submit(Ict ict, Iterable<Transaction> transactions) {
         for (Transaction transaction : transactions)
             ict.submit(transaction);
