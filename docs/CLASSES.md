@@ -102,6 +102,11 @@ tryte sequence consists of multiple tryte fields (e.g. <b>address</b>, <b>value<
 of static length. With this class, these fields can be easily accessed. <b>Transaction</b> objects are data  objects,
 and their fields are not supposed to change after instantiation. To create custom transaction, one should use <b>TransactionBuilder.build()</b>.
 
+### [RingTangle](../src/main/java/org/iota/ict/model/RingTangle.java)
+This Tangle prunes transactions after reaching a certain size. It works similar to a ring memory (hence the name).
+The transactions are pruned in order of their timestamp, always keeping the N (<b>transactionCapacity</b>) most recent ones.
+As an exception, the NULL transaction will never be pruned away.
+
 ### [BalanceChange](../src/main/java/org/iota/ict/model/BalanceChange.java)
 A <b>BalanceChange</b> models a proposed change for the IOTA token balance of an IOTA address. Since tokens can neither be
 burned nor created, no positive or negative <b>BalanceChange</b> cannot exist on its own but requires other balance
