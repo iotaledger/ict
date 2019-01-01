@@ -14,7 +14,7 @@ public class SpamProtectionTest extends GossipTest {
         int maxTransactionsPerRound = 666;
 
         Properties properties = new Properties();
-        properties.maxTransactionsPerRound = maxTransactionsPerRound;
+        properties.amtiSpamAbs = maxTransactionsPerRound;
 
         Ict a = createIct();
         Ict b = createIct(properties);
@@ -43,7 +43,7 @@ public class SpamProtectionTest extends GossipTest {
 
         int[] prevReceivedAll = {3, 8, 12};
         int median = prevReceivedAll[1];
-        int tolerance = median * (int) a.getProperties().maxTransactionsRelative;
+        int tolerance = median * (int) a.getProperties().antiSpamRel;
 
         for (int i = 0; i < 3; i++)
             a.getNeighbors().get(i).stats.receivedAll = prevReceivedAll[i];

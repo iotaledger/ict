@@ -22,8 +22,8 @@ public class Properties {
     private static final Properties DEFAULT_PROPERTIES = new Properties();
     private static final Logger logger = LogManager.getLogger(Properties.class);
 
-    public long maxTransactionsRelative = 5;
-    public long maxTransactionsPerRound = 1000;
+    public double antiSpamRel = 5;
+    public long amtiSpamAbs = 1000;
     public boolean spamEnabled = false;
     public boolean ixiEnabled = false;
     public long tangleCapacity = 10000;
@@ -51,8 +51,8 @@ public class Properties {
 
     private Properties(java.util.Properties propObject) {
         tangleCapacity = readLongProperty(propObject, Property.tangle_capacity, 10, Long.MAX_VALUE, DEFAULT_PROPERTIES.tangleCapacity);
-        maxTransactionsRelative = readLongProperty(propObject, Property.max_tx_abs, 1, Long.MAX_VALUE, DEFAULT_PROPERTIES.maxTransactionsRelative);
-        maxTransactionsPerRound = readLongProperty(propObject, Property.max_tx_rel, 1, Long.MAX_VALUE, DEFAULT_PROPERTIES.maxTransactionsPerRound);
+        antiSpamRel = readDoublePorperty(propObject, Property.anti_spam_rel, 1, 1000, DEFAULT_PROPERTIES.antiSpamRel);
+        amtiSpamAbs = readLongProperty(propObject, Property.anti_spam_abs, 1, Long.MAX_VALUE, DEFAULT_PROPERTIES.amtiSpamAbs);
         minForwardDelay = readLongProperty(propObject, Property.min_forward_delay, 0, 10000, DEFAULT_PROPERTIES.minForwardDelay);
         maxForwardDelay = readLongProperty(propObject, Property.max_forward_delay, 0, 10000, DEFAULT_PROPERTIES.maxForwardDelay);
         host = propObject.getProperty(Property.host.name(), DEFAULT_PROPERTIES.host);
@@ -110,12 +110,31 @@ public class Properties {
         return sb.length() == 0 ? "" : sb.deleteCharAt(sb.length() - 1).toString();
     }
 
+    private double readDoublePorperty(java.util.Properties properties, Property property, double min, double max, double defaultValue) {
+        double value = defaultValue;
+        try {
+            String string = properties.getProperty(property.name());
+            if (string != null)
+                value = Double.parseDouble(string);
+        } catch (NumberFormatException e) {
+            ErrorHandler.handleWarning(logger, e, "Property '" + property.name() + "' must be an integer.");
+        }
+
+        if (value < min || value > max) {
+            logger.warn("Property '" + property.name() + "' must be in range: " + min + "-" + max);
+            value = Math.min(max, Math.max(min, value));
+        }
+
+        return value;
+    }
+
+
     private long readLongProperty(java.util.Properties properties, Property property, long min, long max, long defaultValue) {
         long value = defaultValue;
         try {
             String string = properties.getProperty(property.name());
             if (string != null)
-                value = Integer.parseInt(string);
+                value = Long.parseLong(string);
         } catch (NumberFormatException e) {
             ErrorHandler.handleWarning(logger, e, "Property '" + property.name() + "' must be an integer.");
         }
@@ -139,8 +158,8 @@ public class Properties {
     java.util.Properties toPropObject() {
         java.util.Properties propObject = new java.util.Properties();
         propObject.setProperty(Property.tangle_capacity.name(), tangleCapacity + "");
-        propObject.setProperty(Property.max_tx_abs.name(), maxTransactionsRelative + "");
-        propObject.setProperty(Property.max_tx_rel.name(), maxTransactionsPerRound + "");
+        propObject.setProperty(Property.anti_spam_rel.name(), antiSpamRel + "");
+        propObject.setProperty(Property.anti_spam_abs.name(), amtiSpamAbs + "");
         propObject.setProperty(Property.min_forward_delay.name(), minForwardDelay + "");
         propObject.setProperty(Property.max_forward_delay.name(), maxForwardDelay + "");
         propObject.setProperty(Property.name.name(), name);
@@ -164,8 +183,8 @@ public class Properties {
     }
 
     private enum Property {
-        max_tx_abs,
-        max_tx_rel,
+        anti_spam_rel,
+        anti_spam_abs,
         tangle_capacity,
         min_forward_delay,
         max_forward_delay,

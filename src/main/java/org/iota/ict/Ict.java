@@ -91,7 +91,7 @@ public class Ict {
     public void neighbor(InetSocketAddress neighborAddress) {
         if (neighbors.size() >= Constants.MAX_NEIGHBOR_COUNT)
             throw new IllegalStateException("Already reached maximum amount of neighbors.");
-        neighbors.add(new Neighbor(neighborAddress, properties.maxTransactionsPerRound));
+        neighbors.add(new Neighbor(neighborAddress, properties.amtiSpamAbs));
     }
 
     /**
