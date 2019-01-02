@@ -9,10 +9,11 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
- * With instances of this class, the Ict and its sub-components can be easily configured. The properties can be read from
- * files or defined during runtime. Some properties might not be changeable yet after passing them to the Ict.
+ * With instances of this class, the Ict and its sub-components can be easily configured. The properties can be read from files or defined during runtime. Some
+ * properties might not be changeable yet after passing them to the Ict.
  *
  * @see org.iota.ict.Ict#Ict(Properties)
  */
@@ -43,6 +44,10 @@ public class Properties {
             ErrorHandler.handleError(logger, e, "Failed loading properties from file");
         }
         return new Properties(propObject);
+    }
+
+    public static Properties fromJavaProperties(java.util.Properties javaProperties) {
+        return new Properties(javaProperties);
     }
 
     public Properties() {
@@ -94,6 +99,30 @@ public class Properties {
         String hostString = address.substring(0, portColonIndex);
         int port = Integer.parseInt(address.substring(portColonIndex + 1, address.length()));
         return new InetSocketAddress(hostString, port);
+    }
+
+    public static java.util.Properties fromSystemProperties() {
+        java.util.Properties systemProperties = new java.util.Properties();
+        for (Property property : Property.values()) {
+            String valueOrNull = System.getProperty(property.name());
+            if(valueOrNull != null){
+                systemProperties.put(property.name(), valueOrNull);
+            }
+        }
+        return systemProperties;
+    }
+
+    public static java.util.Properties fromEnvironment() {
+        java.util.Properties environmentProperties = new java.util.Properties();
+        Map<String, String> envMap = System.getenv();
+        for (Property property : Property.values()) {
+            String upperCaseName = property.name();
+            String valueOrNull = envMap.get(upperCaseName);
+            if(valueOrNull != null){
+                environmentProperties.put(property.name(), valueOrNull);
+            }
+        }
+        return environmentProperties;
     }
 
     private String neighborsToString() {
@@ -155,7 +184,7 @@ public class Properties {
         }
     }
 
-    java.util.Properties toPropObject() {
+    public java.util.Properties toPropObject() {
         java.util.Properties propObject = new java.util.Properties();
         propObject.setProperty(Property.tangle_capacity.name(), tangleCapacity + "");
         propObject.setProperty(Property.anti_spam_rel.name(), antiSpamRel + "");
@@ -182,7 +211,7 @@ public class Properties {
         return this;
     }
 
-    private enum Property {
+    public enum Property {
         anti_spam_rel,
         anti_spam_abs,
         tangle_capacity,

@@ -46,7 +46,7 @@ cd Desktop/ict/
 java -jar ict-{VERSION}.jar
 ```
 
-On the very first start, this will create a configuration file (**ict.cfg**). Restart your Ict after modifying the configuration.
+Use `--config-create` option to create a configuration file (**ict.cfg**). Restart your Ict after modifying the configuration.
 
 ### Arguments
 
@@ -54,7 +54,9 @@ You can pass the following arguments to the .jar file when running it.
 
 Argument|Alias|Example|Description
 ---|---|---|---
-`-config`|`-c`|`-config ict.cfg`|Loads the Ict configuration from the specified file.
+`--config`|`-c`|`--config ict.cfg`|Loads the Ict configuration from the specified file.
+`--config-print`| |`--config-print`|Print the Ict configuration to stdout and exit.
+`--config-create`| |`--config-create`|Write the Ict configuration './ict.cfg'.
 
 ## IXI Modules
 
