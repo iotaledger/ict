@@ -12,3 +12,5 @@ gradle/
 settings.gradle
 gradlew.bat
 gradlew
+ict.ipr
+ict.iws

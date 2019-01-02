@@ -43,7 +43,7 @@ You will need the JRE (Java Runtime Environment) or JDK (Java Development Kit).
 cd Desktop/ict/
 
 # 2) run the .jar file
-java -jar ict-{VERSION}.jar
+java -jar ict.jar
 ```
 
 On the very first start, this will create a configuration file (**ict.cfg**). Restart your Ict after modifying the configuration.
