@@ -41,7 +41,7 @@ public class Main {
         Map<String, String> argMap = mapArgs(args);
 
         Properties properties = loadOrCreatedProperties(argMap);
-        properties.store(DEFAULT_PROPERTY_FILE_PATH);
+        properties.store(argMap.containsKey(ARG_CONFIG) ? argMap.get(ARG_CONFIG) : DEFAULT_PROPERTY_FILE_PATH);
 
         if(properties.roundDuration < 30000 && properties.spamEnabled) {
             logger.warn("Disabling spam because of low round duration.");
