@@ -7,9 +7,12 @@ import org.iota.ict.utils.Trytes;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Instances of this class provide a database which stores {@link Transaction} objects during runtime and allows to find
@@ -18,12 +21,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Tangle {
     protected final Ict ict;
     protected final Map<String, TransactionLog> transactionsByHash = new ConcurrentHashMap<>();
-    protected final Map<String, Set<TransactionLog>> transactionsByAddress = new ConcurrentHashMap<>();
-    protected final Map<String, Set<TransactionLog>> transactionsByTag = new ConcurrentHashMap<>();
-    protected final Map<String, Set<Transaction>> waitingReferrersTransactionsByHash = new ConcurrentHashMap<>();
+    protected final Map<String, List<TransactionLog>> transactionsByAddress = new ConcurrentHashMap<>();
+    protected final Map<String, List<TransactionLog>> transactionsByTag = new ConcurrentHashMap<>();
+    protected final Map<String, List<Transaction>> waitingReferrersTransactionsByHash = new ConcurrentHashMap<>();
 
     public Tangle(Ict ict) {
-        this.ict = ict;
+        this.ict = Objects.requireNonNull(ict,"'ict' must not null");
         createTransactionLogIfAbsent(Transaction.NULL_TRANSACTION);
     }
 
@@ -75,7 +78,7 @@ public class Tangle {
 
     private void buildEdgesToReferringTransactions(Transaction referred) {
         if (waitingReferrersTransactionsByHash.containsKey(referred.hash)) {
-            Set<Transaction> waiters = waitingReferrersTransactionsByHash.get(referred.hash);
+            List<Transaction> waiters = waitingReferrersTransactionsByHash.get(referred.hash);
             for (Transaction waiter : waiters)
                 buildEdgesToReferencedTransactions(waiter);
             waitingReferrersTransactionsByHash.remove(referred.hash);
@@ -95,10 +98,10 @@ public class Tangle {
 
     private void addReferrerTransactionToWaitingList(Transaction referrer, String transactionToWaitFor) {
         if (!waitingReferrersTransactionsByHash.containsKey(transactionToWaitFor)) {
-            waitingReferrersTransactionsByHash.put(transactionToWaitFor, new HashSet<Transaction>());
+            waitingReferrersTransactionsByHash.put(transactionToWaitFor, new CopyOnWriteArrayList<Transaction>());
             ict.request(transactionToWaitFor);
         }
-        Set<Transaction> waitingList = waitingReferrersTransactionsByHash.get(transactionToWaitFor);
+        List<Transaction> waitingList = waitingReferrersTransactionsByHash.get(transactionToWaitFor);
         waitingList.add(referrer);
     }
 
@@ -121,14 +124,14 @@ public class Tangle {
             buildEdges(transaction);
         }
 
-        private <K> void insertIntoSetMap(Map<K, Set<TransactionLog>> map, K key) {
+        private <K> void insertIntoSetMap(Map<K, List<TransactionLog>> map, K key) {
             if (!map.containsKey(key)) {
-                map.put(key, new HashSet<TransactionLog>());
+                map.put(key, new CopyOnWriteArrayList<TransactionLog>());
             }
             map.get(key).add(this);
         }
 
-        protected <K> void removeFromSetMap(Map<K, Set<TransactionLog>> map, K key) {
+        protected <K> void removeFromSetMap(Map<K, List<TransactionLog>> map, K key) {
             if (map.containsKey(key)) {
                 map.get(key).remove(this);
                 if (map.get(key).size() == 0)
