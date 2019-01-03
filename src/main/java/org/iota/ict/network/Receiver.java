@@ -5,7 +5,6 @@ import org.iota.ict.model.Tangle;
 import org.iota.ict.model.Transaction;
 import org.iota.ict.network.event.GossipReceiveEvent;
 import org.iota.ict.utils.Constants;
-import org.iota.ict.utils.ErrorHandler;
 import org.iota.ict.utils.Trytes;
 
 import java.io.IOException;
@@ -77,7 +76,7 @@ public class Receiver extends Thread {
                 throw new RuntimeException("issuance timestamp not in tolerated interval");
             return transaction;
         } catch (Throwable t) {
-            ErrorHandler.handleWarning(Ict.LOGGER, t,"Received invalid transaction from neighbor: " + sender.getAddress());
+            Ict.LOGGER.warn(("Received invalid transaction from neighbor: " + sender.getAddress()) + " (" + t.getMessage() + ")");
             return null;
         }
     }

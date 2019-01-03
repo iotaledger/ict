@@ -1,19 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="INFO">
+<Configuration status="WARN">
     <Appenders>
         <Console name="ConsoleStdOut" target="SYSTEM_OUT">
-            <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="ACCEPT"/>
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level [%t/%logger{0}]   %msg%n"/>
+            <DynamicThresholdFilter key="logLevelSplit" defaultThreshold="WARN" onMatch="DENY" onMismatch="ACCEPT"/>
+            <!-- Hide stacktrace on stdout -->
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level [%t/%logger{0}]   %msg%throwable{none}%n"/>
         </Console>
         <Console name="ConsoleStdErr" target="SYSTEM_ERR">
-            <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level [%t/%logger{0}]   %msg%n"/>
+            <DynamicThresholdFilter key="logLevelSplit" defaultThreshold="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
+            <!-- Hide stacktrace on stderr - show '- e.class: + e.msg' after the log.msg
+                 highlight ERROR=red and WARN=yellow -->
+            <PatternLayout pattern="%highlight{%d{HH:mm:ss.SSS} %-5level [%t/%logger{0}]   %msg - %throwable{short}%n}"/>
         </Console>
+        <Routing name="RoutingRollingFile">
+            <Routes pattern="$${ctx:logDir}/$${ctx:logFilename}">
+                <Route>
+                    <RollingFile name="RollingFile"
+                                 fileName="${ctx:logDir}/${ctx:logFilename}"
+                                 filePattern="${ctx:logDir}/${ctx:logFilename}-%d{MM-dd-yyyy}.gz"
+                                 ignoreExceptions="false"
+                                 createOnDemand="true">
+                        <ContextMapFilter onMatch="ACCEPT" onMismatch="DENY">
+                            <KeyValuePair key="logFileEnabled" value="true"/>
+                        </ContextMapFilter>
+                        <!-- Print any stacktrace to file -->
+                        <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level [%t/%logger{0}]   %msg%n%throwable"/>
+                        <TimeBasedTriggeringPolicy/>
+                    </RollingFile>
+                </Route>
+            </Routes>
+        </Routing>
     </Appenders>
     <Loggers>
-        <Root level="info">
+        <!--
+           Enable logging to
+           * stdout/stderr depending which ${ctx:logLevelSplit} is set to oneOf(ERROR|WARN|INFO|DEBUG|TRACE) (default:INFO)
+           * rolling-file:=${ctx:logDir}/${ctx:logFilename} if ${ctx:logFileEnabled} is set to 'true' (default:false)
+           ** rolling-file interval is daily
+           All ctx:variables will be controlled by Main.Log4jConfig
+        -->
+        <Root level="INFO">
             <AppenderRef ref="ConsoleStdOut"/>
             <AppenderRef ref="ConsoleStdErr"/>
+            <AppenderRef ref="RoutingRollingFile"/>
         </Root>
     </Loggers>
 </Configuration>

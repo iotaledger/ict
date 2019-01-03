@@ -6,7 +6,6 @@ import org.iota.ict.network.event.GossipFilter;
 import org.iota.ict.network.event.GossipListener;
 import org.iota.ict.network.event.GossipReceiveEvent;
 import org.iota.ict.network.event.GossipSubmitEvent;
-import org.iota.ict.utils.ErrorHandler;
 
 import java.net.MalformedURLException;
 import java.rmi.Naming;
@@ -74,7 +73,7 @@ public class RemoteIctImplementation extends UnicastRemoteObject implements Remo
             RemoteIxiModule ixiModule = (RemoteIxiModule) Naming.lookup("//localhost/" + ixiName);
             ixiModulesByName.put(ixiName, ixiModule);
         } catch (NotBoundException | MalformedURLException | RemoteException e) {
-            ErrorHandler.handleError(Ict.LOGGER, e, "Failed to accept connecting IXI module '" + ixiName + "'.");
+            Ict.LOGGER.error("Failed to accept connecting IXI module '" + ixiName + "'.", e);
         }
     }
 

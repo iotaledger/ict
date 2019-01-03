@@ -1,12 +1,13 @@
 package org.iota.ict;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.ThreadContext;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.iota.ict.utils.Constants;
-import org.iota.ict.utils.ErrorHandler;
 import org.iota.ict.utils.Properties;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.BindException;
@@ -23,9 +24,9 @@ import java.util.Objects;
  */
 public class Main {
     private static final String DEFAULT_PROPERTY_FILE_PATH = "ict.cfg";
-    public static final String DEFAULT_LOG_DIR_PATH = "logs/";
-    private static final File DEFAULT_LOG_DIR = new File(DEFAULT_LOG_DIR_PATH);
-    private static final boolean FAIL_IF_LOG_DIR_NOT_EXIST = false;
+    private static final String DEFAULT_LOG_DIR_PATH = "logs/";
+    private static final String DEFAULT_LOG_FILE_NAME = "ict.log";
+    private static final String DEFAULT_ENABLE_LOGFILE_CREATION_ON_STARTUP = "false";
 
     /* Simple {@code ict}-cmdline parser to get a valid {@code ict.Properties} instance */
     final static class Cmdline {
@@ -35,14 +36,19 @@ public class Main {
                 + "  Start a 'ict' instance by config." + "\n"
                 + "" + "\n"
                 + "# Options" + "\n"
-                + "--help|-h           Print this help and exit" + "\n"
-                + "--config|-c FILE    Use this config 'FILE' (default: ./ict.cfg;if-exist)" + "\n"
-                + "                    - lookup first on environment for uppercase property keys" + "\n"
-                + "                    - and as last in system properties" + "\n"
-                + "--config-create     Create or overwrite './ict.cfg' file with parsed config" + "\n"
-                + "--config-print      Print parsed config and exit" + "\n"
+                + "--help|-h              Print this help and exit" + "\n"
+                + "--config|-c FILE       Use this config 'FILE' (default: ./ict.cfg;if-exist)" + "\n"
+                + "                       - lookup first on environment for uppercase property keys" + "\n"
+                + "                       - and as last in system properties" + "\n"
+                + "--config-create        Create or overwrite './ict.cfg' file with parsed config" + "\n"
+                + "--config-print         Print parsed config and exit" + "\n"
+                + "                       - on verbose print cmdline- and log4j-config too" + "\n"
                 + "" + "\n"
-                + "--log-dir DIR       Write logs to existing DIR (default: logs/;currently unused)" + "\n"
+                + "--logfile-enabled      Enable logging to 'logs/ict.log'" + "\n"
+                + "--log-dir DIR          Write logs to existing 'DIR' (default: logs/)" + "\n"
+                + "--log-file NAME        Write logs to 'FILE' (default: ict.log)" + "\n"
+                + "-v|--verbose|--debug   Set log.level=DEBUG (default:INFO)" + "\n"
+                + "-vv|--verbose2|--trace Set log.level=TRACE (default:INFO)" + "\n"
                 + "" + "\n"
                 + "# Sample" + "\n"
                 + "$ict --config-print                   # print out config" + "\n"
@@ -55,7 +61,15 @@ public class Main {
         private static final String ARG_CONFIG_SHORT = "-c";
         private static final String ARG_CONFIG_CREATE = "--config-create";
         private static final String ARG_CONFIG_PRINT = "--config-print";
+        private static final String ARG_VERBOSE = "--verbose";
+        private static final String ARG_TRACE_AS_VERSOSE = "--verbose2";
+        private static final String ARG_VERBOSE_SHORT = "-v";
+        private static final String ARG_TRACE_SHORT = "-vv";
+        private static final String ARG_VERBOSE_AS_DEBUG = "--debug";
+        private static final String ARG_TRACE = "--trace";
+        private static final String ARG_LOGFILE_ENABLED = "--logfile-enabled";
         private static final String ARG_LOG_DIR = "--log-dir";
+        private static final String ARG_LOG_FILE = "--log-file";
         private static final String ARG_HELP = "--help";
         private static final String ARG_HELP_SHORT = "-h";
 
@@ -70,7 +84,11 @@ public class Main {
         private boolean isHelp = false;
         private boolean isCreateConfig = false;
         private boolean isPrintConfig = false;
+        private boolean isDebugEnabled = false;
+        private boolean isTraceEnabled = false;
+        private boolean isLogFileEnabled = false;
         private String logDir = DEFAULT_LOG_DIR_PATH;
+        private String logFilename = DEFAULT_LOG_FILE_NAME;
 
         Cmdline() {/* prevent external construction */}
 
@@ -85,12 +103,18 @@ public class Main {
             isHelp = existArgument(args, ARG_HELP, ARG_HELP_SHORT);
             isCreateConfig = existArgument(args, ARG_CONFIG_CREATE);
             isPrintConfig = existArgument(args, ARG_CONFIG_PRINT);
+            isDebugEnabled = existArgument(args, ARG_VERBOSE_SHORT, ARG_VERBOSE, ARG_VERBOSE_AS_DEBUG);
+            isTraceEnabled = existArgument(args, ARG_TRACE_SHORT, ARG_TRACE_AS_VERSOSE, ARG_TRACE);
+            isLogFileEnabled = existArgument(args, ARG_LOGFILE_ENABLED);
 
             String logDirOrNull = parseValueOrNull(args, ARG_LOG_DIR);
             logDir = logDirOrNull != null ? logDirOrNull : DEFAULT_LOG_DIR_PATH;
-            if (!Files.exists(Paths.get(logDir)) && FAIL_IF_LOG_DIR_NOT_EXIST) {
+            if (!Files.exists(Paths.get(logDir)) && this.isLogFileEnabled) {
                 throw new IllegalArgumentException("Configured log dir '" + logDir + "' not exist.");
             }
+
+            String logFileOrNull = parseValueOrNull(args, ARG_LOG_FILE);
+            logFilename = logFileOrNull != null ? logFileOrNull : DEFAULT_LOG_FILE_NAME;
 
             String configFileOrNull = parseValueOrNull(args, ARG_CONFIG, ARG_CONFIG_SHORT);
             if (configFileOrNull != null) {
@@ -212,14 +236,90 @@ public class Main {
             return null;
         }
 
-
+        @Override
+        public String toString() {
+            return "Cmdline{" + "\n" +
+                    " hardcodedProperties=" + hardcodedProperties + ",\n" +
+                    " envProperties=" + envProperties + ",\n" +
+                    " defaultConfigProperties=" + defaultConfigProperties + ",\n" +
+                    " configFileProperties=" + configFileProperties + ",\n" +
+                    " sysProperties=" + sysProperties + ",\n" +
+                    " isHelp=" + isHelp + ",\n" +
+                    " isCreateConfig=" + isCreateConfig + ",\n" +
+                    " isPrintConfig=" + isPrintConfig + ",\n" +
+                    " isDebugEnabled=" + isDebugEnabled + ",\n" +
+                    " isTraceEnabled=" + isTraceEnabled + ",\n" +
+                    " isLogFileEnabled=" + isLogFileEnabled + ",\n" +
+                    " logDir='" + logDir + '\'' + ",\n" +
+                    " logFilename='" + logFilename + '\'' + "\n" +
+                    '}';
+        }
     }
+
+    /* Log4jConfig enable dynamic init of 'classpath:/log4j2.xml' on startup */
+    final static class Log4JConfig {
+        private static final String CTX_KEY_LOG_FILE_ENABLED = "logFileEnabled";
+        private static final String CTX_KEY_LOG_FILENAME = "logFilename";
+        private static final String CTX_KEY_LOG_DIR = "logDir";
+        private static final String CTX_KEY_LOG_LEVEL_SPLIT = "logLevelSplit";
+
+        private final boolean disableRootLevelSetting;
+        private Level rootLevel = Level.INFO;
+
+        static Log4JConfig getDefault() {
+            return new Log4JConfig();
+        }
+
+        private Log4JConfig() {
+            disableRootLevelSetting = System.getProperties().containsKey("log4j.configurationFile");
+            ThreadContext.put(CTX_KEY_LOG_LEVEL_SPLIT, Level.WARN.name());
+            ThreadContext.put(CTX_KEY_LOG_DIR, Main.DEFAULT_LOG_DIR_PATH);
+            ThreadContext.put(CTX_KEY_LOG_FILENAME, Main.DEFAULT_LOG_FILE_NAME);
+            ThreadContext.put(CTX_KEY_LOG_FILE_ENABLED, DEFAULT_ENABLE_LOGFILE_CREATION_ON_STARTUP);
+        }
+
+        public void enableDebug() {
+            if (disableRootLevelSetting) {
+                return;
+            }
+            rootLevel = Level.DEBUG;
+            Configurator.setRootLevel(Level.DEBUG);
+        }
+
+        public void enableTrace() {
+            if (disableRootLevelSetting) {
+                return;
+            }
+            rootLevel = Level.TRACE;
+            Configurator.setRootLevel(Level.TRACE);
+        }
+
+        public void enableLogToFile(String logDir, String logFilename) {
+            ThreadContext.put(CTX_KEY_LOG_DIR, logDir);
+            ThreadContext.put(CTX_KEY_LOG_FILENAME, logFilename);
+            ThreadContext.put(CTX_KEY_LOG_FILE_ENABLED, "true");
+        }
+
+        @Override
+        public String toString() {
+            return "Log4jConfig{" + "\n" +
+                    " logLevel=" + rootLevel + ",\n" +
+                    " isEnabled(logLevel-setting)=" + disableRootLevelSetting + ",\n" +
+                    " " + CTX_KEY_LOG_LEVEL_SPLIT + "=" + ThreadContext.get(CTX_KEY_LOG_LEVEL_SPLIT) + ",\n" +
+                    " " + CTX_KEY_LOG_DIR + "=" + ThreadContext.get(CTX_KEY_LOG_DIR) + ",\n" +
+                    " " + CTX_KEY_LOG_FILENAME + "=" + ThreadContext.get(CTX_KEY_LOG_FILENAME) + ",\n" +
+                    " " + CTX_KEY_LOG_FILE_ENABLED + "=" + ThreadContext.get(CTX_KEY_LOG_FILE_ENABLED) + "\n" +
+                    "}";
+        }
+    }
+
 
     private static final Logger logger = LogManager.getLogger(Main.class);
 
     public static void main(String[] args) {
+        Log4JConfig log4jConfig = Log4JConfig.getDefault();
 
-        Cmdline cmdline = new Cmdline()
+        final Cmdline cmdline = new Cmdline()
                 .useEnvironmentProperties()
                 .useDefaultConfigFile()
                 .useSystemProperties();
@@ -231,34 +331,47 @@ public class Main {
             System.exit(0);
         }
 
+        if (cmdline.isDebugEnabled) {
+            log4jConfig.enableDebug();
+        }
+
+        if (cmdline.isTraceEnabled) {
+            log4jConfig.enableTrace();
+        }
+
+        if (cmdline.isLogFileEnabled) {
+            log4jConfig.enableLogToFile(cmdline.logDir, cmdline.logFilename);
+        }
+
         Properties ictProperties = cmdline.getIctProperties();
+        if (ictProperties.roundDuration < 30000 && ictProperties.spamEnabled) {
+            logger.warn("Disabling spam because of low round duration.");
+            ictProperties.spamEnabled = false;
+        }
 
         if (cmdline.isCreateConfig) {
             ictProperties.store(DEFAULT_PROPERTY_FILE_PATH);
         }
 
         if (cmdline.isPrintConfig) {
+            if (cmdline.isDebugEnabled || cmdline.isTraceEnabled) {
+                System.out.println(log4jConfig);
+                System.out.println(cmdline);
+            }
             System.out.println(ictProperties.toPropObject().toString().replace(", ", ",\n "));
             System.exit(0);
         }
 
-
-        if (ictProperties.roundDuration < 30000 && ictProperties.spamEnabled) {
-            logger.warn("Disabling spam because of low round duration.");
-            ictProperties.spamEnabled = false;
-        }
-
         logger.info("Starting new Ict '" + ictProperties.name + "' (version: " + Constants.ICT_VERSION + ")");
-
         Ict ict;
         try {
             ict = new Ict(ictProperties);
         } catch (Throwable t) {
             if (t.getCause() instanceof BindException) {
-                ErrorHandler.handleError(logger, t, "\"Could not start Ict on \" + properties.host + \":\" + properties.port.");
+                logger.error("\"Could not start Ict on \" + properties.host + \":\" + properties.port.", t);
                 logger.info("Make sure that the address is correct and you are not already running an Ict instance or any other service on that port. You can change the port in your properties file.");
             } else
-                ErrorHandler.handleError(logger, t, "Could not start Ict.");
+                logger.error("Could not start Ict.", t);
             return;
         }
         logger.info("Ict started on " + ict.getAddress() + ".\n");
@@ -268,7 +381,6 @@ public class Main {
             @Override
             public void run() {
                 logger.info("Terminating Ict ...");
-                ErrorHandler.dump(DEFAULT_LOG_DIR);
                 finalRefToIct.terminate();
             }
         });

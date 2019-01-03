@@ -41,7 +41,7 @@ public class Properties {
         try {
             propObject.load(new FileInputStream(path));
         } catch (IOException e) {
-            ErrorHandler.handleError(logger, e, "Failed loading properties from file");
+            logger.error("Failed loading properties from file", e);
         }
         return new Properties(propObject);
     }
@@ -87,7 +87,7 @@ public class Properties {
             try {
                 neighbors.add(inetSocketAddressFromString(address));
             } catch (Throwable t) {
-                ErrorHandler.handleError(logger, t, "Invalid neighbor address: '" + address + "'");
+                logger.error("Invalid neighbor address: '" + address + "'", t);
             }
         }
         return neighbors;
@@ -146,7 +146,7 @@ public class Properties {
             if (string != null)
                 value = Double.parseDouble(string);
         } catch (NumberFormatException e) {
-            ErrorHandler.handleWarning(logger, e, "Property '" + property.name() + "' must be an integer.");
+            logger.warn(("Property '" + property.name() + "' must be an integer.") + " (" + e.getMessage() + ")");
         }
 
         if (value < min || value > max) {
@@ -165,7 +165,7 @@ public class Properties {
             if (string != null)
                 value = Long.parseLong(string);
         } catch (NumberFormatException e) {
-            ErrorHandler.handleWarning(logger, e, "Property '" + property.name() + "' must be an integer.");
+            logger.warn(("Property '" + property.name() + "' must be an integer.") + " (" + e.getMessage() + ")");
         }
 
         if (value < min || value > max) {
@@ -180,7 +180,7 @@ public class Properties {
         try {
             toPropObject().store(new FileOutputStream(path), null);
         } catch (IOException e) {
-            ErrorHandler.handleWarning(logger, e, "Failed storing properties in file: " + path);
+            logger.warn(("Failed storing properties in file: " + path) + " (" + e.getMessage() + ")");
         }
     }
 
