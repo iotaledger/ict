@@ -261,7 +261,6 @@ public class Main {
         private static final String CTX_KEY_LOG_FILE_ENABLED = "logFileEnabled";
         private static final String CTX_KEY_LOG_FILENAME = "logFilename";
         private static final String CTX_KEY_LOG_DIR = "logDir";
-        private static final String CTX_KEY_LOG_LEVEL_SPLIT = "logLevelSplit";
 
         private final boolean disableRootLevelSetting;
         private Level rootLevel = Level.INFO;
@@ -272,7 +271,6 @@ public class Main {
 
         private Log4JConfig() {
             disableRootLevelSetting = System.getProperties().containsKey("log4j.configurationFile");
-            ThreadContext.put(CTX_KEY_LOG_LEVEL_SPLIT, Level.WARN.name());
             ThreadContext.put(CTX_KEY_LOG_DIR, Main.DEFAULT_LOG_DIR_PATH);
             ThreadContext.put(CTX_KEY_LOG_FILENAME, Main.DEFAULT_LOG_FILE_NAME);
             ThreadContext.put(CTX_KEY_LOG_FILE_ENABLED, DEFAULT_ENABLE_LOGFILE_CREATION_ON_STARTUP);
@@ -305,7 +303,6 @@ public class Main {
             return "Log4jConfig{" + "\n" +
                     " logLevel=" + rootLevel + ",\n" +
                     " isEnabled(logLevel-setting)=" + disableRootLevelSetting + ",\n" +
-                    " " + CTX_KEY_LOG_LEVEL_SPLIT + "=" + ThreadContext.get(CTX_KEY_LOG_LEVEL_SPLIT) + ",\n" +
                     " " + CTX_KEY_LOG_DIR + "=" + ThreadContext.get(CTX_KEY_LOG_DIR) + ",\n" +
                     " " + CTX_KEY_LOG_FILENAME + "=" + ThreadContext.get(CTX_KEY_LOG_FILENAME) + ",\n" +
                     " " + CTX_KEY_LOG_FILE_ENABLED + "=" + ThreadContext.get(CTX_KEY_LOG_FILE_ENABLED) + "\n" +

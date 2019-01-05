@@ -57,6 +57,40 @@ Argument|Alias|Example|Description
 `--config`|`-c`|`--config ict.cfg`|Loads the Ict configuration from the specified file.
 `--config-print`| |`--config-print`|Print the Ict configuration to stdout and exit.
 `--config-create`| |`--config-create`|Write the Ict configuration './ict.cfg'.
+`--debug`|`--verbose`|`--debug`|Set root log level to 'debug' (default: INFO).
+`--trace`|`--verbose2`|`--trace`|Set root log level to 'trace' (default: INFO).
+`--logfile-enabled`| |`--logfile-enabled`|Enable logging to 'logs/ict.log'.
+`--log-dir DIR`| |`--log-dir /tmp/`|Write logs to existing 'DIR' (default: logs/).
+`--log-file FILE`| |`--log-file ict-log.txt`|Write logs to 'FILE' (default: ict.log).
+
+### Usage 
+
+```bash
+# Usage: ict [OPTIONS]
+
+  Start a 'ict' instance by config.
+
+# Options
+--help|-h              Print this help and exit
+--config|-c FILE       Use this config 'FILE' (default: ./ict.cfg;if-exist)
+                       - lookup first on environment for uppercase property keys
+                       - and as last in system properties
+--config-create        Create or overwrite './ict.cfg' file with parsed config
+--config-print         Print parsed config and exit
+                       - on verbose print cmdline- and log4j-config too
+
+--logfile-enabled      Enable logging to 'logs/ict.log'
+--log-dir DIR          Write logs to existing 'DIR' (default: logs/)
+--log-file NAME        Write logs to 'FILE' (default: ict.log)
+-v|--verbose|--debug   Set log.level=DEBUG (default:INFO)
+-vv|--verbose2|--trace Set log.level=TRACE (default:INFO)
+
+# Sample
+$ict --config-print                   # print out config
+$ict --config my-ict.cfg              # use my config
+$ict --config my-ict.cfg  -Dport=1234 # use my config but with port=1234
+$PORT=1234 && ict --config my-ict.cfg # use my config with port=1234 if not declared
+```
 
 ## IXI Modules
 

@@ -16,12 +16,11 @@ public class MainLog4jConfigTest {
     private static final String EXPECTED_TO_STRING_TEMPLATE = "Log4jConfig{\n" +
             " logLevel=${LEVEL},\n" +
             " isEnabled(logLevel-setting)=false,\n" +
-            " logLevelSplit=INFO,\n" +
             " logDir=logs/,\n" +
             " logFilename=ict.log,\n" +
             " logFileEnabled=false\n" +
             "}";
-    private static final List<String> KNOWING_LOG4J_CONTEXT_VARIABLES = Arrays.asList("logLevelSplit", "logFileEnabled", "logDir", "logFilename");
+    private static final List<String> KNOWING_LOG4J_CONTEXT_VARIABLES = Arrays.asList("logFileEnabled", "logDir", "logFilename");
 
     private final Main.Log4JConfig underTest = Main.Log4JConfig.getDefault();
 

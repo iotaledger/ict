@@ -2,12 +2,12 @@
 <Configuration status="WARN">
     <Appenders>
         <Console name="ConsoleStdOut" target="SYSTEM_OUT">
-            <DynamicThresholdFilter key="logLevelSplit" defaultThreshold="WARN" onMatch="DENY" onMismatch="ACCEPT"/>
+            <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="ACCEPT"/>
             <!-- Hide stacktrace on stdout -->
             <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level [%t/%logger{0}]   %msg%throwable{none}%n"/>
         </Console>
         <Console name="ConsoleStdErr" target="SYSTEM_ERR">
-            <DynamicThresholdFilter key="logLevelSplit" defaultThreshold="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
+            <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
             <!-- Hide stacktrace on stderr - show '- e.class: + e.msg' after the log.msg
                  highlight ERROR=red and WARN=yellow -->
             <PatternLayout pattern="%highlight{%d{HH:mm:ss.SSS} %-5level [%t/%logger{0}]   %msg - %throwable{short}%n}"/>
@@ -34,7 +34,7 @@
     <Loggers>
         <!--
            Enable logging to
-           * stdout/stderr depending which ${ctx:logLevelSplit} is set to oneOf(ERROR|WARN|INFO|DEBUG|TRACE) (default:INFO)
+           * stdout/stderr TRACE,DEBUG,INFO to stdout and WARN, ERROR to stderr
            * rolling-file:=${ctx:logDir}/${ctx:logFilename} if ${ctx:logFileEnabled} is set to 'true' (default:false)
            ** rolling-file interval is daily
            All ctx:variables will be controlled by Main.Log4jConfig
