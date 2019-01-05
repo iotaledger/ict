@@ -109,9 +109,9 @@ public class IxiModuleHolder {
 
     private static Class getIxiClass(URLClassLoader classLoader) {
         try {
-            return Class.forName("org.iota.ict.ixi.Ixi", true, classLoader);
+            return Class.forName("org.iota.ict.ixi.IxiImplementation", true, classLoader);
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Invalid IXI module: Could not find class 'org.iota.ict.ixi.Ixi'.");
+            throw new RuntimeException("Invalid IXI module: Could not find class 'org.iota.ict.ixi.IxiImplementation'.");
         }
     }
 

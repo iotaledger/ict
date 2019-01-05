@@ -1,15 +1,16 @@
 package org.iota.ict.ixi;
 
-import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.iota.ict.model.Transaction;
 import org.iota.ict.network.event.GossipListener;
 
+import java.util.Collections;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class IxiModule implements Runnable, Ixi {
 
     private IctProxy proxy;
-    private Set<GossipListener> listeners = new ConcurrentHashSet<>();
+    private Set<GossipListener> listeners = Collections.newSetFromMap(new ConcurrentHashMap<GossipListener, Boolean>());
 
     protected IxiModule(IctProxy proxy) {
         this.proxy = proxy;
