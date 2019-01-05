@@ -19,7 +19,7 @@ import java.net.DatagramPacket;
  * @see Tangle as database for transactions during tuntime.
  * @see Bundle which is a structure consisting of multiple transactions.
  */
-public class Transaction implements Serializable {
+public class Transaction {
 
     public static final Transaction NULL_TRANSACTION = new Transaction();
 

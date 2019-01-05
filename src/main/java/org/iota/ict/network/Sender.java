@@ -3,12 +3,12 @@ package org.iota.ict.network;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.Ict;
+import org.iota.ict.network.event.GossipEvent;
 import org.iota.ict.utils.ErrorHandler;
 import org.iota.ict.utils.Properties;
 import org.iota.ict.model.Tangle;
 import org.iota.ict.model.Transaction;
 import org.iota.ict.network.event.GossipListener;
-import org.iota.ict.network.event.GossipReceiveEvent;
 import org.iota.ict.utils.Trytes;
 
 import java.net.DatagramPacket;
@@ -50,11 +50,13 @@ public class Sender extends Thread {
 
         ict.addGossipListener(new GossipListener() {
             @Override
-            public void onTransactionReceived(GossipReceiveEvent e) {
-                Tangle.TransactionLog log = tangle.findTransactionLog(e.getTransaction());
-                if (!log.sent && log.senders.size() < ict.getNeighbors().size()) {
-                    log.sent = true;
-                    queueTransaction(e.getTransaction());
+            public void onGossipEvent(GossipEvent event) {
+                if(!event.isOwnTransaction()) {
+                    Tangle.TransactionLog log = tangle.findTransactionLog(event.getTransaction());
+                    if (!log.sent && log.senders.size() < ict.getNeighbors().size()) {
+                        log.sent = true;
+                        queueTransaction(event.getTransaction());
+                    }
                 }
             }
         });

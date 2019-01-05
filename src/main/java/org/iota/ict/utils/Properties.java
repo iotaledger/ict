@@ -2,14 +2,14 @@ package org.iota.ict.utils;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * With instances of this class, the Ict and its sub-components can be easily configured. The properties can be read from files or defined during runtime. Some
@@ -24,9 +24,9 @@ public class Properties {
     private static final Logger logger = LogManager.getLogger(Properties.class);
 
     public double antiSpamRel = 5;
-    public long amtiSpamAbs = 1000;
+    public long antiSpamAbs = 1000;
+    public boolean guiEnabled = true;
     public boolean spamEnabled = false;
-    public boolean ixiEnabled = false;
     public long tangleCapacity = 10000;
     public long minForwardDelay = 0;
     public long maxForwardDelay = 200;
@@ -57,7 +57,7 @@ public class Properties {
     private Properties(java.util.Properties propObject) {
         tangleCapacity = readLongProperty(propObject, Property.tangle_capacity, 10, Long.MAX_VALUE, DEFAULT_PROPERTIES.tangleCapacity);
         antiSpamRel = readDoublePorperty(propObject, Property.anti_spam_rel, 1, 1000, DEFAULT_PROPERTIES.antiSpamRel);
-        amtiSpamAbs = readLongProperty(propObject, Property.anti_spam_abs, 1, Long.MAX_VALUE, DEFAULT_PROPERTIES.amtiSpamAbs);
+        antiSpamAbs = readLongProperty(propObject, Property.anti_spam_abs, 1, Long.MAX_VALUE, DEFAULT_PROPERTIES.antiSpamAbs);
         minForwardDelay = readLongProperty(propObject, Property.min_forward_delay, 0, 10000, DEFAULT_PROPERTIES.minForwardDelay);
         maxForwardDelay = readLongProperty(propObject, Property.max_forward_delay, 0, 10000, DEFAULT_PROPERTIES.maxForwardDelay);
         host = propObject.getProperty(Property.host.name(), DEFAULT_PROPERTIES.host);
@@ -65,8 +65,8 @@ public class Properties {
         port = (int) readLongProperty(propObject, Property.port, 1, 65535, DEFAULT_PROPERTIES.port);
         roundDuration = readLongProperty(propObject, Property.round_duration, 100, Long.MAX_VALUE, DEFAULT_PROPERTIES.roundDuration);
         neighbors = neighborsFromString(propObject.getProperty(Property.neighbors.name(), ""));
+        guiEnabled = propObject.getProperty(Property.gui_enabled.name(), DEFAULT_PROPERTIES.guiEnabled + "").toLowerCase().equals("true");
         spamEnabled = propObject.getProperty(Property.spam_enabled.name(), DEFAULT_PROPERTIES.spamEnabled + "").toLowerCase().equals("true");
-        ixiEnabled = propObject.getProperty(Property.ixi_enabled.name(), DEFAULT_PROPERTIES.ixiEnabled + "").toLowerCase().equals("true");
     }
 
     private static List<String> stringListFromString(String string) {
@@ -188,7 +188,7 @@ public class Properties {
         java.util.Properties propObject = new java.util.Properties();
         propObject.setProperty(Property.tangle_capacity.name(), tangleCapacity + "");
         propObject.setProperty(Property.anti_spam_rel.name(), antiSpamRel + "");
-        propObject.setProperty(Property.anti_spam_abs.name(), amtiSpamAbs + "");
+        propObject.setProperty(Property.anti_spam_abs.name(), antiSpamAbs + "");
         propObject.setProperty(Property.min_forward_delay.name(), minForwardDelay + "");
         propObject.setProperty(Property.max_forward_delay.name(), maxForwardDelay + "");
         propObject.setProperty(Property.name.name(), name);
@@ -196,9 +196,26 @@ public class Properties {
         propObject.setProperty(Property.port.name(), port + "");
         propObject.setProperty(Property.round_duration.name(), roundDuration + "");
         propObject.setProperty(Property.neighbors.name(), neighborsToString());
+        propObject.setProperty(Property.gui_enabled.name(), guiEnabled + "");
         propObject.setProperty(Property.spam_enabled.name(), spamEnabled + "");
-        propObject.setProperty(Property.ixi_enabled.name(), ixiEnabled + "");
         return propObject;
+    }
+
+    public JSONObject toJSON() {
+        JSONObject json = new JSONObject();
+        json.put(Property.tangle_capacity.name(), tangleCapacity);
+        json.put(Property.anti_spam_rel.name(), antiSpamRel);
+        json.put(Property.anti_spam_abs.name(), antiSpamAbs);
+        json.put(Property.min_forward_delay.name(), minForwardDelay);
+        json.put(Property.max_forward_delay.name(), maxForwardDelay);
+        json.put(Property.name.name(), name);
+        json.put(Property.host.name(), host);
+        json.put(Property.port.name(), port);
+        json.put(Property.round_duration.name(), roundDuration);
+        json.put(Property.neighbors.name(), new JSONArray(neighbors));
+        json.put(Property.gui_enabled.name(), guiEnabled);
+        json.put(Property.spam_enabled.name(), spamEnabled);
+        return json;
     }
 
     public Properties port(int port) {
@@ -221,8 +238,8 @@ public class Properties {
         host,
         round_duration,
         neighbors,
+        gui_enabled,
         spam_enabled,
-        ixi_enabled,
         name;
     }
 

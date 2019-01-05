@@ -14,7 +14,7 @@ public class SpamProtectionTest extends GossipTest {
         int maxTransactionsPerRound = 666;
 
         Properties properties = new Properties();
-        properties.amtiSpamAbs = maxTransactionsPerRound;
+        properties.antiSpamAbs = maxTransactionsPerRound;
 
         Ict a = createIct();
         Ict b = createIct(properties);

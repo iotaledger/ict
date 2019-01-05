@@ -3,7 +3,7 @@ package org.iota.ict.network;
 import org.iota.ict.Ict;
 import org.iota.ict.model.Tangle;
 import org.iota.ict.model.Transaction;
-import org.iota.ict.network.event.GossipReceiveEvent;
+import org.iota.ict.network.event.GossipEvent;
 import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.ErrorHandler;
 import org.iota.ict.utils.Trytes;
@@ -88,7 +88,7 @@ public class Receiver extends Thread {
             log = tangle.createTransactionLogIfAbsent(transaction);
             sender.stats.receivedNew++;
             log.senders.add(sender);
-            ict.notifyListeners(new GossipReceiveEvent(transaction));
+            ict.notifyListeners(new GossipEvent(transaction, false));
         }
         log.senders.add(sender);
     }

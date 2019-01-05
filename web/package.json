@@ -1,0 +1,19 @@
+{
+  "name": "ict",
+  "version": "0.4.0",
+  "license": "Apache-2.0",
+  "description": "Web Control Panel for Ict",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/iotaledger/ict"
+  },
+  "scripts": {
+    "build": "webpack -p",
+    "start": "webpack-dev-server -d --content-base ./public"
+  },
+  "dependencies": {
+    "requirejs": "2.3.6",
+    "jquery": "latest",
+    "sweetalert": "latest"
+  }
+}

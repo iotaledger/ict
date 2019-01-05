@@ -92,7 +92,7 @@ public class Neighbor {
 
     private static long calcTolerance(Ict ict, Neighbor sender) {
         double relativeTolerance = calcReferenceForRelativeTolerance(ict.getNeighbors(), sender) * ict.getProperties().antiSpamRel;
-        return (int)Math.ceil(Math.min(ict.getProperties().amtiSpamAbs, relativeTolerance));
+        return (int)Math.ceil(Math.min(ict.getProperties().antiSpamAbs, relativeTolerance));
     }
 
     private static long calcReferenceForRelativeTolerance(List<Neighbor> allNeighbors, Neighbor sender) {

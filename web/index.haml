@@ -1,0 +1,126 @@
+!!! html
+
+%html{:lang => "en"}
+  %head
+    %title Ict Control Panel
+    %meta{:charset => "utf-8"}
+    %meta{:name => "viewport", :content => "width=device-width, initial-scale=1.0"}
+    %link{:rel => :stylesheet, :type => :"text/css", :href => "css/theme.css"}
+    %link{:rel => :stylesheet, :type => :"text/css", :href => "css/layout.css"}
+    %script{:"data-main" => "js/main", :src => :"node_modules/requirejs/require.js"}
+  %body
+    %nav
+      %div#logo
+      %ul#page_list
+    %div#content
+      %div#page_config.page.hidden
+        %div{:class => "page_content"}
+          //= File.read "pages/config.html"
+
+          %form
+
+            %div.section
+              %div.section_title General
+
+            %div.property
+              %div.name Ict Name
+              %div.input
+                %input#config_name
+              %div.description
+                %div.hidden_info The name of this Ict.
+
+            %div.property
+              %div.name Round Duration (ms)
+              %div.input
+                %input#config_round_duration{:type => :number}
+              %div.description
+                %div.hidden_info A round is the heart beat of your Ict. It specifies the relative time intervals of other events such as the spam protection. Every round your neighbor stats are logged. (recommended: 60000)
+
+            %div.property
+              %div.name Tangle Capacity
+              %div.input
+                %input#config_tangle_capacity{:type => :number}
+              %div.description
+                %div.hidden_info Your tangle will be stopped from growing too large by pruning old transactions. The tangle capacity specifies how many transactions can be stored in your tangle before old ones are removed. (recommended: 10000)
+
+
+
+            %div.section
+              %div.section_title Address
+
+            %div.property
+              %div.name Host
+              %div.input
+                %input#config_host
+              %div.description
+                %div.hidden_info The host allows your neighbors to connect to you. It can be your IP or a domain. (recommended: 0.0.0.0)
+
+            %div.property
+              %div.name Port
+              %div.input
+                %input#config_port{:type => :number}
+              %div.description
+                %div.hidden_info The port on which Ict will exchange messages with neighbors. (default: 1337)
+
+
+
+            %div.section
+              %div.section_title Spam Protection
+
+            %div.property
+              %div.name Max. Abs. Tx./Round
+              %div.input
+                %input#config_anti_spam_abs{:type => :number}
+              %div.description
+                %div.hidden_info The name of your Ict.
+
+            %div.property
+              %div.name Max. Rel. Tx./Round
+              %div.input
+                %input#config_anti_spam_rel{:type => :number}
+              %div.description
+                %div.hidden_info The name of your Ict.
+
+
+
+            %div.section
+              %div.section_title Gossip
+
+            %div.property
+              %div.name Min. Forward Delay (ms)
+              %div.input
+                %input#config_min_forward_delay{:type => :number}
+              %div.description
+                %div.hidden_info The name of your Ict.
+
+            %div.property
+              %div.name Max. Forward Delay (ms)
+              %div.input
+                %input#config_max_forward_delay{:type => :number}
+              %div.description
+                %div.hidden_info The name of your Ict.
+
+          %button{:onclick => "Form.save_config(); return false;"} save
+          %button{:onclick => "return false;"} reset
+      %div#page_neighbors.page.hidden
+        %div{:class => "page_content"}
+          %div#neighbors
+          %button{:onclick => "NeighborViewer.open_add_neighbor_dialog(); return false;"} add neighbor
+      %div#page_log.page.hidden
+        %div{:class => "page_content"}
+          %div#log
+            Lorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit amet
+            Lorem ipsum dolor sit amet
+            consectetur adipiscing elit.
+      %div#page_ixi_modules.page.hidden
+        %div{:class => "page_content"}
+          %div#ixis
+            %div.ixi
+              %div.name Report.ixi
+              %button open
+              %button uninstall
+            %div.ixi
+              %div.name CHAT.ixi
+              %button open
+              %button uninstall
+          %button{:onclick => "ModuleViewer.open_install_module_dialog(); return false;"} install module

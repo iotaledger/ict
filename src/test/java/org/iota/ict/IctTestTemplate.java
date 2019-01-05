@@ -20,6 +20,7 @@ public abstract class IctTestTemplate {
         properties.host("localhost").port(DEFAULT_PORT + runningIcts.size());
         properties.minForwardDelay = 0;
         properties.maxForwardDelay = 10;
+        properties.guiEnabled = false;
         Ict ict = new Ict(properties);
         runningIcts.add(ict);
         return ict;

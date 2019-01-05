@@ -19,9 +19,9 @@ public class GossipEventDispatcherTest extends IctTestTemplate {
 
         ict.addGossipListener(new GossipListener() {
             @Override
-            public void onTransactionSubmitted(GossipSubmitEvent e) {
+            public void onGossipEvent(GossipEvent e) {
                 eventReceived = true;
-                // try to block for a second
+                // try to block for a few second
                 sleep(5000);
             }
         });
@@ -31,6 +31,6 @@ public class GossipEventDispatcherTest extends IctTestTemplate {
         Assert.assertEquals("event not delivered to gossip listener", true, eventReceived);
 
         long duration = System.currentTimeMillis() - start;
-        Assert.assertEquals("gossip listener blocked main thread", true, duration < 5000);
+        Assert.assertEquals("gossip listener blocked main thread", true, duration < 2000);
     }
 }

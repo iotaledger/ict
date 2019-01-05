@@ -1,6 +1,7 @@
 package org.iota.ict.network;
 
 import org.iota.ict.Ict;
+import org.iota.ict.network.event.GossipEvent;
 import org.iota.ict.network.event.GossipListener;
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,8 +33,6 @@ public class SimpleTopologyTest extends GossipTest {
         connect(a, b);
         connect(a, c);
         connect(b, c);
-
-        c.addGossipListener(new GossipListener());
 
         int amountOfMessages = 10;
         sendMessages(a, amountOfMessages);

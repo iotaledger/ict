@@ -2,7 +2,8 @@ package org.iota.ict;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.iota.ict.ixi.RemoteIctImplementation;
+import org.iota.ict.api.RestApi;
+import org.iota.ict.utils.IxiModuleHolder;
 import org.iota.ict.model.RingTangle;
 import org.iota.ict.model.Tangle;
 import org.iota.ict.model.TransactionBuilder;
@@ -10,7 +11,6 @@ import org.iota.ict.network.Neighbor;
 import org.iota.ict.network.event.GossipEvent;
 import org.iota.ict.network.event.GossipEventDispatcher;
 import org.iota.ict.network.event.GossipListener;
-import org.iota.ict.network.event.GossipSubmitEvent;
 import org.iota.ict.network.Receiver;
 import org.iota.ict.network.Sender;
 import org.iota.ict.model.Transaction;
@@ -30,6 +30,8 @@ import java.util.List;
  * therefore be seen as a hub of all those components which, when working together, form an Ict node.
  */
 public class Ict {
+
+    protected final IxiModuleHolder moduleHolder;
     protected final List<Neighbor> neighbors = new LinkedList<>();
     protected final Sender sender;
     protected final Receiver receiver;
@@ -39,15 +41,15 @@ public class Ict {
     protected final DatagramSocket socket;
     protected final InetSocketAddress address;
     protected final GossipEventDispatcher eventDispatcher = new GossipEventDispatcher();
-    protected final RemoteIctImplementation remoteIctImplementation;
     public final static Logger LOGGER = LogManager.getLogger(Ict.class);
-    protected int round = 0;
+    protected int round;
 
     /**
      * @param properties The properties to use for this Ict. Changing them afterwards might or might not work for some properties.
      *                   TODO allow them to be configured afterwards.
      */
     public Ict(Properties properties) {
+
         this.properties = properties;
         this.tangle = new RingTangle(this, properties.tangleCapacity);
         this.address = new InetSocketAddress(properties.host, properties.port);
@@ -64,22 +66,15 @@ public class Ict {
 
         this.sender = new Sender(this, properties, tangle, socket);
         this.receiver = new Receiver(this, tangle, socket);
+        this.moduleHolder = new IxiModuleHolder(this);
 
         state = new StateRunning();
         eventDispatcher.start();
         sender.start();
         receiver.start();
 
-        remoteIctImplementation = properties.ixiEnabled ? createRemoteIctImplementation() : null;
-    }
-
-    private RemoteIctImplementation createRemoteIctImplementation() {
-        try {
-            return new RemoteIctImplementation(this);
-        } catch (Throwable t) {
-            ErrorHandler.handleError(LOGGER, t, "failed to enable IXI");
-            return null;
-        }
+        if(properties.guiEnabled)
+            new RestApi(this);
     }
 
     /**
@@ -91,7 +86,11 @@ public class Ict {
     public void neighbor(InetSocketAddress neighborAddress) {
         if (neighbors.size() >= Constants.MAX_NEIGHBOR_COUNT)
             throw new IllegalStateException("Already reached maximum amount of neighbors.");
-        neighbors.add(new Neighbor(neighborAddress, properties.amtiSpamAbs));
+        neighbors.add(new Neighbor(neighborAddress, properties.antiSpamAbs));
+    }
+
+    public void unneighbor(Neighbor neighbor) {
+        neighbors.remove(neighbor);
     }
 
     /**
@@ -101,6 +100,10 @@ public class Ict {
      */
     public void addGossipListener(GossipListener gossipListener) {
         eventDispatcher.listeners.add(gossipListener);
+    }
+
+    public void removeGossipListener(GossipListener gossipListener) {
+        eventDispatcher.listeners.remove(gossipListener);
     }
 
     /**
@@ -147,7 +150,7 @@ public class Ict {
     public void submit(Transaction transaction) {
         tangle.createTransactionLogIfAbsent(transaction);
         sender.queueTransaction(transaction);
-        notifyListeners(new GossipSubmitEvent(transaction));
+        notifyListeners(new GossipEvent(transaction, true));
     }
 
     public void broadcast(Transaction transaction) {
@@ -176,6 +179,10 @@ public class Ict {
             LOGGER.info("submitted spam transaction: " + spamHash);
         }
         round++;
+    }
+
+    public IxiModuleHolder getModuleHolder() {
+        return moduleHolder;
     }
 
     public void terminate() {
@@ -211,9 +218,7 @@ public class Ict {
             sender.terminate();
             receiver.interrupt();
             eventDispatcher.terminate();
-            if (remoteIctImplementation != null)
-                remoteIctImplementation.terminate();
-            // TODO notify IXI modules
+            moduleHolder.terminate();
         }
     }
 

@@ -7,6 +7,7 @@ import org.iota.ict.model.Transaction;
  * multiple classes are kept together here to make them easier to find and adjust.
  */
 public class Constants {
+
     public static final String ICT_VERSION = "0.4-SNAPSHOT";
     public static final int MAX_NEIGHBOR_COUNT = 3;
     public static final int TRANSACTION_SIZE_TRITS = Transaction.Field.REQUEST_HASH.tritOffset + Transaction.Field.REQUEST_HASH.tritLength;

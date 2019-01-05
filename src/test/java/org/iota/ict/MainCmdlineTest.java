@@ -21,10 +21,10 @@ public class MainCmdlineTest {
     @BeforeClass
     public static void setupClass() {
         Properties hardcoded = new Properties();
-        DEFAULT_PROPERTIES_MAP.put(Properties.Property.anti_spam_abs.name(), hardcoded.amtiSpamAbs);
+        DEFAULT_PROPERTIES_MAP.put(Properties.Property.anti_spam_abs.name(), hardcoded.antiSpamAbs);
         DEFAULT_PROPERTIES_MAP.put(Properties.Property.anti_spam_rel.name(), hardcoded.antiSpamRel);
+        DEFAULT_PROPERTIES_MAP.put(Properties.Property.gui_enabled.name(), hardcoded.guiEnabled);
         DEFAULT_PROPERTIES_MAP.put(Properties.Property.host.name(), hardcoded.host);
-        DEFAULT_PROPERTIES_MAP.put(Properties.Property.ixi_enabled.name(), hardcoded.ixiEnabled);
         DEFAULT_PROPERTIES_MAP.put(Properties.Property.max_forward_delay.name(), hardcoded.maxForwardDelay);
         DEFAULT_PROPERTIES_MAP.put(Properties.Property.min_forward_delay.name(), hardcoded.minForwardDelay);
         DEFAULT_PROPERTIES_MAP.put(Properties.Property.name.name(), hardcoded.name);

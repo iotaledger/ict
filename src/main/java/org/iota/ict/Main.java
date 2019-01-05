@@ -242,7 +242,6 @@ public class Main {
             System.exit(0);
         }
 
-
         if (ictProperties.roundDuration < 30000 && ictProperties.spamEnabled) {
             logger.warn("Disabling spam because of low round duration.");
             ictProperties.spamEnabled = false;
@@ -261,6 +260,8 @@ public class Main {
                 ErrorHandler.handleError(logger, t, "Could not start Ict.");
             return;
         }
+
+        ict.getModuleHolder().initAllModules();
         logger.info("Ict started on " + ict.getAddress() + ".\n");
 
         final Ict finalRefToIct = ict;

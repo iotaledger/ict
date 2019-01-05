@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<title>Ict Control Panel</title>
+<meta charset='utf-8'>
+<meta content='width=device-width, initial-scale=1.0' name='viewport'>
+<link href='css/theme.css' rel='stylesheet' type='text/css'>
+<link href='css/layout.css' rel='stylesheet' type='text/css'>
+<script data-main='js/main' src='node_modules/requirejs/require.js'></script>
+</head>
+<body>
+<nav>
+<div id='logo'></div>
+<ul id='page_list'></ul>
+</nav>
+<div id='content'>
+<div class='page hidden' id='page_config'>
+<div class='page_content'>
+<!-- /= File.read "pages/config.html" -->
+<form>
+<div class='section'>
+<div class='section_title'>General</div>
+</div>
+<div class='property'>
+<div class='name'>Ict Name</div>
+<div class='input'>
+<input id='config_name'>
+</div>
+<div class='description'>
+<div class='hidden_info'>The name of this Ict.</div>
+</div>
+</div>
+<div class='property'>
+<div class='name'>Round Duration (ms)</div>
+<div class='input'>
+<input id='config_round_duration' type='number'>
+</div>
+<div class='description'>
+<div class='hidden_info'>A round is the heart beat of your Ict. It specifies the relative time intervals of other events such as the spam protection. Every round your neighbor stats are logged. (recommended: 60000)</div>
+</div>
+</div>
+<div class='property'>
+<div class='name'>Tangle Capacity</div>
+<div class='input'>
+<input id='config_tangle_capacity' type='number'>
+</div>
+<div class='description'>
+<div class='hidden_info'>Your tangle will be stopped from growing too large by pruning old transactions. The tangle capacity specifies how many transactions can be stored in your tangle before old ones are removed. (recommended: 10000)</div>
+</div>
+</div>
+<div class='section'>
+<div class='section_title'>Address</div>
+</div>
+<div class='property'>
+<div class='name'>Host</div>
+<div class='input'>
+<input id='config_host'>
+</div>
+<div class='description'>
+<div class='hidden_info'>The host allows your neighbors to connect to you. It can be your IP or a domain. (recommended: 0.0.0.0)</div>
+</div>
+</div>
+<div class='property'>
+<div class='name'>Port</div>
+<div class='input'>
+<input id='config_port' type='number'>
+</div>
+<div class='description'>
+<div class='hidden_info'>The port on which Ict will exchange messages with neighbors. (default: 1337)</div>
+</div>
+</div>
+<div class='section'>
+<div class='section_title'>Spam Protection</div>
+</div>
+<div class='property'>
+<div class='name'>Max. Abs. Tx./Round</div>
+<div class='input'>
+<input id='config_anti_spam_abs' type='number'>
+</div>
+<div class='description'>
+<div class='hidden_info'>The name of your Ict.</div>
+</div>
+</div>
+<div class='property'>
+<div class='name'>Max. Rel. Tx./Round</div>
+<div class='input'>
+<input id='config_anti_spam_rel' type='number'>
+</div>
+<div class='description'>
+<div class='hidden_info'>The name of your Ict.</div>
+</div>
+</div>
+<div class='section'>
+<div class='section_title'>Gossip</div>
+</div>
+<div class='property'>
+<div class='name'>Min. Forward Delay (ms)</div>
+<div class='input'>
+<input id='config_min_forward_delay' type='number'>
+</div>
+<div class='description'>
+<div class='hidden_info'>The name of your Ict.</div>
+</div>
+</div>
+<div class='property'>
+<div class='name'>Max. Forward Delay (ms)</div>
+<div class='input'>
+<input id='config_max_forward_delay' type='number'>
+</div>
+<div class='description'>
+<div class='hidden_info'>The name of your Ict.</div>
+</div>
+</div>
+</form>
+<button onclick='Form.save_config(); return false;'>save</button>
+<button onclick='return false;'>reset</button>
+</div>
+</div>
+<div class='page hidden' id='page_neighbors'>
+<div class='page_content'>
+<div id='neighbors'></div>
+<button onclick='NeighborViewer.open_add_neighbor_dialog(); return false;'>add neighbor</button>
+</div>
+</div>
+<div class='page hidden' id='page_log'>
+<div class='page_content'>
+<div id='log'>
+Lorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit amet
+Lorem ipsum dolor sit amet
+consectetur adipiscing elit.
+</div>
+</div>
+</div>
+<div class='page hidden' id='page_ixi_modules'>
+<div class='page_content'>
+<div id='ixis'>
+<div class='ixi'>
+<div class='name'>Report.ixi</div>
+<button>open</button>
+<button>uninstall</button>
+</div>
+<div class='ixi'>
+<div class='name'>CHAT.ixi</div>
+<button>open</button>
+<button>uninstall</button>
+</div>
+</div>
+<button onclick='ModuleViewer.open_install_module_dialog(); return false;'>install module</button>
+</div>
+</div>
+</div>
+</body>
+</html>

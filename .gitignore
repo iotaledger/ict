@@ -1,8 +1,10 @@
 .*
 ict.cfg
 *.jar
+modules/
 build/
 out/
+web/node_modules
 ict.iml
 !.gitignore
 docs/gen_classes.py

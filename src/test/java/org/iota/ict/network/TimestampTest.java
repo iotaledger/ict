@@ -11,7 +11,7 @@ public class TimestampTest extends GossipTest {
     @Test
     public void testTimestampDiffTolerance() {
         TransactionBuilder builder = new TransactionBuilder();
-        builder.issuanceTimestamp = System.currentTimeMillis() - (long) (Constants.TIMESTAMP_DIFFERENCE_TOLERANCE_IN_MILLIS * 1.1);
+        builder.issuanceTimestamp = System.currentTimeMillis() - (long) (Constants.TIMESTAMP_DIFFERENCE_TOLERANCE_IN_MILLIS * 1.2);
 
         Ict a = createIct();
         Ict b = createIct();
@@ -20,12 +20,14 @@ public class TimestampTest extends GossipTest {
         a.submit(builder.build());
         waitUntilCommunicationEnds(100);
         Neighbor.Stats statsForA = b.getNeighbors().get(0).stats;
+        Assert.assertEquals("Ict did not receive transaction.", 1, statsForA.receivedAll);
         Assert.assertEquals("Ict accepted transaction with timestamp out of tolerance interval.", 1, statsForA.receivedInvalid);
         b.newRound();
 
-        builder.issuanceTimestamp = System.currentTimeMillis() - (long) (Constants.TIMESTAMP_DIFFERENCE_TOLERANCE_IN_MILLIS * 0.9);
+        builder.issuanceTimestamp = System.currentTimeMillis() - (long) (Constants.TIMESTAMP_DIFFERENCE_TOLERANCE_IN_MILLIS * 0.8);
         a.submit(builder.build());
         waitUntilCommunicationEnds(100);
+        Assert.assertEquals("Ict did not receive transaction.", 1, statsForA.receivedAll);
         Assert.assertEquals("Ict rejected transaction with timestamp in tolerance interval.", 0, statsForA.receivedInvalid);
     }
 }
