@@ -1,12 +1,10 @@
-package org.iota.ict.utils;
+package org.iota.ict.ixi;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.Ict;
 import org.iota.ict.Main;
-import org.iota.ict.ixi.IctProxy;
-import org.iota.ict.ixi.IxiModule;
-import org.iota.ict.ixi.IxiModuleInfo;
+import org.iota.ict.utils.IOHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -104,16 +102,16 @@ public class IxiModuleHolder {
     }
 
     private IxiModule initModule(URLClassLoader classLoader) throws Exception {
-        Class classToLoad = getStartClass(classLoader);
-        Constructor<?> c = classToLoad.getConstructor(IctProxy.class);
+        Class ixiClass = getIxiClass(classLoader);
+        Constructor<?> c = ixiClass.getConstructor(IctProxy.class);
         return (IxiModule) c.newInstance(new IctProxy(ict));
     }
 
-    private static Class getStartClass(URLClassLoader classLoader) {
+    private static Class getIxiClass(URLClassLoader classLoader) {
         try {
-            return Class.forName("org.iota.ict.ixi.Start", true, classLoader);
+            return Class.forName("org.iota.ict.ixi.Ixi", true, classLoader);
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Invalid IXI module: Could not find class 'org.iota.ict.ixi.Start'.");
+            throw new RuntimeException("Invalid IXI module: Could not find class 'org.iota.ict.ixi.Ixi'.");
         }
     }
 

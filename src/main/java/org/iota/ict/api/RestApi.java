@@ -5,8 +5,7 @@ import org.iota.ict.ixi.IxiModule;
 import org.iota.ict.ixi.IxiModuleInfo;
 import org.iota.ict.network.Neighbor;
 import org.iota.ict.utils.Constants;
-import org.iota.ict.utils.IxiModuleHolder;
-import org.iota.ict.utils.Properties;
+import org.iota.ict.ixi.IxiModuleHolder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import spark.Filter;
@@ -14,12 +13,8 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
-import java.io.File;
 import java.net.InetSocketAddress;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static spark.Spark.after;
 import static spark.Spark.post;

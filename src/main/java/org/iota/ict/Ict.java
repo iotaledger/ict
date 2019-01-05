@@ -3,7 +3,7 @@ package org.iota.ict;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.api.RestApi;
-import org.iota.ict.utils.IxiModuleHolder;
+import org.iota.ict.ixi.IxiModuleHolder;
 import org.iota.ict.model.RingTangle;
 import org.iota.ict.model.Tangle;
 import org.iota.ict.model.TransactionBuilder;
