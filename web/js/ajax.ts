@@ -6,7 +6,7 @@ var logSuccess;
 
 class Ajax {
 
-    public static INSTANCE : Ajax = new Ajax("http://localhost:4567");
+    public static INSTANCE : Ajax = new Ajax("http://localhost:2187");
 
     private base_url : string = "http://localhost:4567";
 
@@ -25,7 +25,7 @@ class Ajax {
             data: name_value_array,
             url: this.base_url + path,
             success: function (data) { if (data['error']) error(data['error']); else success(data); },
-            error: error
+            error: function (err) { error(JSON.stringify(err)); }
         });
     }
 
@@ -41,6 +41,10 @@ class Ajax {
 
     public get_config(success : (config : Object) => void) : void {
         this.submit("/getConfig", {}, success);
+    }
+
+    public set_config(config, success : (data : Object) => void) : void {
+        this.submit("/setConfig", {"config": JSON.stringify(config)}, success);
     }
 
     /* === NEIGHBORS === */

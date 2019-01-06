@@ -22,7 +22,7 @@ var Ajax = /** @class */ (function () {
                 error(data['error']);
             else
                 success(data); },
-            error: error
+            error: function (err) { error(JSON.stringify(err)); }
         });
     };
     Ajax.json_to_name_value_array = function (json) {
@@ -35,6 +35,9 @@ var Ajax = /** @class */ (function () {
     /* === CONFIG === */
     Ajax.prototype.get_config = function (success) {
         this.submit("/getConfig", {}, success);
+    };
+    Ajax.prototype.set_config = function (config, success) {
+        this.submit("/setConfig", { "config": JSON.stringify(config) }, success);
     };
     /* === NEIGHBORS === */
     Ajax.prototype.get_neighbor_stats = function (success) {
@@ -65,6 +68,6 @@ var Ajax = /** @class */ (function () {
             ModuleViewer.load();
         }, logError);
     };
-    Ajax.INSTANCE = new Ajax("http://localhost:4567");
+    Ajax.INSTANCE = new Ajax("http://localhost:2187");
     return Ajax;
 }());

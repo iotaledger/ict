@@ -1,37 +1,66 @@
 package org.iota.ict.api;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.iota.ict.Ict;
 import org.iota.ict.ixi.IxiModule;
 import org.iota.ict.ixi.IxiModuleInfo;
 import org.iota.ict.network.Neighbor;
 import org.iota.ict.utils.Constants;
 import org.iota.ict.ixi.IxiModuleHolder;
+import org.iota.ict.utils.Properties;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import spark.Filter;
-import spark.Request;
-import spark.Response;
-import spark.Route;
+import spark.*;
 
 import java.net.InetSocketAddress;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-import static spark.Spark.after;
-import static spark.Spark.post;
-import static spark.Spark.staticFiles;
+import static spark.Spark.*;
 
 public class RestApi {
 
-    private Ict ict;
+    protected static final Logger LOGGER = LogManager.getLogger(RestApi.class);
+
+    protected Ict ict;
+    protected boolean isRunning = false;
+    protected Map<String, Route> routes = new HashMap<>();
+    protected Service service;
 
     public RestApi(Ict ict) {
         this.ict = ict;
-        init();
     }
 
-    private void init() {
+    public void start(int port) {
+        if(service != null)
+            terminate();
 
-        staticFiles.externalLocation("web/");
+        isRunning = true;
+        service = Service.ignite();
+        service.port(port);
+
+        service.staticFiles.externalLocation("web/");
+
+        post("/setConfig", new Route() {
+            @Override
+            public Object handle(Request request, Response response) {
+                try {
+                    String cfgStr = request.queryParams("config");
+                    JSONObject cfgJSON = new JSONObject(cfgStr);
+                    Properties properties = Properties.fromJSON(cfgJSON);
+                    properties.neighbors = ict.getProperties().neighbors;
+                    ict.changeProperties(properties);
+                    return "{}";
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                    return error(t.getMessage());
+                }
+            }
+        });
 
         post("/getConfig", new Route() {
             @Override
@@ -129,13 +158,36 @@ public class RestApi {
             }
         });
 
-        after(new Filter() {
+        service.after(new Filter() {
             @Override
             public void handle(Request request, Response response) {
                 response.header("Access-Control-Allow-Origin", "*");
                 response.header("Access-Control-Allow-Methods", "GET");
             }
         });
+
+        LOGGER.info("Started Web GUI on port " + port + ".");
+    }
+
+    private void post(String path, Route route) {
+        routes.put(path, route);
+        service.post(path, route);
+    }
+
+    public void terminate() {
+        Set<String> paths = new HashSet<>(routes.keySet());
+        for(String path : paths) {
+            service.delete(path, routes.get(path));
+            routes.remove(path);
+        }
+        service.stop();
+        isRunning = false;
+        service = null;
+        LOGGER.info("Stopped Web GUI.");
+    }
+
+    public boolean isRunning() {
+        return isRunning;
     }
 
     private String error(String message) {

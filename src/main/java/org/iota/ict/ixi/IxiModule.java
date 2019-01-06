@@ -14,7 +14,6 @@ public abstract class IxiModule implements Runnable, Ixi {
 
     protected IxiModule(IctProxy proxy) {
         this.proxy = proxy;
-        new Thread(this).start();
     }
 
     @Override

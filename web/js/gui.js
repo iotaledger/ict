@@ -47,10 +47,15 @@ var Form = /** @class */ (function () {
     function Form() {
     }
     Form.save_config = function () {
-        alert("x");
+        var config = Form.config;
+        Object.keys(config).forEach(function (property) {
+            config[property] = $('#config_' + property).val();
+        });
+        Ajax.INSTANCE.set_config(config, Form.load_config);
     };
     Form.load_config = function () {
         Ajax.INSTANCE.get_config(function (config) {
+            Form.config = config;
             Object.keys(config).forEach(function (property) {
                 $('#config_' + property).val(config[property]);
             });
@@ -109,16 +114,16 @@ var ModuleViewer = /** @class */ (function () {
         var _loop_2 = function (i) {
             var module = modules[i];
             var $module = $("<div>").addClass("ixi")
-                .append($("<div>").addClass("name").text(module['name'] ? module['name'] : module['path']))
-                .append($("<button>").text("stop"))
+                .append($("<div>").addClass("name").text(module['name'] ? module['name'] : module['path']));
+            if (module['web_gui'])
+                $module.append($("<button>").text("open"));
+            if (module['repository'])
+                $module.append($("<button>").text("check updates"));
+            $module
                 .append($("<button>").text("config"))
                 .append($("<button>").text("uninstall").click(function () {
-                    //if (module['repository'])
-                    Ajax.INSTANCE.uninstall_module(module['path']);
-                }));
-            $module.append($("<button>").text("check updates"));
-           // if (module['web_gui']) TODO not commented out yet so all buttons are shown
-                $module.append($("<button>").text("open"));
+                Ajax.INSTANCE.uninstall_module(module['path']);
+            }));
             E.$MODULES.append($module);
         };
         for (var i = 0; i < modules.length; i++) {
@@ -131,11 +136,12 @@ var ModuleViewer = /** @class */ (function () {
             button: "install module",
             content: "input",
         }).then(function (value) {
+            if (value.length == 0)
+                return;
             value = value.replace(/^(https:\/\/)?(github.com\/)/g, "");
             if (value.split("/").length != 2)
                 return logError("'" + value + "' is does not match the required format 'username/repository'.", "Unexpected Format Repository");
-            if (value.length > 0)
-                Ajax.INSTANCE.install_module(value);
+            Ajax.INSTANCE.install_module(value);
         });
     };
     return ModuleViewer;

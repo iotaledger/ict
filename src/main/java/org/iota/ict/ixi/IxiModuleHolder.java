@@ -32,6 +32,10 @@ public class IxiModuleHolder {
             DEFAULT_MODULE_DIRECTORY.mkdirs();
     }
 
+    public IxiModuleHolder(Ict ict) {
+        this.ict = ict;
+    }
+
     public boolean uninstall(String path) {
         if(modulesByPath.containsKey(path)) {
             IxiModule module = (modulesByPath.get(path));
@@ -62,10 +66,6 @@ public class IxiModuleHolder {
             Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
         }
         initModule(target);
-    }
-
-    public IxiModuleHolder(Ict ict) {
-        this.ict = ict;
     }
 
     public void initAllModules() {
@@ -128,6 +128,11 @@ public class IxiModuleHolder {
         } catch (JSONException e) {
             throw new RuntimeException("Failed parsing 'module.json' file: " + e.getMessage());
         }
+    }
+
+    public void start() {
+        for(IxiModule module : modulesWithInfo.keySet())
+            new Thread(module).start();
     }
 
     public void terminate() {

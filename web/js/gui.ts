@@ -58,12 +58,21 @@ class Page {
 
 class Form {
 
+    private static config : JSON;
+
     public static save_config() : void {
-        alert("x");
+        const config = Form.config;
+        Object.keys(config).forEach(function (property : string) {
+            config[property] = $('#config_'+property).val();
+        });
+
+
+        Ajax.INSTANCE.set_config(config, Form.load_config);
     }
 
     public static load_config() : void {
-        Ajax.INSTANCE.get_config(function (config : Object) {
+        Ajax.INSTANCE.get_config(function (config : JSON) {
+            Form.config = config;
             Object.keys(config).forEach(function (property : string) {
                 $('#config_'+property).val(config[property]);
             });
@@ -143,11 +152,12 @@ class ModuleViewer {
             button: "install module",
             content: "input",
         }).then((value) => {
+            if(value.length == 0)
+                return;
             value = value.replace(/^(https:\/\/)?(github.com\/)/g, "");
             if(value.split("/").length != 2)
                 return logError("'"+value+"' is does not match the required format 'username/repository'.", "Unexpected Format Repository");
-            if(value.length > 0)
-                Ajax.INSTANCE.install_module(value);
+            Ajax.INSTANCE.install_module(value);
         });
     }
 }

@@ -17,7 +17,7 @@ import java.util.*;
  *
  * @see org.iota.ict.Ict#Ict(Properties)
  */
-public class Properties {
+public class Properties implements Cloneable {
 
     private static final String LIST_DELIMITER = ",";
     private static final Properties DEFAULT_PROPERTIES = new Properties();
@@ -33,6 +33,7 @@ public class Properties {
     public String name = "ict";
     public String host = "0.0.0.0";
     public int port = 1337;
+    public int guiPort = 2187;
     public long roundDuration = 60000;
     public List<InetSocketAddress> neighbors = new LinkedList<>();
 
@@ -48,6 +49,21 @@ public class Properties {
 
     public static Properties fromJavaProperties(java.util.Properties javaProperties) {
         return new Properties(javaProperties);
+    }
+
+    public static Properties fromJSON(JSONObject json) {
+        java.util.Properties propObject = new java.util.Properties();
+        for(String key : json.keySet()) {
+            Object value = json.get(key);
+            if(value == null)
+                value = "";
+            if(value instanceof JSONArray) {
+                value = value.toString().replace("[", "").replace("]", "").replace("\"", "");
+                System.out.println(value);
+            }
+            propObject.put(key, value.toString());
+        }
+        return new Properties(propObject);
     }
 
     public Properties() {
@@ -66,6 +82,7 @@ public class Properties {
         roundDuration = readLongProperty(propObject, Property.round_duration, 100, Long.MAX_VALUE, DEFAULT_PROPERTIES.roundDuration);
         neighbors = neighborsFromString(propObject.getProperty(Property.neighbors.name(), ""));
         guiEnabled = propObject.getProperty(Property.gui_enabled.name(), DEFAULT_PROPERTIES.guiEnabled + "").toLowerCase().equals("true");
+        guiPort = (int) readLongProperty(propObject, Property.gui_port, 1, 65535, DEFAULT_PROPERTIES.guiPort);
         spamEnabled = propObject.getProperty(Property.spam_enabled.name(), DEFAULT_PROPERTIES.spamEnabled + "").toLowerCase().equals("true");
     }
 
@@ -197,6 +214,7 @@ public class Properties {
         propObject.setProperty(Property.round_duration.name(), roundDuration + "");
         propObject.setProperty(Property.neighbors.name(), neighborsToString());
         propObject.setProperty(Property.gui_enabled.name(), guiEnabled + "");
+        propObject.setProperty(Property.gui_port.name(), guiPort + "");
         propObject.setProperty(Property.spam_enabled.name(), spamEnabled + "");
         return propObject;
     }
@@ -212,8 +230,9 @@ public class Properties {
         json.put(Property.host.name(), host);
         json.put(Property.port.name(), port);
         json.put(Property.round_duration.name(), roundDuration);
-        json.put(Property.neighbors.name(), new JSONArray(neighbors));
+        json.put(Property.neighbors.name(), new JSONArray(neighborsToString().split(",")));
         json.put(Property.gui_enabled.name(), guiEnabled);
+        json.put(Property.gui_port.name(), guiPort);
         json.put(Property.spam_enabled.name(), spamEnabled);
         return json;
     }
@@ -239,8 +258,29 @@ public class Properties {
         round_duration,
         neighbors,
         gui_enabled,
+        gui_port,
         spam_enabled,
         name;
     }
 
+    @Override
+    public Properties clone() {
+        try {
+            Properties clone = (Properties) super.clone();
+            clone.neighbors = new LinkedList<>(neighbors);
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof Properties && this.toPropObject().equals(((Properties) o).toPropObject());
+    }
+
+    @Override
+    public int hashCode() {
+        return toPropObject().entrySet().hashCode();
+    }
 }

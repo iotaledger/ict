@@ -3,6 +3,7 @@ package org.iota.ict.model;
 import org.iota.ict.Ict;
 import org.iota.ict.network.Neighbor;
 import org.iota.ict.utils.Constants;
+import org.iota.ict.utils.Properties;
 import org.iota.ict.utils.Trytes;
 
 import java.util.Collections;
@@ -29,6 +30,8 @@ public class Tangle {
         this.ict = Objects.requireNonNull(ict,"'ict' must not null");
         createTransactionLogIfAbsent(Transaction.NULL_TRANSACTION);
     }
+
+    public void onIctPropertiesChanged() { ; }
 
     public TransactionLog createTransactionLogIfAbsent(Transaction transaction) {
         TransactionLog log = findTransactionLog(transaction);

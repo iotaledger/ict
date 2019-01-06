@@ -20,11 +20,11 @@ public class Neighbor {
     public static final Logger logger = LogManager.getLogger(Neighbor.class);
     private InetSocketAddress address;
     public final Stats stats = new Stats();
-    private long maxAllowedTransactionsForRound;
+    private double maxAllowedTransactionsForRound;
 
-    public Neighbor(InetSocketAddress address, long maxTransactionsRelative) {
+    public Neighbor(InetSocketAddress address, long maxTransactionsAbsolute) {
         this.address = address;
-        this.maxAllowedTransactionsForRound = maxTransactionsRelative;
+        this.maxAllowedTransactionsForRound = maxTransactionsAbsolute;
     }
 
     public class Stats {

@@ -262,15 +262,14 @@ public class Main {
         }
 
         ict.getModuleHolder().initAllModules();
-        logger.info("Ict started on " + ict.getAddress() + ".\n");
+        ict.getModuleHolder().start();
 
         final Ict finalRefToIct = ict;
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                logger.info("Terminating Ict ...");
-                ErrorHandler.dump(DEFAULT_LOG_DIR);
-                finalRefToIct.terminate();
+            ErrorHandler.dump(DEFAULT_LOG_DIR);
+            finalRefToIct.terminate();
             }
         });
     }

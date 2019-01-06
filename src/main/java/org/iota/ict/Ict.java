@@ -31,50 +31,30 @@ import java.util.List;
  */
 public class Ict {
 
-    protected final IxiModuleHolder moduleHolder;
+    protected final IxiModuleHolder moduleHolder = new IxiModuleHolder(Ict.this);
     protected final List<Neighbor> neighbors = new LinkedList<>();
-    protected final Sender sender;
-    protected final Receiver receiver;
-    protected State state;
-    protected final Tangle tangle;
-    protected final Properties properties;
-    protected final DatagramSocket socket;
-    protected final InetSocketAddress address;
-    protected final GossipEventDispatcher eventDispatcher = new GossipEventDispatcher();
+    protected Sender sender;
+    protected Receiver receiver;
+    protected State state = new StateTerminated();
+    protected Tangle tangle;
+    protected Properties properties;
+    protected DatagramSocket socket;
+    protected InetSocketAddress address;
+    protected GossipEventDispatcher eventDispatcher;
     public final static Logger LOGGER = LogManager.getLogger(Ict.class);
     protected int round;
+    protected final RestApi restApi = new RestApi(this);
 
     /**
      * @param properties The properties to use for this Ict. Changing them afterwards might or might not work for some properties.
      *                   TODO allow them to be configured afterwards.
      */
     public Ict(Properties properties) {
+        changeProperties(properties);
+    }
 
-        this.properties = properties;
-        this.tangle = new RingTangle(this, properties.tangleCapacity);
-        this.address = new InetSocketAddress(properties.host, properties.port);
-
-        for (InetSocketAddress neighborAddress : properties.neighbors)
-            neighbor(neighborAddress);
-
-        try {
-            this.socket = new DatagramSocket(address);
-        } catch (SocketException socketException) {
-            ErrorHandler.handleError(LOGGER, socketException, "could not create socket for Ict");
-            throw new RuntimeException(socketException);
-        }
-
-        this.sender = new Sender(this, properties, tangle, socket);
-        this.receiver = new Receiver(this, tangle, socket);
-        this.moduleHolder = new IxiModuleHolder(this);
-
-        state = new StateRunning();
-        eventDispatcher.start();
-        sender.start();
-        receiver.start();
-
-        if(properties.guiEnabled)
-            new RestApi(this);
+    private void start() {
+        state.start();
     }
 
     /**
@@ -121,7 +101,55 @@ public class Ict {
     }
 
     public Properties getProperties() {
-        return properties;
+        return properties.clone();
+    }
+
+    public synchronized void changeProperties(Properties newProp) {
+
+        Properties oldProp = this.properties;
+
+        boolean restartRequired = oldProp == null || !newProp.host.equals(oldProp.host) || newProp.port != oldProp.port;
+        if(restartRequired && isRunning()) {
+            terminate();
+        }
+
+        this.properties = newProp;
+        updateNeighborsBecausePropertiesChanged(oldProp, newProp);
+
+        if(restartRequired || !isRunning())
+            start();
+        else {
+            tangle.onIctPropertiesChanged();
+            sender.onIctPropertiesChanged();
+            updateGuiBecausePropertiesChanged(oldProp, newProp);
+        }
+    }
+
+    private void updateNeighborsBecausePropertiesChanged(Properties oldProp, Properties newProp) {
+        // remove neigjbors who are no longer neighbors
+        List<Neighbor> toRemove = new LinkedList<>();
+        for(Neighbor nb : neighbors)
+            if(!newProp.neighbors.contains(nb.getAddress()))
+                toRemove.add(nb);
+        neighbors.removeAll(toRemove);
+
+        // add neighbors who are new
+        List<InetSocketAddress> newNeighbors = new LinkedList<>();
+        for(InetSocketAddress inetAddress : newProp.neighbors) {
+            if(oldProp == null  || !oldProp.neighbors.contains(inetAddress))
+                newNeighbors.add(inetAddress);
+        }
+        for(InetSocketAddress toAdd : newNeighbors)
+            neighbor(toAdd);
+
+        assert neighbors.size() == newProp.neighbors.size();
+    }
+
+    private void updateGuiBecausePropertiesChanged(Properties oldProp, Properties newProp) {
+        if(restApi.isRunning() && oldProp != null && newProp.guiEnabled && oldProp.port == newProp.port)
+            return; // keep running with same port
+        if(newProp.guiEnabled)
+            restApi.start(newProp.guiPort);
     }
 
     public Tangle getTangle() {
@@ -187,7 +215,6 @@ public class Ict {
 
     public void terminate() {
         state.terminate();
-        // TODO block until terminated
     }
 
     private class State {
@@ -199,6 +226,10 @@ public class Ict {
 
         private void throwIllegalStateException(String actionName) {
             throw new IllegalStateException("Action '" + actionName + "' cannot be performed from state '" + name + "'.");
+        }
+
+        void start() {
+            throwIllegalStateException("start");
         }
 
         void terminate() {
@@ -214,17 +245,62 @@ public class Ict {
         @Override
         void terminate() {
             state = new StateTerminating();
+            LOGGER.info("Terminating Ict ...");
+
             socket.close();
             sender.terminate();
             receiver.interrupt();
             eventDispatcher.terminate();
             moduleHolder.terminate();
+            if(properties.guiEnabled) restApi.terminate();
+
+            // TODO block until terminated
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {}
+
+            state = new StateTerminated();
+            LOGGER.info("Ict terminated.");
         }
     }
 
     private class StateTerminating extends State {
         private StateTerminating() {
             super("terminating");
+        }
+    }
+
+    private class StateTerminated extends State {
+        private StateTerminated() {
+            super("terminated");
+        }
+
+        @Override
+        void start() {
+            LOGGER.info("Starting Ict ...");
+            eventDispatcher = new GossipEventDispatcher();
+            setAddressAndSocket();
+            tangle = new RingTangle(Ict.this);
+            sender = new Sender(Ict.this, tangle, socket);
+            receiver = new Receiver(Ict.this, tangle, socket);
+
+            state = new StateRunning();
+            eventDispatcher.start();
+            sender.start();
+            receiver.start();
+            if(properties.guiEnabled) restApi.start(properties.guiPort);
+            moduleHolder.start();
+            LOGGER.info("Ict started.");
+        }
+
+        private void setAddressAndSocket() {
+            address = new InetSocketAddress(properties.host, properties.port);
+            try {
+                socket = new DatagramSocket(address);
+            } catch (SocketException socketException) {
+                ErrorHandler.handleError(LOGGER, socketException, "Could not create socket for Ict. Are you already running another instance on " + address + "?");
+                throw new RuntimeException(socketException);
+            }
         }
     }
 }
