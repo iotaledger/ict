@@ -9,6 +9,7 @@ public class IxiModuleInfo {
 
     public final String repository;
     public final String name;
+    public final String mainClass;
     public final String description;
     public boolean webGui ;
     private final String path;
@@ -21,6 +22,9 @@ public class IxiModuleInfo {
         name = json.getString("name");
         description = json.getString("description");
         repository = json.getString("repository");
+        mainClass = json.getString("main_class");
+        if(!mainClass.startsWith("org.iota.ict.ixi."))
+            throw new RuntimeException("Invalid module.json: Main class must be in package 'org.iota.ict.ixi'");
         webGui = json.getBoolean("web_gui");
         this.path = path;
     }
@@ -32,6 +36,7 @@ public class IxiModuleInfo {
         json.put("repository", repository);
         json.put("path", path);
         json.put("web_gui", webGui);
+        json.put("main_class", mainClass);
         json.put("supported_versions", supportedVersions);
         return json;
     }

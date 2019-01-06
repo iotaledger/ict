@@ -96,22 +96,22 @@ public class IxiModuleHolder {
         String path = DEFAULT_MODULE_DIRECTORY.toURI().relativize(jar.toUri()).toString();
         URLClassLoader classLoader = new URLClassLoader (new URL[] {jar.toFile().toURI().toURL()}, Main.class.getClassLoader());
         IxiModuleInfo info = readModuleInfoFromJar(classLoader, path);
-        IxiModule module = initModule(classLoader);
+        IxiModule module = initModule(classLoader, info.mainClass);
         modulesWithInfo.put(module, info);
         modulesByPath.put(path, module);
     }
 
-    private IxiModule initModule(URLClassLoader classLoader) throws Exception {
-        Class ixiClass = getIxiClass(classLoader);
-        Constructor<?> c = ixiClass.getConstructor(IctProxy.class);
+    private IxiModule initModule(URLClassLoader classLoader, String mainClassName) throws Exception {
+        Class ixiClass = getIxiClass(classLoader, mainClassName);
+        Constructor<?> c = ixiClass.getConstructor(Ixi.class);
         return (IxiModule) c.newInstance(new IctProxy(ict));
     }
 
-    private static Class getIxiClass(URLClassLoader classLoader) {
+    private static Class getIxiClass(URLClassLoader classLoader, String mainClassName) {
         try {
-            return Class.forName("org.iota.ict.ixi.IxiImplementation", true, classLoader);
+            return Class.forName(mainClassName, true, classLoader);
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Invalid IXI module: Could not find class 'org.iota.ict.ixi.IxiImplementation'.");
+            throw new RuntimeException("Invalid IXI module: Could not find class '"+mainClassName+"'.");
         }
     }
 
