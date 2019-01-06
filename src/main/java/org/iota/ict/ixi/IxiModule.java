@@ -11,7 +11,7 @@ public abstract class IxiModule implements Runnable {
     protected Ixi ixi;
     private Set<GossipListener> listeners = Collections.newSetFromMap(new ConcurrentHashMap<GossipListener, Boolean>());
 
-    protected IxiModule(Ixi ixi) {
+    public IxiModule(Ixi ixi) {
         this.ixi = ixi;
     }
 
@@ -19,4 +19,5 @@ public abstract class IxiModule implements Runnable {
         for(GossipListener listener : listeners)
             ixi.removeGossipListener(listener);
     }
+
 }
