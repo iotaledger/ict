@@ -20,14 +20,13 @@ public class TimestampTest extends GossipTest {
         a.submit(builder.build());
         waitUntilCommunicationEnds(100);
         Neighbor.Stats statsForA = b.getNeighbors().get(0).stats;
-        Assert.assertEquals("Ict did not receive transaction.", 1, statsForA.receivedAll);
-        Assert.assertEquals("Ict accepted transaction with timestamp out of tolerance interval.", 1, statsForA.receivedInvalid);
+        Assert.assertEquals("Ict did forward transaction with timestamp out of tolerated time interval.", 0, statsForA.receivedAll);
         b.newRound();
 
         builder.issuanceTimestamp = System.currentTimeMillis() - (long) (Constants.TIMESTAMP_DIFFERENCE_TOLERANCE_IN_MILLIS * 0.8);
         a.submit(builder.build());
         waitUntilCommunicationEnds(100);
         Assert.assertEquals("Ict did not receive transaction.", 1, statsForA.receivedAll);
-        Assert.assertEquals("Ict rejected transaction with timestamp in tolerance interval.", 0, statsForA.receivedInvalid);
+        Assert.assertEquals("Ict rejected transaction with timestamp in tolerated time interval.", 0, statsForA.receivedInvalid);
     }
 }

@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.Ict;
 import org.iota.ict.network.event.GossipEvent;
+import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.ErrorHandler;
 import org.iota.ict.utils.Properties;
 import org.iota.ict.model.Tangle;
@@ -93,6 +94,8 @@ public class Sender extends Thread {
 
     private void sendTransaction(Transaction transaction) {
         Tangle.TransactionLog transactionLog = tangle.findTransactionLog(transaction);
+        if (Math.abs(transaction.issuanceTimestamp - System.currentTimeMillis()) > Constants.TIMESTAMP_DIFFERENCE_TOLERANCE_IN_MILLIS * 0.9)
+            return;
         transaction.requestHash = transactionsToRequest.isEmpty() ? Trytes.NULL_HASH : transactionsToRequest.poll();
         for (Neighbor nb : ict.getNeighbors())
             if (transactionLog == null || !transactionLog.senders.contains(nb))

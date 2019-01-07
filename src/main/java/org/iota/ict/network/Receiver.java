@@ -61,9 +61,14 @@ public class Receiver extends Thread {
         }
 
         Transaction transaction = unpack(packet, sender);
+
         if (transaction == null) {
             sender.stats.receivedInvalid++;
             return;
+        }
+
+        if (Math.abs(transaction.issuanceTimestamp - System.currentTimeMillis()) > Constants.TIMESTAMP_DIFFERENCE_TOLERANCE_IN_MILLIS) {
+            sender.stats.ignored++;
         }
 
         updateTransactionLog(sender, transaction);
@@ -72,10 +77,7 @@ public class Receiver extends Thread {
 
     private Transaction unpack(DatagramPacket packet, Neighbor sender) {
         try {
-            Transaction transaction = new Transaction(Trytes.fromBytes((packet.getData())));
-            if (Math.abs(transaction.issuanceTimestamp - System.currentTimeMillis()) > Constants.TIMESTAMP_DIFFERENCE_TOLERANCE_IN_MILLIS)
-                throw new RuntimeException("issuance timestamp not in tolerated interval");
-            return transaction;
+            return new Transaction(Trytes.fromBytes((packet.getData())));
         } catch (Throwable t) {
             ErrorHandler.handleWarning(Ict.LOGGER, t,"Received invalid transaction from neighbor: " + sender.getAddress());
             return null;
