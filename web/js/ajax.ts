@@ -6,11 +6,11 @@ var logSuccess;
 
 class Ajax {
 
-    public static INSTANCE : Ajax = new Ajax("http://localhost:2187");
+    public static INSTANCE : Ajax = new Ajax(window.location.protocol + "//" + window.location.host);
 
-    private base_url : string = "http://localhost:4567";
+    private base_url : string;
 
-    public constructor(base_url : string) {
+    public constructor(base_url : string = "http://localhost:4567") {
         this.base_url = base_url;
     }
 

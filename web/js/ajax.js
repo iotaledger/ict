@@ -5,7 +5,7 @@ var logError;
 var logSuccess;
 var Ajax = /** @class */ (function () {
     function Ajax(base_url) {
-        this.base_url = "http://localhost:4567";
+        if (base_url === void 0) { base_url = "http://localhost:4567"; }
         this.base_url = base_url;
     }
     Ajax.prototype.submit = function (path, data, success, error) {
@@ -68,6 +68,6 @@ var Ajax = /** @class */ (function () {
             ModuleViewer.load();
         }, logError);
     };
-    Ajax.INSTANCE = new Ajax("http://localhost:2187");
+    Ajax.INSTANCE = new Ajax(window.location.protocol + "//" + window.location.host);
     return Ajax;
 }());
