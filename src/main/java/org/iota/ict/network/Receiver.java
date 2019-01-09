@@ -79,7 +79,7 @@ public class Receiver extends Thread {
         try {
             return new Transaction(Trytes.fromBytes((packet.getData())));
         } catch (Throwable t) {
-            ErrorHandler.handleWarning(Ict.LOGGER, t,"Received invalid transaction from neighbor: " + sender.getAddress());
+            //ErrorHandler.handleWarning(Ict.LOGGER, t,"Received invalid transaction from neighbor: " + sender.getAddress());
             return null;
         }
     }
@@ -120,7 +120,7 @@ public class Receiver extends Thread {
         for (Neighbor nb : ict.getNeighbors())
             if (nb.sentPacketFromSameIP(packet))
                 return nb;
-        Ict.LOGGER.warn("Received transaction from unknown address: " + packet.getAddress());
+        //Ict.LOGGER.warn("Received transaction from unknown address: " + packet.getAddress());
         return null;
     }
 }
