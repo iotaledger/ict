@@ -20,8 +20,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static spark.Spark.*;
-
 public class RestApi {
 
     protected static final Logger LOGGER = LogManager.getLogger(RestApi.class);

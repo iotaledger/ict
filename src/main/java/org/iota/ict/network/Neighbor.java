@@ -83,35 +83,11 @@ public class Neighbor {
             Neighbor.logHeader();
         // two separate FOR-loops to prevent delays between newRound() calls
         for (Neighbor neighbor : ict.getNeighbors()) {
-            long tolerance = calcTolerance(ict, neighbor);
+            long tolerance = ict.getProperties().antiSpamAbs;
             neighbor.newRound(tolerance);
         }
         for (Neighbor neighbor : ict.getNeighbors())
             neighbor.resolveHost();
-    }
-
-    private static long calcTolerance(Ict ict, Neighbor sender) {
-        double relativeTolerance = calcReferenceForRelativeTolerance(ict.getNeighbors(), sender) * ict.getProperties().antiSpamRel;
-        return (int)Math.ceil(Math.min(ict.getProperties().antiSpamAbs, relativeTolerance));
-    }
-
-    private static long calcReferenceForRelativeTolerance(List<Neighbor> allNeighbors, Neighbor sender) {
-        List<Neighbor> otherNeighbors = new LinkedList<>(allNeighbors);
-        otherNeighbors.remove(sender);
-        return otherNeighbors.size() > 0 ? calcUpperMedianOfPrevReceivedAll(otherNeighbors) : 9999999;
-    }
-
-    private static long calcUpperMedianOfPrevReceivedAll(List<Neighbor> neighbors) {
-        List<Long> values = new LinkedList<>();
-        for (Neighbor nb : neighbors)
-            values.add(nb.stats.prevReceivedAll);
-        return calcUpperMedian(values);
-    }
-
-    private static long calcUpperMedian(List<Long> values) {
-        assert values.size() > 0;
-        Collections.sort(values);
-        return values.get((int) Math.ceil((values.size() - 1) / 2.0));
     }
 
     private void newRound(long maxAllowedTransactionsForRound) {

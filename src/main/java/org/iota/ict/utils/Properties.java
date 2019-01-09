@@ -72,7 +72,6 @@ public class Properties implements Cloneable {
 
     private Properties(java.util.Properties propObject) {
         tangleCapacity = readLongProperty(propObject, Property.tangle_capacity, 10, Long.MAX_VALUE, DEFAULT_PROPERTIES.tangleCapacity);
-        antiSpamRel = readDoublePorperty(propObject, Property.anti_spam_rel, 1, 1000, DEFAULT_PROPERTIES.antiSpamRel);
         antiSpamAbs = readLongProperty(propObject, Property.anti_spam_abs, 1, Long.MAX_VALUE, DEFAULT_PROPERTIES.antiSpamAbs);
         minForwardDelay = readLongProperty(propObject, Property.min_forward_delay, 0, 10000, DEFAULT_PROPERTIES.minForwardDelay);
         maxForwardDelay = readLongProperty(propObject, Property.max_forward_delay, 0, 10000, DEFAULT_PROPERTIES.maxForwardDelay);
@@ -204,7 +203,6 @@ public class Properties implements Cloneable {
     public java.util.Properties toPropObject() {
         java.util.Properties propObject = new java.util.Properties();
         propObject.setProperty(Property.tangle_capacity.name(), tangleCapacity + "");
-        propObject.setProperty(Property.anti_spam_rel.name(), antiSpamRel + "");
         propObject.setProperty(Property.anti_spam_abs.name(), antiSpamAbs + "");
         propObject.setProperty(Property.min_forward_delay.name(), minForwardDelay + "");
         propObject.setProperty(Property.max_forward_delay.name(), maxForwardDelay + "");
@@ -222,7 +220,6 @@ public class Properties implements Cloneable {
     public JSONObject toJSON() {
         JSONObject json = new JSONObject();
         json.put(Property.tangle_capacity.name(), tangleCapacity);
-        json.put(Property.anti_spam_rel.name(), antiSpamRel);
         json.put(Property.anti_spam_abs.name(), antiSpamAbs);
         json.put(Property.min_forward_delay.name(), minForwardDelay);
         json.put(Property.max_forward_delay.name(), maxForwardDelay);
@@ -248,7 +245,6 @@ public class Properties implements Cloneable {
     }
 
     public enum Property {
-        anti_spam_rel,
         anti_spam_abs,
         tangle_capacity,
         min_forward_delay,
