@@ -2,6 +2,7 @@ package org.iota.ict.api;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.IOHelper;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -18,23 +19,38 @@ public final class GithubGateway {
     private static Logger LOGGER = LogManager.getLogger(GithubGateway.class);
     protected static String BASE_URL = "https://api.github.com";
 
-    public static URL getDownloadURLOfMostRecentAsset(String userSlashRepo) {
-        JSONArray releases = getReleases(userSlashRepo);
-        if(releases == null)
-            throw new RuntimeException("No release found for '"+userSlashRepo+"'.");
-
-        for(int i = 0; i < releases.length(); i++) {
-            JSONObject release = releases.getJSONObject(i);
-            JSONArray assets = release.getJSONArray("assets");
-            if(assets.length() > 0) {
-                JSONObject asset = assets.getJSONObject(0);
-                return getDownloadURLOfAsset(asset);
-            }
-        }
-        throw new RuntimeException("No downloadable asset found in releases of '"+userSlashRepo+"'.");
+    public static JSONObject getRepoInfo(String userSlashRepo) {
+        String response = send_POST_Request("/repos/"+userSlashRepo);
+        return new JSONObject(response);
     }
 
-    private static URL getDownloadURLOfAsset(JSONObject asset) {
+    public static String getLatestReleaseLabel(String userSlashRepo) {
+        JSONObject latestRelease = getLatestRelease(userSlashRepo);
+        return latestRelease.getString("tag_name");
+    }
+
+    public static URL getAssetDownloadUrl(String userSlashRepo, String label) {
+        JSONObject release = getRelease(userSlashRepo, label);
+        return getAssetDownloadUrlOfRelease(release);
+    }
+
+    protected static JSONObject getLatestRelease(String userSlashRepo) {
+        JSONArray releases = getReleases(userSlashRepo);
+        if(releases.length() == 0)
+            throw new RuntimeException("No releases in repository " + userSlashRepo);
+        return releases.getJSONObject(0);
+    }
+
+    protected static URL getAssetDownloadUrlOfRelease(JSONObject release) {
+        JSONArray assets = release.getJSONArray("assets");
+        if(assets.length() > 0) {
+            JSONObject asset = assets.getJSONObject(0);
+            return getDownloadURLOfAsset(asset);
+        }
+        throw new RuntimeException("No assets found in releae '" + release.getString("tag_name") + "'");
+    }
+
+    protected static URL getDownloadURLOfAsset(JSONObject asset) {
         String downloadUrl = asset.getString("browser_download_url");
         try {
             return new URL(downloadUrl);
@@ -43,14 +59,19 @@ public final class GithubGateway {
         }
     }
 
-    public static JSONArray getReleases(String userSlashRepo) {
-        String response = send_POST_Request("/repos/"+userSlashRepo+"/releases");
-        return response == null ? null : new JSONArray(response);
+    protected static JSONObject getRelease(String userSlashRepo, String label) {
+        JSONArray releases = getReleases(userSlashRepo);
+        for(int i = 0; i < releases.length(); i++) {
+            JSONObject release = releases.getJSONObject(i);
+            if(release.getString("tag_name").equals(label))
+                return release;
+        }
+        throw new RuntimeException("No release with label '"+label+"' found in '"+userSlashRepo+"'.");
     }
 
-    public static JSONObject getRepoInfo(String userSlashRepo) {
-        String response = send_POST_Request("/repos/"+userSlashRepo);
-        return response == null ? null : new JSONObject(response);
+    protected static JSONArray getReleases(String userSlashRepo) {
+        String response = send_POST_Request("/repos/"+userSlashRepo+"/releases");
+        return new JSONArray(response);
     }
 
     private static String send_POST_Request(String path) {

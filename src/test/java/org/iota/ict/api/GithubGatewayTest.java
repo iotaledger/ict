@@ -1,5 +1,7 @@
 package org.iota.ict.api;
 
+import org.iota.ict.utils.Constants;
+import org.iota.ict.utils.VersionComparator;
 import org.json.JSONArray;
 import org.junit.Assert;
 import org.junit.Test;
@@ -7,9 +9,19 @@ import org.junit.Test;
 public class GithubGatewayTest {
 
     @Test
-    public void testConnection() {
-        JSONArray releases = GithubGateway.getReleases("iotaledger/ict");
+    public void testGetReleases() {
+        JSONArray releases = GithubGateway.getReleases(Constants.ICT_REPOSITORY);
+
         Assert.assertNotNull("Failed fetching releases from Github API.", releases);
         Assert.assertTrue("Expected releases but found none.", releases.length() > 0);
+    }
+
+    @Test
+    public void testGetLatestReleaseLabel() {
+        String label = GithubGateway.getLatestReleaseLabel(Constants.ICT_REPOSITORY);
+
+        Assert.assertNotNull("Failed fetching label of latest release.", label);
+        Assert.assertTrue("Unexpected label of most recent release: " + label, label.matches("0\\.[0-9]{1,2}(\\.[0-9])?"));
+        Assert.assertTrue("Label of most recent release appears to be greater than current version.", VersionComparator.getInstance().compare(Constants.ICT_VERSION, label) > 0);
     }
 }

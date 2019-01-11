@@ -59,8 +59,6 @@ public class TangleTest {
                 while (true) {
                     try {
                         Set<Transaction> currentSet = underTest.findTransactionsByAddress(transactionsForAddress);
-                        System.out.println("Found " + currentSet.size() + " transactions for transactionsForAddress " + transactionsForAddress);
-
                         safeSleep(13);
                     } catch (ConcurrentModificationException e) {
                         System.err.println("\n>>>> D E T E C T - " + e.getClass() + " cause " + e.getMessage() + "\n");
@@ -79,9 +77,7 @@ public class TangleTest {
                 for (Transaction aTransactionSet : transactionSet) {
                     try {
                         Transaction next = aTransactionSet;
-                        System.out.print("Start deleting of transaction " + next.hash + " ... ");
                         underTest.deleteTransaction(next);
-                        System.out.println(" successful deleted " + next.hash);
 
                         safeSleep(7);
                     } catch (Exception e) {

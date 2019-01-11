@@ -50,7 +50,7 @@ class Ajax {
     /* === NEIGHBORS === */
 
     public get_neighbor_stats(success : (all_stats : Object) => void = function (data) {}) : void {
-        this.submit("/getNeighborStats", {}, success);
+        this.submit("/getNeighbors", {}, success);
     }
 
     public add_neighbor(address : string, success : (all_stats : Object) => void = function (data) {}) : void {

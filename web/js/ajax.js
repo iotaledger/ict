@@ -42,7 +42,7 @@ var Ajax = /** @class */ (function () {
     /* === NEIGHBORS === */
     Ajax.prototype.get_neighbor_stats = function (success) {
         if (success === void 0) { success = function (data) { }; }
-        this.submit("/getNeighborStats", {}, success);
+        this.submit("/getNeighbors", {}, success);
     };
     Ajax.prototype.add_neighbor = function (address, success) {
         if (success === void 0) { success = function (data) { }; }
