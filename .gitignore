@@ -9,6 +9,7 @@ ict.iml
 !.gitignore
 docs/gen_classes.py
 docs/*.pyc
+docs/api/
 CodeStyleCheckTool.xml
 gradle/
 settings.gradle

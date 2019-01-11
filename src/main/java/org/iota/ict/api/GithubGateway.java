@@ -47,7 +47,7 @@ public final class GithubGateway {
             JSONObject asset = assets.getJSONObject(0);
             return getDownloadURLOfAsset(asset);
         }
-        throw new RuntimeException("No assets found in releae '" + release.getString("tag_name") + "'");
+        throw new RuntimeException("No assets found in release '" + release.getString("tag_name") + "'");
     }
 
     protected static URL getDownloadURLOfAsset(JSONObject asset) {

@@ -1,0 +1,6 @@
+{
+  "name": "Ict REST API",
+  "version": "0.4.0",
+  "description": "This REST API connects the Ict with the Web GUI Control Panel to enable intuitive node maintenance.",
+  "url" : "http://localhost:2187"
+}

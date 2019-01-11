@@ -13,4 +13,8 @@ if os.path.isfile('gen_classes.py'):
     success('generated docs/CLASSES.md')
 else:
     warn('could not generate CLASSES.md because gen_classes.py was not found (it is not included in the repository because of license issues)')
+
+os.system("apidoc src/main/java/org/iota/ict/api/RestApi.java -o docs/api/")
+success('generated docs/api/')
+
 print('\n=============================================\n')

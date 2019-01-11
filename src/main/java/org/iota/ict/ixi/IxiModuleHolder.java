@@ -37,18 +37,25 @@ public class IxiModuleHolder {
     }
 
     public boolean uninstall(String path) {
-        if(modulesByPath.containsKey(path)) {
-            IxiModule module = (modulesByPath.get(path));
-            modulesWithInfo.remove(module);
-            modulesByPath.remove(path);
-            module.terminate();
 
-            File file = new File(DEFAULT_MODULE_DIRECTORY, path);
-            if(file.exists() && file.isFile() && path.endsWith(".jar")) {
-                return file.delete();
-            }
-        }
-        return false;
+        IxiModule module = modulesByPath.get(path);
+
+        if(module == null)
+            throw new RuntimeException("No module '"+path+"' installed.");
+
+        modulesWithInfo.remove(module);
+        modulesByPath.remove(path);
+        module.terminate();
+
+        File file = new File(DEFAULT_MODULE_DIRECTORY, path);
+
+        if(!file.exists())
+            throw new RuntimeException("Could not find file '"+path+"'.");
+        if(file.isDirectory())
+            throw new RuntimeException("Path '"+path+"' is a directory.");
+        if(!path.endsWith(".jar"))
+            throw new RuntimeException("Path '"+path+"' is a directory.");
+        return file.delete();
     }
 
     public void install(URL url) throws Throwable {

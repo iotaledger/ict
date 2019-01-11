@@ -18,10 +18,26 @@ public class RestApi {
     protected Service service;
     protected final JsonIct jsonIct;
     protected boolean isRunning = false;
-    protected Map<String, Route> routes = new HashMap<>();
+    protected Set<RouteImpl> routes = new HashSet<>();
 
     public RestApi(Ict ict) {
         this.jsonIct = new JsonIct(ict);
+
+        routes.add(new RouteGetInfo(jsonIct));
+        routes.add(new RouteGetLog(jsonIct));
+        routes.add(new RouteUpdate(jsonIct));
+
+        routes.add(new RouteSetConfig(jsonIct));
+        routes.add(new RouteGetConfig(jsonIct));
+
+        routes.add(new RouteGetNeighbors(jsonIct));
+        routes.add(new RouteAddNeighbor(jsonIct));
+        routes.add(new RouteRemoveNeighbor(jsonIct));
+
+        routes.add(new RouteGetModules(jsonIct));
+        routes.add(new RouteAddModule(jsonIct));
+        routes.add(new RouteRemoveModule(jsonIct));
+        routes.add(new RouteUpdateModule(jsonIct));
     }
 
     public void start(int port) {
@@ -32,7 +48,8 @@ public class RestApi {
         service.port(port);
 
         service.staticFiles.externalLocation(WEB_GUI_PATH);
-        registerRoutes();
+        for(RouteImpl route : routes)
+            service.post(route.getPath(), route);
 
         service.after(new Filter() {
             @Override
@@ -45,43 +62,13 @@ public class RestApi {
         LOGGER.info("Started Web GUI on port " + port + ".");
     }
 
-    private void registerRoutes() {
-        post("/getInfo", new RouteGetInfo(jsonIct));
-        post("/getLog", new RouteGetLog(jsonIct));
-        post("/update", new RouteUpdate(jsonIct));
-
-        post("/setConfig", new RouteSetConfig(jsonIct));
-        post("/getConfig", new RouteGetConfig(jsonIct));
-
-        post("/getNeighbors", new RouteGetNeighbors(jsonIct));
-        post("/addNeighbor", new RouteAddNeighbor(jsonIct));
-        post("/removeNeighbor", new RouteRemoveNeighbor(jsonIct));
-
-        post("/getModules", new RouteGetModules(jsonIct));
-        post("/addModule", new RouteAddModule(jsonIct));
-        post("/removeModule", new RouteRemoveModule(jsonIct));
-        post("/updateModule", new RouteUpdateModule(jsonIct));
-    }
-
-    private void post(String path, Route route) {
-        routes.put(path, route);
-        service.post(path, route);
-    }
-
     public void terminate() {
-        deleteAllRoutes();
+        for(RouteImpl route : routes)
+            service.delete(route.getPath(), route);
         service.stop();
         isRunning = false;
         service = null;
         LOGGER.info("Stopped Web GUI.");
-    }
-
-    private void deleteAllRoutes() {
-        Set<String> paths = new HashSet<>(routes.keySet());
-        for(String path : paths) {
-            service.delete(path, routes.get(path));
-            routes.remove(path);
-        }
     }
 
     public boolean isRunning() {

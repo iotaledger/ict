@@ -10,15 +10,15 @@ other Icts. This class is not supposed to perform complex tasks but to delegate 
 therefore be seen as a hub of all those components which, when working together, form an Ict node.
 
 ### [Main](../src/main/java/org/iota/ict/Main.java)
-This class controls what happens when the program is run by a user. It is the entry point when starting this application
-and helps the user to set up a new Ict node. As such it is a convenience and not technically required to create Ict nodes.
-A good example are the jUnit tests which work entirely independently from this class.
+This class controls what happens when the program is run by a user. It is the entry point when starting this application and helps the user to set up a new
+Ict node. As such it is a convenience and not technically required to create Ict nodes. A good example are the jUnit tests which work entirely independently
+from this class.
 
 ## org.iota.ict.utils
 
 ### [Properties](../src/main/java/org/iota/ict/utils/Properties.java)
-With instances of this class, the Ict and its sub-components can be easily configured. The properties can be read from
-files or defined during runtime. Some properties might not be changeable yet after passing them to the Ict.
+With instances of this class, the Ict and its sub-components can be easily configured. The properties can be read from files or defined during runtime. Some
+properties might not be changeable yet after passing them to the Ict.
 
 ### [Trytes](../src/main/java/org/iota/ict/utils/Trytes.java)
 This class is a helper tool which allows to perform basic tryte operations, such as conversion between trytes and
