@@ -5,6 +5,7 @@ import org.iota.ict.ixi.IxiModule;
 import org.iota.ict.ixi.IxiModuleHolder;
 import org.iota.ict.ixi.IxiModuleInfo;
 import org.iota.ict.network.Neighbor;
+import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.Properties;
 import org.iota.ict.utils.Updater;
 import org.json.JSONArray;
@@ -36,7 +37,9 @@ public class JsonIct {
 
     public JSONObject setConfig(String configString) {
         JSONObject configJson = new JSONObject(configString);
-        ict.changeProperties(Properties.fromJSON(configJson));
+        Properties properties = Properties.fromJSON(configJson);
+        ict.changeProperties(properties);
+        properties.store(Constants.DEFAULT_PROPERTY_FILE_PATH);
         return success();
     }
 

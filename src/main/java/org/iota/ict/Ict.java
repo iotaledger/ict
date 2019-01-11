@@ -126,7 +126,7 @@ public class Ict {
     }
 
     private void updateNeighborsBecausePropertiesChanged(Properties oldProp, Properties newProp) {
-        // remove neigjbors who are no longer neighbors
+        // remove neighbors who are no longer neighbors
         List<Neighbor> toRemove = new LinkedList<>();
         for(Neighbor nb : neighbors)
             if(!newProp.neighbors.contains(nb.getAddress()))

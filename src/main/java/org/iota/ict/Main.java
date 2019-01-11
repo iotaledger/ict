@@ -22,7 +22,6 @@ import java.util.Objects;
  * from this class.
  */
 public class Main {
-    private static final String DEFAULT_PROPERTY_FILE_PATH = "ict.cfg";
     public static final String DEFAULT_LOG_DIR_PATH = "logs/";
     private static final File DEFAULT_LOG_DIR = new File(DEFAULT_LOG_DIR_PATH);
     private static final boolean FAIL_IF_LOG_DIR_NOT_EXIST = false;
@@ -169,13 +168,13 @@ public class Main {
         }
 
         /**
-         * Try to read all {@link org.iota.ict.utils.Properties.Property} from default config file {@link #DEFAULT_PROPERTY_FILE_PATH}. Ignore not existing
+         * Try to read all {@link org.iota.ict.utils.Properties.Property} from default config file {@link Constants#DEFAULT_PROPERTY_FILE_PATH}. Ignore not existing
          * files. But fail if no read permission exist.
          */
         public Cmdline useDefaultConfigFile() {
-            if (Files.exists(Paths.get(DEFAULT_PROPERTY_FILE_PATH))) {
+            if (Files.exists(Paths.get(Constants.DEFAULT_PROPERTY_FILE_PATH))) {
                 try {
-                    defaultConfigProperties.load(new FileInputStream(DEFAULT_PROPERTY_FILE_PATH));
+                    defaultConfigProperties.load(new FileInputStream(Constants.DEFAULT_PROPERTY_FILE_PATH));
                 } catch (Exception e) {
                     throw new RuntimeException("Error while loading of ict default config properties.", e);
                 }
@@ -234,7 +233,7 @@ public class Main {
         Properties ictProperties = cmdline.getIctProperties();
 
         if (cmdline.isCreateConfig) {
-            ictProperties.store(DEFAULT_PROPERTY_FILE_PATH);
+            ictProperties.store(Constants.DEFAULT_PROPERTY_FILE_PATH);
         }
 
         if (cmdline.isPrintConfig) {
