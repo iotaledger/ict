@@ -22,6 +22,7 @@ import java.util.Objects;
  * from this class.
  */
 public class Main {
+
     public static final String DEFAULT_LOG_DIR_PATH = "logs/";
     private static final File DEFAULT_LOG_DIR = new File(DEFAULT_LOG_DIR_PATH);
     private static final boolean FAIL_IF_LOG_DIR_NOT_EXIST = false;
@@ -217,6 +218,8 @@ public class Main {
     private static final Logger logger = LogManager.getLogger(Main.class);
 
     public static void main(String[] args) {
+
+        Constants.TESTING = false;
 
         Cmdline cmdline = new Cmdline()
                 .useEnvironmentProperties()

@@ -40,7 +40,7 @@ public class TransactionBuilder {
             nonce = Trytes.randomSequenceOfLength(Transaction.Field.NONCE.tryteLength);
             try {
                 transaction = new Transaction(this);
-            } catch (Transaction.InvalidTransactionFlagException e) {
+            } catch (Transaction.InvalidTransactionFlagException | Transaction.InvalidWeightException e) {
                 // illegal flags, try next nonce
             }
         }

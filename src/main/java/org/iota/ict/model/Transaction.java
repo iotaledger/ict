@@ -117,6 +117,7 @@ public class Transaction {
         byte[] hashTrits = Trytes.toTrits(hash);
         isBundleHead = isFlagSet(hashTrits, Constants.HashFlags.BUNDLE_HEAD_FLAG);
         isBundleTail = isFlagSet(hashTrits, Constants.HashFlags.BUNDLE_TAIL_FLAG);
+        assertMinWeightMagnitude(hashTrits);
     }
 
     /**
@@ -132,6 +133,13 @@ public class Transaction {
         if (hashTrits[position] == 0)
             throw new InvalidTransactionFlagException(position);
         return hashTrits[position] == 1;
+    }
+
+    private static void assertMinWeightMagnitude(byte[] hashTrits) {
+        if(!Constants.TESTING)
+            for(int i = 0; i < Constants.MIN_WEIGHT_MAGNITUDE; i++)
+                if(hashTrits[hashTrits.length-1-i] != 0)
+                    throw new InvalidWeightException();
     }
 
     /**
@@ -170,6 +178,7 @@ public class Transaction {
 
         assert bytes == null || bytes.length == Constants.TRANSACTION_SIZE_BYTES;
         this.bytes = bytes != null ? bytes : Trytes.toBytes(trytes);
+        assertMinWeightMagnitude(hashTrits);
     }
 
     /**
@@ -278,6 +287,12 @@ public class Transaction {
     static class InvalidTransactionFlagException extends RuntimeException {
         InvalidTransactionFlagException(int flagIndex) {
             super("Flag defined in trit #" + flagIndex + " of transaction hash is invalid.");
+        }
+    }
+
+    static class InvalidWeightException extends RuntimeException {
+        InvalidWeightException() {
+            super("Transaction does not satisfy minimum required weight magnitude = "+Constants.MIN_WEIGHT_MAGNITUDE+".");
         }
     }
 }
