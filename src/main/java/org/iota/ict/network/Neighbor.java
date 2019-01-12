@@ -6,9 +6,6 @@ import org.iota.ict.Ict;
 import org.iota.ict.utils.ErrorHandler;
 
 import java.net.*;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * This class defines a neighbored Ict node. Neighbor nodes usually run remotely on a different device and connection
@@ -83,7 +80,7 @@ public class Neighbor {
             Neighbor.logHeader();
         // two separate FOR-loops to prevent delays between newRound() calls
         for (Neighbor neighbor : ict.getNeighbors()) {
-            long tolerance = ict.getProperties().antiSpamAbs;
+            long tolerance = ict.getCopyOfProperties().antiSpamAbs;
             neighbor.newRound(tolerance);
         }
         for (Neighbor neighbor : ict.getNeighbors())

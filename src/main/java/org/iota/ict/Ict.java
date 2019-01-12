@@ -100,7 +100,7 @@ public class Ict {
         return new LinkedList<>(neighbors);
     }
 
-    public Properties getProperties() {
+    public Properties getCopyOfProperties() {
         return properties.clone();
     }
 

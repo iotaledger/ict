@@ -44,7 +44,7 @@ public class JsonIct {
     }
 
     public JSONObject getConfig() {
-        return ict.getProperties().toJSON();
+        return ict.getCopyOfProperties().toJSON();
     }
 
     public JSONArray getNeighbors() {

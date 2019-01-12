@@ -1,10 +1,8 @@
 package org.iota.ict.model;
 
 import org.iota.ict.Ict;
-import org.iota.ict.utils.Properties;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
 /**
@@ -19,13 +17,13 @@ public class RingTangle extends Tangle {
 
     public RingTangle(Ict ict) {
         super(ict);
-        transactionCapacity = ict.getProperties().tangleCapacity;
+        transactionCapacity = ict.getCopyOfProperties().tangleCapacity;
         transactionsOrderedByTimestamp = new PriorityBlockingQueue<>((int)Math.min(Integer.MAX_VALUE, transactionCapacity), TimestampComparator.INSTANCE);
     }
 
     @Override
     public void onIctPropertiesChanged() {
-        transactionCapacity = ict.getProperties().tangleCapacity;
+        transactionCapacity = ict.getCopyOfProperties().tangleCapacity;
     }
 
     public TransactionLog createTransactionLogIfAbsent(Transaction transaction) {

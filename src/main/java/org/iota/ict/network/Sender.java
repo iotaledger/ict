@@ -39,7 +39,7 @@ public class Sender extends Thread {
     private final Queue<String> transactionsToRequest = new PriorityBlockingQueue<>();
     private static final Logger logger = LogManager.getLogger(Sender.class);
     private long roundStart = System.currentTimeMillis();
-
+    private Properties properties;
 
     public Sender(final Ict ict, final Tangle tangle, DatagramSocket socket) {
         super("Sender");
@@ -74,7 +74,7 @@ public class Sender extends Thread {
     }
 
     private void manageRounds() {
-        if (roundStart + ict.getProperties().roundDuration < System.currentTimeMillis()) {
+        if (roundStart + properties.roundDuration < System.currentTimeMillis()) {
             ict.newRound();
             roundStart = System.currentTimeMillis();
         }
@@ -84,7 +84,7 @@ public class Sender extends Thread {
         try {
             synchronized (queue) {
                 // keep queue.isEmpty() within the synchronized block so notify is not called after the empty check and before queue.wait()
-                queue.wait(queue.isEmpty() ? getProperties().roundDuration : Math.max(1, queue.peek().sendingTime - System.currentTimeMillis()));
+                queue.wait(queue.isEmpty() ? properties.roundDuration : Math.max(1, queue.peek().sendingTime - System.currentTimeMillis()));
             }
         } catch (InterruptedException e) {
             if (ict.isRunning())
@@ -122,7 +122,7 @@ public class Sender extends Thread {
     }
 
     public void queueTransaction(Transaction transaction) {
-        long forwardDelay = getProperties().minForwardDelay + ThreadLocalRandom.current().nextLong(getProperties().maxForwardDelay - getProperties().minForwardDelay);
+        long forwardDelay = properties.minForwardDelay + ThreadLocalRandom.current().nextLong(properties.maxForwardDelay - properties.minForwardDelay);
         queue.add(new SendingTask(System.currentTimeMillis() + forwardDelay, transaction));
         synchronized (queue) {
             queue.notify();
@@ -130,6 +130,7 @@ public class Sender extends Thread {
     }
 
     public void onIctPropertiesChanged() {
+        this.properties = ict.getCopyOfProperties();
         synchronized (queue) {
             // notify queue to stop wait() and enforce new round duration
             queue.notify();
@@ -160,9 +161,5 @@ public class Sender extends Thread {
                 }
             });
         }
-    }
-
-    private Properties getProperties() {
-        return ict.getProperties();
     }
 }
