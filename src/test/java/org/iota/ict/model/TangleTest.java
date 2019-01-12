@@ -3,6 +3,7 @@ package org.iota.ict.model;
 import org.iota.ict.Ict;
 import org.iota.ict.utils.Trytes;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -15,6 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Unit test for {@link Tangle}
  */
+@Ignore // Test occasionally. Takes too long.
 public class TangleTest {
     private final Ict ictMock = Mockito.mock(Ict.class);
 

@@ -14,7 +14,7 @@ public class LogRoundTest extends GossipTest {
         Ict b = createIct();
         connect(a, b);
 
-        a.request(Trytes.randomSequenceOfLength(Transaction.Field.ADDRESS.tryteLength));
+        a.request(Trytes.randomSequenceOfLength(81));
         sendMessages(a, 10);
         waitUntilCommunicationEnds(200);
 

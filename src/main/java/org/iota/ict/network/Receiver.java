@@ -77,7 +77,8 @@ public class Receiver extends Thread {
 
     private Transaction unpack(DatagramPacket packet, Neighbor sender) {
         try {
-            return new Transaction(Trytes.fromBytes((packet.getData())));
+            byte[] bytes = packet.getData();
+            return new Transaction(Trytes.fromBytes(bytes), bytes);
         } catch (Throwable t) {
             //ErrorHandler.handleWarning(Ict.LOGGER, t,"Received invalid transaction from neighbor: " + sender.getAddress());
             return null;

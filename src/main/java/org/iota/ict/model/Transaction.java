@@ -43,6 +43,7 @@ public class Transaction {
 
     public final boolean isBundleHead, isBundleTail;
 
+    private final byte[] bytes;
     transient Transaction branch;
     transient Transaction trunk;
 
@@ -77,6 +78,8 @@ public class Transaction {
         branch = this;
         trunk = this;
 
+        bytes = Trytes.toBytes(trytes);
+
         assert trytes().equals(Trytes.padRight("", Constants.TRANSACTION_SIZE_TRYTES));
     }
 
@@ -109,6 +112,7 @@ public class Transaction {
 
         hash = curlHash();
         decodedSignatureFragments = Trytes.toAscii(signatureFragments);
+        bytes = Trytes.toBytes(trytes);
 
         byte[] hashTrits = Trytes.toTrits(hash);
         isBundleHead = isFlagSet(hashTrits, Constants.HashFlags.BUNDLE_HEAD_FLAG);
@@ -135,7 +139,7 @@ public class Transaction {
      *
      * @param trytes Trytes containing all information describing this transaction. Must have length = {@link Constants#TRANSACTION_SIZE_TRYTES}.
      */
-    public Transaction(String trytes) {
+    public Transaction(String trytes, byte[] bytes) {
         assert trytes.length() == Constants.TRANSACTION_SIZE_TRYTES;
         signatureFragments = extractField(trytes, Field.SIGNATURE_FRAGMENTS);
         extraDataDigest = extractField(trytes, Field.EXTRA_DATA_DIGEST);
@@ -163,6 +167,9 @@ public class Transaction {
         byte[] hashTrits = Trytes.toTrits(hash);
         isBundleHead = isFlagSet(hashTrits, Constants.HashFlags.BUNDLE_HEAD_FLAG);
         isBundleTail = isFlagSet(hashTrits, Constants.HashFlags.BUNDLE_TAIL_FLAG);
+
+        assert bytes == null || bytes.length == Constants.TRANSACTION_SIZE_BYTES;
+        this.bytes = bytes != null ? bytes : Trytes.toBytes(trytes);
     }
 
     /**
@@ -220,8 +227,8 @@ public class Transaction {
     }
 
     public DatagramPacket toDatagramPacket() {
-        String fullTrytes = trytes.substring(0, Field.REQUEST_HASH.tryteOffset) + requestHash;
-        byte[] bytes = Trytes.toBytes(fullTrytes);
+        byte[] requestHashBytes = Trytes.toBytes(requestHash);
+        System.arraycopy( requestHashBytes, 0, bytes, Field.REQUEST_HASH.byteOffset, Field.REQUEST_HASH.byteLength);
         return new DatagramPacket(bytes, bytes.length);
     }
 
@@ -254,7 +261,7 @@ public class Transaction {
         ESSENCE = new Field(TRUNK_HASH.tritOffset - EXTRA_DATA_DIGEST.tritOffset, SIGNATURE_FRAGMENTS);
 
 
-        public final int tritOffset, tritLength, tryteOffset, tryteLength;
+        public final int tritOffset, tritLength, tryteOffset, tryteLength, byteOffset, byteLength;
 
         private Field(int length, Field previousField) {
             assert length > 0;
@@ -263,6 +270,8 @@ public class Transaction {
             this.tritOffset = previousField == null ? 0 : previousField.tritOffset + previousField.tritLength;
             this.tryteOffset = tritOffset / 3;
             this.tryteLength = tritLength / 3;
+            this.byteOffset = tryteOffset / 3 * 2;
+            this.byteLength = tryteLength / 3 * 2;
         }
     }
 
