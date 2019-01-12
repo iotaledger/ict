@@ -44,6 +44,7 @@ public class Sender extends Thread {
     public Sender(final Ict ict, final Tangle tangle, DatagramSocket socket) {
         super("Sender");
         this.ict = ict;
+        properties = ict.getCopyOfProperties();
         this.tangle = tangle;
         this.socket = socket;
 
