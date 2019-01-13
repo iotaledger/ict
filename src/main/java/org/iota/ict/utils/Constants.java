@@ -28,7 +28,7 @@ public class Constants {
     public static final long TIMESTAMP_DIFFERENCE_TOLERANCE_IN_MILLIS = 20000;
 
     public static boolean TESTING = true;
-    public static final int MIN_WEIGHT_MAGNITUDE = 5;
+    public static final int MIN_WEIGHT_MAGNITUDE = 3;
 
     /**
      * Specifies through which trit of the transaction hash each flag is defined.
