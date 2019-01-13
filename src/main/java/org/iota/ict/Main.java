@@ -244,11 +244,6 @@ public class Main {
             System.exit(0);
         }
 
-        if (ictProperties.roundDuration < 30000 && ictProperties.spamEnabled) {
-            logger.warn("Disabling spam because of low round duration.");
-            ictProperties.spamEnabled = false;
-        }
-
         logger.info("Starting new Ict '" + ictProperties.name + "' (version: " + Constants.ICT_VERSION + ")");
 
         Ict ict;
@@ -256,7 +251,7 @@ public class Main {
             ict = new Ict(ictProperties);
         } catch (Throwable t) {
             if (t.getCause() instanceof BindException) {
-                ErrorHandler.handleError(logger, t, "\"Could not start Ict on \" + properties.host + \":\" + properties.port.");
+                ErrorHandler.handleError(logger, t, "Could not start Ict on " + ictProperties.host + ":" + ictProperties.port+".");
                 logger.info("Make sure that the address is correct and you are not already running an Ict instance or any other service on that port. You can change the port in your properties file.");
             } else
                 ErrorHandler.handleError(logger, t, "Could not start Ict.");

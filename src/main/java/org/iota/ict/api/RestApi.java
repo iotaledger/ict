@@ -5,9 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.iota.ict.Ict;
 import spark.*;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 public class RestApi {
@@ -59,6 +57,8 @@ public class RestApi {
             }
         });
 
+        service.init();
+        service.awaitInitialization();
         LOGGER.info("Started Web GUI on port " + port + ".");
     }
 

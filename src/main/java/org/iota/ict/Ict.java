@@ -146,7 +146,7 @@ public class Ict {
     }
 
     private void updateGuiBecausePropertiesChanged(Properties oldProp, Properties newProp) {
-        if(restApi.isRunning() && oldProp != null && newProp.guiEnabled && oldProp.port == newProp.port)
+        if(restApi.isRunning() && oldProp != null && newProp.guiEnabled && oldProp.guiPort == newProp.guiPort)
             return; // keep running with same port
         if(newProp.guiEnabled)
             restApi.start(newProp.guiPort);
@@ -202,10 +202,6 @@ public class Ict {
 
     public void newRound() {
         Neighbor.newRound(this, round);
-        if (properties.spamEnabled) {
-            String spamHash = submit("spam transaction from node '" + properties.name + "'").hash;
-            LOGGER.info("submitted spam transaction: " + spamHash);
-        }
         round++;
     }
 

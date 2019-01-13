@@ -49,7 +49,8 @@ var Form = /** @class */ (function () {
     Form.save_config = function () {
         var config = Form.config;
         Object.keys(config).forEach(function (property) {
-            config[property] = $('#config_' + property).val();
+            var $input = $('#config_' + property);
+            config[property] = $input.attr("type") === "checkbox" ? $input.is(":checked") : $input.val();
         });
         Ajax.INSTANCE.set_config(config, Form.load_config);
     };
@@ -57,7 +58,8 @@ var Form = /** @class */ (function () {
         Ajax.INSTANCE.get_config(function (config) {
             Form.config = config;
             Object.keys(config).forEach(function (property) {
-                $('#config_' + property).val(config[property]);
+                var $input = $('#config_' + property);
+                $input.attr("type") === "checkbox" ? $input.prop("checked", config[property]) : $input.val(config[property]);
             });
         });
     };

@@ -65,21 +65,21 @@
 
 
             %div.section
-              %div.section_title Spam Protection
+              %div.section_title Web GUI
 
             %div.property
-              %div.name Max. Abs. Tx./Round
+              %div.name GUI Enabled
               %div.input
-                %input#config_anti_spam_abs{:type => :number}
+                %input#config_gui_enabled{:type => :checkbox}
               %div.description
-                %div.hidden_info The name of your Ict.
+                %div.hidden_info The port on which Ict will exchange messages with neighbors. (default: 2187)
 
             %div.property
-              %div.name Max. Rel. Tx./Round
+              %div.name GUI Port
               %div.input
-                %input#config_anti_spam_rel{:type => :number}
+                %input#config_gui_port{:type => :number}
               %div.description
-                %div.hidden_info The name of your Ict.
+                %div.hidden_info The port on which Ict will exchange messages with neighbors. (default: 2187)
 
 
 
@@ -97,6 +97,13 @@
               %div.name Max. Forward Delay (ms)
               %div.input
                 %input#config_max_forward_delay{:type => :number}
+              %div.description
+                %div.hidden_info The name of your Ict.
+
+            %div.property
+              %div.name Max. Abs. Tx./Round
+              %div.input
+                %input#config_anti_spam_abs{:type => :number}
               %div.description
                 %div.hidden_info The name of your Ict.
 

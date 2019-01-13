@@ -23,10 +23,8 @@ public class Properties implements Cloneable {
     private static final Properties DEFAULT_PROPERTIES = new Properties();
     private static final Logger logger = LogManager.getLogger(Properties.class);
 
-    public double antiSpamRel = 5;
     public long antiSpamAbs = 1000;
     public boolean guiEnabled = true;
-    public boolean spamEnabled = false;
     public long tangleCapacity = 10000;
     public long minForwardDelay = 0;
     public long maxForwardDelay = 200;
@@ -82,7 +80,6 @@ public class Properties implements Cloneable {
         neighbors = neighborsFromString(propObject.getProperty(Property.neighbors.name(), ""));
         guiEnabled = propObject.getProperty(Property.gui_enabled.name(), DEFAULT_PROPERTIES.guiEnabled + "").toLowerCase().equals("true");
         guiPort = (int) readLongProperty(propObject, Property.gui_port, 1, 65535, DEFAULT_PROPERTIES.guiPort);
-        spamEnabled = propObject.getProperty(Property.spam_enabled.name(), DEFAULT_PROPERTIES.spamEnabled + "").toLowerCase().equals("true");
     }
 
     private static List<String> stringListFromString(String string) {
@@ -213,7 +210,6 @@ public class Properties implements Cloneable {
         propObject.setProperty(Property.neighbors.name(), neighborsToString());
         propObject.setProperty(Property.gui_enabled.name(), guiEnabled + "");
         propObject.setProperty(Property.gui_port.name(), guiPort + "");
-        propObject.setProperty(Property.spam_enabled.name(), spamEnabled + "");
         return propObject;
     }
 
@@ -230,7 +226,6 @@ public class Properties implements Cloneable {
         json.put(Property.neighbors.name(), new JSONArray(neighborsToString().split(",")));
         json.put(Property.gui_enabled.name(), guiEnabled);
         json.put(Property.gui_port.name(), guiPort);
-        json.put(Property.spam_enabled.name(), spamEnabled);
         return json;
     }
 
@@ -255,7 +250,6 @@ public class Properties implements Cloneable {
         neighbors,
         gui_enabled,
         gui_port,
-        spam_enabled,
         name;
     }
 

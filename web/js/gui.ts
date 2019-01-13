@@ -63,7 +63,8 @@ class Form {
     public static save_config() : void {
         const config = Form.config;
         Object.keys(config).forEach(function (property : string) {
-            config[property] = $('#config_'+property).val();
+            const $input = $('#config_'+property);
+            config[property] = $input.attr("type") === "checkbox" ? $input.is(":checked") : $input.val();
         });
 
 
@@ -74,7 +75,8 @@ class Form {
         Ajax.INSTANCE.get_config(function (config : JSON) {
             Form.config = config;
             Object.keys(config).forEach(function (property : string) {
-                $('#config_'+property).val(config[property]);
+                const $input = $('#config_'+property);
+                $input.attr("type") === "checkbox" ? $input.prop("checked", config[property]) : $input.val(config[property]);
             });
         });
     }

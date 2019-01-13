@@ -67,16 +67,22 @@ public class JsonIct {
             throw new IllegalArgumentException("Address does not match required format 'host:port'.");
         String host = address.split(":")[0];
         int port = Integer.parseInt(address.split(":")[1]);
+        Properties properties = ict.getCopyOfProperties();
+        properties.neighbors.add(new InetSocketAddress(host, port));
+        ict.changeProperties(properties);
         System.out.println("added neighbor: " + address);
-        ict.neighbor(new InetSocketAddress(host, port));
+        properties.store(Constants.DEFAULT_PROPERTY_FILE_PATH);
         return success();
     }
 
     public JSONObject removeNeighbor(String address) {
-        for(Neighbor nb : ict.getNeighbors()) {
-            String nbAddress = nb.getAddress().getHostName() + ":" + nb.getAddress().getPort();
-            if(nbAddress.equals(address)) {
-                ict.unneighbor(nb);
+        Properties properties = ict.getCopyOfProperties();
+        for(InetSocketAddress nb : properties.neighbors) {
+            if(nb.toString().equals(address)) {
+                properties.neighbors.remove(nb);
+                ict.changeProperties(properties);
+                System.out.println("removed neighbor: " + address);
+                properties.store(Constants.DEFAULT_PROPERTY_FILE_PATH);
                 return success();
             }
         }
@@ -94,9 +100,21 @@ public class JsonIct {
     }
 
     protected JSONObject addModule(String repository) throws Throwable {
-        URL url = GithubGateway.getAssetDownloadUrl(repository, GithubGateway.getLatestReleaseLabel(repository));
+        String label = findRecommendedOrLatestLabel(repository);
+        URL url = GithubGateway.getAssetDownloadUrl(repository, label);
         ict.getModuleHolder().install(url);
         return success();
+    }
+
+    private static String findRecommendedOrLatestLabel(String repository) {
+        try {
+            String versionsString = GithubGateway.getContents(repository, "master", "versions.json");
+            JSONObject versions = new JSONObject(versionsString);
+            String label = versions.getString(Constants.ICT_VERSION);
+            if(label != null)
+                return label;
+        } catch (Throwable t) {  }
+        return GithubGateway.getLatestReleaseLabel(repository);
     }
 
     protected JSONObject removeModule(String path) {

@@ -240,7 +240,7 @@ class RouteAddModule extends RouteImpl {
     protected RouteAddModule(JsonIct jsonIct) { super(jsonIct, "/addModule"); }
 
     public JSONObject execute(Request request) throws Throwable {
-        String repository = request.queryParams("repository");
+        String repository = request.queryParams("user_slash_repo");
         return jsonIct.addModule(repository);
     }
 }
