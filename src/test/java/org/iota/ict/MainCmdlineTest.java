@@ -32,6 +32,7 @@ public class MainCmdlineTest {
         DEFAULT_PROPERTIES_MAP.put(Properties.Property.round_duration.name(), hardcoded.roundDuration);
         DEFAULT_PROPERTIES_MAP.put(Properties.Property.tangle_capacity.name(), hardcoded.tangleCapacity);
         DEFAULT_PROPERTIES_MAP.put(Properties.Property.gui_port.name(), hardcoded.guiPort);
+        DEFAULT_PROPERTIES_MAP.put(Properties.Property.gui_password.name(), hardcoded.guiPassword);
 
         // Check that default properties map contains all property keys
         Properties.Property[] values = Properties.Property.values();
