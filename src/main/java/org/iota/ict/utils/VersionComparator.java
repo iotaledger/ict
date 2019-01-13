@@ -27,7 +27,7 @@ public final class VersionComparator implements Comparator<String> {
     }
 
     protected void assertVersionFormat(String version) {
-        if(!version.matches("[0-9]*(\\.[0-9]*)*(\\-SNAPSHOT)?"))
+        if(!version.matches("^[0-9]*(\\.[0-9]*)*(\\-SNAPSHOT)?$"))
             throw new IllegalArgumentException("Unexpected format for version '"+version+"'.");
     }
 

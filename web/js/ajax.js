@@ -5,7 +5,6 @@ var logError;
 var logSuccess;
 var Ajax = /** @class */ (function () {
     function Ajax(base_url) {
-        if (base_url === void 0) { base_url = "http://localhost:4567"; }
         this.base_url = base_url;
     }
     Ajax.prototype.submit = function (path, data, success, error) {

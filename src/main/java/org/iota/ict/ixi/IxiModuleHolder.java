@@ -24,8 +24,8 @@ public class IxiModuleHolder {
     protected static final File DEFAULT_MODULE_DIRECTORY = new File("modules/");
 
     protected final Ict ict;
-    private Map<String, IxiModule> modulesByPath = new HashMap<>();
-    private Map<IxiModule, IxiModuleInfo> modulesWithInfo = new HashMap<>();
+    protected Map<String, IxiModule> modulesByPath = new HashMap<>();
+    protected Map<IxiModule, IxiModuleInfo> modulesWithInfo = new HashMap<>();
 
     static {
         if(!DEFAULT_MODULE_DIRECTORY.exists())
@@ -60,19 +60,18 @@ public class IxiModuleHolder {
 
     public void install(URL url) throws Throwable {
 
-        if(url == null)
-            throw new NullPointerException("url is null");
-
         String split[] = url.getFile().split("/");
         String fileName = split[split.length-1];
         Path target = Paths.get("./modules/"+fileName);
 
-        System.out.println("Downloading " + target.toString() + " ...");
-
+        LOGGER.info("Downloading " + target.toString() + " ...");
         try (InputStream in = url.openStream()) {
             Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
         }
-        initModule(target);
+        LOGGER.info("Download of " + target.toString() + " complete.");
+
+        IxiModule module = initModule(target);
+        new Thread(module).start();
     }
 
     public void initAllModules() {
@@ -98,7 +97,7 @@ public class IxiModuleHolder {
         }
     }
 
-    public void initModule(Path jar) throws Exception {
+    public IxiModule initModule(Path jar) throws Exception {
         LOGGER.info("loading IXI module "+jar.getFileName()+"...");
         String path = DEFAULT_MODULE_DIRECTORY.toURI().relativize(jar.toUri()).toString();
         URLClassLoader classLoader = new URLClassLoader (new URL[] {jar.toFile().toURI().toURL()}, Main.class.getClassLoader());
@@ -106,6 +105,7 @@ public class IxiModuleHolder {
         IxiModule module = initModule(classLoader, info.mainClass);
         modulesWithInfo.put(module, info);
         modulesByPath.put(path, module);
+        return module;
     }
 
     private IxiModule initModule(URLClassLoader classLoader, String mainClassName) throws Exception {

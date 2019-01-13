@@ -19,10 +19,11 @@ var Page = /** @class */ (function () {
         this.$page = $('#page_' + this.identifier);
     }
     Page.init_pages = function () {
+        $('.page').addClass("hidden");
         E.$PAGE_LIST.html("");
         this.NEIGHBORS.init();
         this.CONFIG.init();
-        this.LOG.init();
+        //this.LOG.init();
         this.IXIS.init();
     };
     Page.prototype.init = function () {
@@ -38,7 +39,7 @@ var Page = /** @class */ (function () {
     };
     Page.NEIGHBORS = new Page("Neighbors");
     Page.CONFIG = new Page("Config");
-    Page.LOG = new Page("Log");
+    //public static LOG : Page = new Page("Log");
     Page.IXIS = new Page("IXI Modules");
     Page.current_page = Page.NEIGHBORS;
     return Page;
@@ -117,12 +118,16 @@ var ModuleViewer = /** @class */ (function () {
             var module = modules[i];
             var $module = $("<div>").addClass("ixi")
                 .append($("<div>").addClass("name").text(module['name'] ? module['name'] : module['path']));
-            if (module['web_gui'])
-                $module.append($("<button>").text("open"));
+            if (module['gui_port'] >= 0) {
+                var gui_href = module['gui_port'] == 0
+                    ? window.location.protocol + "//" + window.location.host + "/modules/" + module['name'] + "/"
+                    : window.location.protocol + "//" + window.location.hostname + ":" + module['gui_port'] + "/";
+                $module.append($("<a>").attr("href", gui_href).attr("target", "_blank").append($("<button>").text("open")));
+            }
             if (module['repository'])
-                $module.append($("<button>").text("check updates"));
+                $module.append($("<a>").attr("href", "https://github.com/" + module['repository']).attr("target", "_blank").append($("<button>").text("repository")));
             $module
-                .append($("<button>").text("config"))
+                //   .append($("<button>").text("config"))
                 .append($("<button>").text("uninstall").click(function () {
                 Ajax.INSTANCE.uninstall_module(module['path']);
             }));
@@ -134,7 +139,7 @@ var ModuleViewer = /** @class */ (function () {
         ;
     };
     ModuleViewer.open_install_module_dialog = function () {
-        swal("Enter Github Repository", "Format: `username/repository` or Github URL\n\nExample: `iotaledger/chat.ixi`", {
+        swal("Enter Github Repository", "Do not install modules from untrusted sources!\n\nFormat: `username/repository` or Github URL\n\nExample: `iotaledger/chat.ixi`", {
             button: "install module",
             content: "input",
         }).then(function (value) {
@@ -143,6 +148,7 @@ var ModuleViewer = /** @class */ (function () {
             value = value.replace(/^(https:\/\/)?(github.com\/)/g, "");
             if (value.split("/").length != 2)
                 return logError("'" + value + "' is does not match the required format 'username/repository'.", "Unexpected Format Repository");
+            swal("Installing " + value + " ...", "Please wait while the download is in progress. Depending on the file size, this might take a while. If you don't reload the page, you will be notified once it's finished. In case of problems, check your Ict log.", "info");
             Ajax.INSTANCE.install_module(value);
         });
     };

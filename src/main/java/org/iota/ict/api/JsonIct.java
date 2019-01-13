@@ -14,10 +14,12 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URL;
+import java.nio.file.Path;
 
 public class JsonIct {
 
     protected final Ict ict;
+    protected String nmoduleBeingCurrentlyInstalled = null;
 
     public JsonIct(Ict ict) {
         this.ict = ict;
@@ -63,7 +65,7 @@ public class JsonIct {
     }
 
     public JSONObject addNeighbor(String address) {
-        if(!address.matches("[a-zA-Z0-9\\-.]+:[0-9]{1,5}$"))
+        if(!address.matches("^[a-zA-Z0-9\\-.]+:[0-9]{1,5}$"))
             throw new IllegalArgumentException("Address does not match required format 'host:port'.");
         String host = address.split(":")[0];
         int port = Integer.parseInt(address.split(":")[1]);
@@ -100,10 +102,22 @@ public class JsonIct {
     }
 
     protected JSONObject addModule(String repository) throws Throwable {
-        String label = findRecommendedOrLatestLabel(repository);
-        URL url = GithubGateway.getAssetDownloadUrl(repository, label);
-        ict.getModuleHolder().install(url);
-        return success();
+        if(nmoduleBeingCurrentlyInstalled != null)
+            throw new RuntimeException("Please wait for the installation of '"+nmoduleBeingCurrentlyInstalled+"' to complete.");
+
+        try {
+            nmoduleBeingCurrentlyInstalled = repository;
+            String label = findRecommendedOrLatestLabel(repository);
+            URL url = GithubGateway.getAssetDownloadUrl(repository, label);
+            ict.getModuleHolder().install(url);
+            return success();
+        } catch (Throwable t) {
+            nmoduleBeingCurrentlyInstalled = null;
+            throw new RuntimeException("Installation of module '"+repository+"' failed: " + t.getMessage(), t);
+        } finally {
+            nmoduleBeingCurrentlyInstalled = null;
+        }
+
     }
 
     private static String findRecommendedOrLatestLabel(String repository) {

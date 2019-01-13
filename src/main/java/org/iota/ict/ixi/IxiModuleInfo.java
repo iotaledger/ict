@@ -26,6 +26,8 @@ public class IxiModuleInfo {
         name = json.getString("name");
         description = json.getString("description");
         repository = json.getString("repository");
+        if(!repository.matches("^[a-zA-Z0-9\\-_.]+/[a-zA-Z0-9\\-_.]+$"))
+            throw new RuntimeException("Illegal repository declared in module.json: '"+repository+"'. Invalid format or unexpected characters.");
         mainClass = json.getString("main_class");
         guiPort = json.getInt("gui_port");
         this.path = path;

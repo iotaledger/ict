@@ -10,7 +10,7 @@ class Ajax {
 
     private base_url : string;
 
-    public constructor(base_url : string = "http://localhost:4567") {
+    public constructor(base_url : string) {
         this.base_url = base_url;
     }
 

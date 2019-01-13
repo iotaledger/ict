@@ -13,6 +13,19 @@
       %div#logo
       %ul#page_list
     %div#content
+      %div.page
+        %header
+          %h1 Hmmmm …
+        %div{:class => "page_content"}
+          %p Looks like something is not working.
+          %ul
+            %li If you did not use the precompiled .jar file but built Ict yourself, did you already run <code>npm install</code> in the <b>web/</b> directory?
+            %li Check your browser console. Are there any error messages?
+            %li Have you tried using a different browser? Preferably something from this millennium?
+            %li Just to be clear… Your web browser has JavaScript enabled, right?
+            %li Check your Ict console. Are there any error messages? Have you tried restarting Ict?
+            %li Ask for help in #omega-ict on IOTA Discord.
+
       %div#page_config.page.hidden
         %div{:class => "page_content"}
           //= File.read "pages/config.html"
@@ -116,18 +129,8 @@
       %div#page_log.page.hidden
         %div{:class => "page_content"}
           %div#log
-            Lorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit amet
-            Lorem ipsum dolor sit amet
-            consectetur adipiscing elit.
+            nobody has implemented me yet :(
       %div#page_ixi_modules.page.hidden
         %div{:class => "page_content"}
           %div#ixis
-            %div.ixi
-              %div.name Report.ixi
-              %button open
-              %button uninstall
-            %div.ixi
-              %div.name CHAT.ixi
-              %button open
-              %button uninstall
           %button{:onclick => "ModuleViewer.open_install_module_dialog(); return false;"} install module

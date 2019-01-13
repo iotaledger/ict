@@ -56,6 +56,12 @@ nav ul li {
 #content .page .page_content {
   padding: 100px;
 }
+#content .page .page_content ul {
+  margin: 20px 0 20px 50px;
+}
+#content .page .page_content ul li {
+  margin: 5px 0;
+}
 
 form {
   padding: 10px 15px;
