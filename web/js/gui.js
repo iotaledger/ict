@@ -58,10 +58,13 @@ var Form = /** @class */ (function () {
     Form.load_config = function () {
         Ajax.INSTANCE.get_config(function (config) {
             Form.config = config;
-            Object.keys(config).forEach(function (property) {
-                var $input = $('#config_' + property);
-                $input.attr("type") === "checkbox" ? $input.prop("checked", config[property]) : $input.val(config[property]);
-            });
+            Form.put_config(config);
+        });
+    };
+    Form.put_config = function (config) {
+        Object.keys(config).forEach(function (property) {
+            var $input = $('#config_' + property);
+            $input.attr("type") === "checkbox" ? $input.prop("checked", config[property]) : $input.val(config[property]);
         });
     };
     return Form;
@@ -98,7 +101,7 @@ var NeighborViewer = /** @class */ (function () {
     NeighborViewer.open_add_neighbor_dialog = function () {
         swal("Enter Neighbor Address", "Format: `IP:PORT` or `HOST:PORT`\n\nExample: `123.4.5.678:1337` or `example.org:1337`", {
             button: "add neighbor",
-            content: "input",
+            content: "input"
         }).then(function (value) {
             if (value.length > 0)
                 Ajax.INSTANCE.add_neighbor(value);

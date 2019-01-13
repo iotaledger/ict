@@ -3,15 +3,19 @@ var ModuleViewer;
 var NeighborViewer;
 var logError;
 var logSuccess;
+var default_config;
+var swal;
 var Ajax = /** @class */ (function () {
     function Ajax(base_url) {
+        this.password = Ajax.get_cookie("password");
         this.base_url = base_url;
     }
     Ajax.prototype.submit = function (path, data, success, error) {
         if (success === void 0) { success = function (data) { }; }
         if (error === void 0) { error = logError; }
-        data['password'] = 'password'; // TODO replace placeholder, make configurable
+        data['password'] = this.password;
         var name_value_array = Ajax.json_to_name_value_array(data);
+        var $this = this;
         $.ajax({
             dataType: "json",
             method: 'POST',
@@ -21,8 +25,46 @@ var Ajax = /** @class */ (function () {
                 error(data['error']);
             else
                 success(data); },
-            error: function (err) { error(JSON.stringify(err)); }
+            error: function (err) {
+                if (err['status'] === 401)
+                    $this.ask_for_password_and_resubmit(err, path, data, success, error);
+                else {
+                    console.log(err);
+                    error(JSON.stringify(err));
+                }
+            }
         });
+    };
+    Ajax.prototype.ask_for_password_and_resubmit = function (err401, path, data, success, error) {
+        var _this = this;
+        if (success === void 0) { success = function (data) { }; }
+        if (error === void 0) { error = logError; }
+        swal({
+            title: "Enter Password",
+            text: "The password is set in your ict.cfg. The default value is 'change_me_now'.\n\nERROR 401 (" + JSON.stringify(err401['responseText']) + ")",
+            content: "input"
+        }).then(function (value) {
+            _this.password = value;
+            Ajax.set_cookie("password", value);
+            _this.submit(path, data, success, error);
+        });
+    };
+    Ajax.set_cookie = function (name, value) {
+        var date = new Date();
+        date.setTime(date.getTime() + 7 * 24 * 60 * 60 * 1000);
+        var time = "expires=" + date.toUTCString();
+        document.cookie = name + "=" + value + ";" + time + ";";
+    };
+    Ajax.get_cookie = function (name) {
+        name = name + "=";
+        var decoded_cookie = decodeURIComponent(document.cookie);
+        var parts = decoded_cookie.split(';');
+        for (var i = 0; i < parts.length; i++) {
+            var part = parts[i].trim();
+            if (part.indexOf(name) === 0)
+                return part.substring(name.length, part.length);
+        }
+        return "";
     };
     Ajax.json_to_name_value_array = function (json) {
         var array = [];
@@ -30,6 +72,13 @@ var Ajax = /** @class */ (function () {
             array.push({ name: key, value: json[key] });
         });
         return array;
+    };
+    /* === GENERAL === */
+    Ajax.prototype.get_info = function (success) {
+        this.submit("/getInfo", {}, function (data) {
+            default_config = data['default_config'];
+            success(data);
+        });
     };
     /* === CONFIG === */
     Ajax.prototype.get_config = function (success) {

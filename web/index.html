@@ -43,7 +43,7 @@
 <input id='config_name'>
 </div>
 <div class='description'>
-<div class='hidden_info'>The name of this Ict.</div>
+<div class='hidden_info'>The name of this Ict. It does not have any use currently.</div>
 </div>
 </div>
 <div class='property'>
@@ -94,7 +94,7 @@
 <input id='config_gui_enabled' type='checkbox'>
 </div>
 <div class='description'>
-<div class='hidden_info'>The port on which Ict will exchange messages with neighbors. (default: 2187)</div>
+<div class='hidden_info'>Disabling this will stop this web GUI.</div>
 </div>
 </div>
 <div class='property'>
@@ -103,7 +103,16 @@
 <input id='config_gui_port' type='number'>
 </div>
 <div class='description'>
-<div class='hidden_info'>The port on which Ict will exchange messages with neighbors. (default: 2187)</div>
+<div class='hidden_info'>The port of this web GUI. If you change it, the page will disappear on this port. (default: 2187)</div>
+</div>
+</div>
+<div class='property'>
+<div class='name'>GUI Password</div>
+<div class='input'>
+<input id='config_gui_password' type='password'>
+</div>
+<div class='description'>
+<div class='hidden_info'>The port for this GUI. Make sure it is secure. Otherwise you Ict will be controlled by evil deamons. (default: 2187)</div>
 </div>
 </div>
 <div class='section'>
@@ -115,7 +124,7 @@
 <input id='config_min_forward_delay' type='number'>
 </div>
 <div class='description'>
-<div class='hidden_info'>The name of your Ict.</div>
+<div class='hidden_info'>The minimum amount of milliseconds to wait before forwarding transactions to your neighbors.</div>
 </div>
 </div>
 <div class='property'>
@@ -124,7 +133,7 @@
 <input id='config_max_forward_delay' type='number'>
 </div>
 <div class='description'>
-<div class='hidden_info'>The name of your Ict.</div>
+<div class='hidden_info'>The maximum amount of milliseconds to wait before forwarding transactions to your neighbors.</div>
 </div>
 </div>
 <div class='property'>
@@ -133,12 +142,12 @@
 <input id='config_anti_spam_abs' type='number'>
 </div>
 <div class='description'>
-<div class='hidden_info'>The name of your Ict.</div>
+<div class='hidden_info'>Spam protection: your Ict will not accept more than this many transactions per round from each neighbor.</div>
 </div>
 </div>
 </form>
 <button onclick='Form.save_config(); return false;'>save</button>
-<button onclick='return false;'>reset</button>
+<button onclick='Form.put_config(default_config); return false;'>reset</button>
 </div>
 </div>
 <div class='page hidden' id='page_neighbors'>

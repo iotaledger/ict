@@ -30,6 +30,7 @@ public class Properties implements Cloneable {
     public long maxForwardDelay = 200;
     public String name = "ict";
     public String host = "0.0.0.0";
+    public String guiPassword = "change_me_now";
     public int port = 1337;
     public int guiPort = 2187;
     public long roundDuration = 60000;
@@ -80,6 +81,7 @@ public class Properties implements Cloneable {
         neighbors = neighborsFromString(propObject.getProperty(Property.neighbors.name(), ""));
         guiEnabled = propObject.getProperty(Property.gui_enabled.name(), DEFAULT_PROPERTIES.guiEnabled + "").toLowerCase().equals("true");
         guiPort = (int) readLongProperty(propObject, Property.gui_port, 1, 65535, DEFAULT_PROPERTIES.guiPort);
+        guiPassword = propObject.getProperty(Property.gui_password.name(), DEFAULT_PROPERTIES.guiPassword);
     }
 
     private static List<String> stringListFromString(String string) {
@@ -210,6 +212,7 @@ public class Properties implements Cloneable {
         propObject.setProperty(Property.neighbors.name(), neighborsToString());
         propObject.setProperty(Property.gui_enabled.name(), guiEnabled + "");
         propObject.setProperty(Property.gui_port.name(), guiPort + "");
+        propObject.setProperty(Property.gui_password.name(), guiPassword + "");
         return propObject;
     }
 
@@ -226,6 +229,7 @@ public class Properties implements Cloneable {
         json.put(Property.neighbors.name(), new JSONArray(neighborsToString().split(",")));
         json.put(Property.gui_enabled.name(), guiEnabled);
         json.put(Property.gui_port.name(), guiPort);
+        json.put(Property.gui_password.name(), guiPassword);
         return json;
     }
 
@@ -240,6 +244,7 @@ public class Properties implements Cloneable {
     }
 
     public enum Property {
+        name,
         anti_spam_abs,
         tangle_capacity,
         min_forward_delay,
@@ -250,7 +255,7 @@ public class Properties implements Cloneable {
         neighbors,
         gui_enabled,
         gui_port,
-        name;
+        gui_password;
     }
 
     @Override

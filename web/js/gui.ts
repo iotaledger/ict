@@ -75,10 +75,14 @@ class Form {
     public static load_config() : void {
         Ajax.INSTANCE.get_config(function (config : JSON) {
             Form.config = config;
-            Object.keys(config).forEach(function (property : string) {
-                const $input = $('#config_'+property);
-                $input.attr("type") === "checkbox" ? $input.prop("checked", config[property]) : $input.val(config[property]);
-            });
+            Form.put_config(config);
+        });
+    }
+
+    public static put_config(config) : void {
+        Object.keys(config).forEach(function (property : string) {
+            const $input = $('#config_'+property);
+            $input.attr("type") === "checkbox" ? $input.prop("checked", config[property]) : $input.val(config[property]);
         });
     }
 }
@@ -114,7 +118,7 @@ class NeighborViewer {
     public static open_add_neighbor_dialog() : void {
         swal("Enter Neighbor Address", "Format: `IP:PORT` or `HOST:PORT`\n\nExample: `123.4.5.678:1337` or `example.org:1337`", {
             button: "add neighbor",
-            content: "input",
+            content: "input"
         }).then((value) => {
             if(value.length > 0)
                 Ajax.INSTANCE.add_neighbor(value);

@@ -3,11 +3,14 @@ var ModuleViewer;
 var NeighborViewer;
 var logError;
 var logSuccess;
+var default_config;
+var swal;
 
 class Ajax {
 
     public static INSTANCE : Ajax = new Ajax(window.location.protocol + "//" + window.location.host);
 
+    private password : string = Ajax.get_cookie("password");
     private base_url : string;
 
     public constructor(base_url : string) {
@@ -16,8 +19,9 @@ class Ajax {
 
     public submit(path : string, data : Object, success : (data) => void = function (data) {}, error : (err) => void = logError) : void {
 
-        data['password'] = 'password'; // TODO replace placeholder, make configurable
+        data['password'] = this.password;
         const name_value_array : Array<Object> = Ajax.json_to_name_value_array(data);
+        const $this = this;
 
         $.ajax({
             dataType: "json",
@@ -25,8 +29,47 @@ class Ajax {
             data: name_value_array,
             url: this.base_url + path,
             success: function (data) { if (data['error']) error(data['error']); else success(data); },
-            error: function (err) { error(JSON.stringify(err)); }
+            error: function (err) {
+                if(err['status'] === 401)
+                    $this.ask_for_password_and_resubmit(err, path, data, success, error);
+                else {
+                    console.log(err);
+                    error(JSON.stringify(err));
+                }
+            }
         });
+    }
+
+    private ask_for_password_and_resubmit(err401 : Object, path : string, data : Object, success : (data) => void = function (data) {}, error : (err) => void = logError) : void {
+
+        swal({
+            title: "Enter Password",
+            text: "The password is set in your ict.cfg. The default value is 'change_me_now'.\n\nERROR 401 (" + JSON.stringify(err401['responseText'])+")",
+            content: "input"
+        }).then(value => {
+            this.password = value;
+            Ajax.set_cookie("password", value);
+            this.submit(path, data, success, error);
+        });
+    }
+
+    private static set_cookie(name, value) : void {
+        let date = new Date();
+        date.setTime(date.getTime() + 7*24*60*60*1000);
+        const time = "expires="+ date.toUTCString();
+        document.cookie = name + "=" + value + ";" + time + ";";
+    }
+
+    private static get_cookie(name) : string {
+        name = name + "=";
+        const decoded_cookie = decodeURIComponent(document.cookie);
+        const parts = decoded_cookie.split(';');
+        for(let i = 0; i < parts.length; i++) {
+            const part = parts[i].trim();
+            if (part.indexOf(name) === 0)
+                return part.substring(name.length, part.length);
+        }
+        return "";
     }
 
     private static json_to_name_value_array(json : Object) : Array<Object> {
@@ -35,6 +78,15 @@ class Ajax {
                 array.push({name: key, value: json[key]});
             });
         return array;
+    }
+
+    /* === GENERAL === */
+
+    public get_info(success : (config : Object) => void) : void {
+        this.submit("/getInfo", {}, function (data) {
+            default_config = data['default_config'];
+            success(data);
+        });
     }
 
     /* === CONFIG === */

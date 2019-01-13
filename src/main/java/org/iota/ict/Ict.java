@@ -114,6 +114,7 @@ public class Ict {
         }
 
         this.properties = newProp;
+        restApi.setPaswword(newProp.guiPassword);
         updateNeighborsBecausePropertiesChanged(oldProp, newProp);
 
         if(restartRequired || !isRunning())

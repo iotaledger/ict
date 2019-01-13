@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.Ict;
 import org.iota.ict.utils.Constants;
+import org.iota.ict.utils.Trytes;
 import spark.*;
 
 import java.io.File;
@@ -17,6 +18,7 @@ public class RestApi {
     protected Service service;
     protected final JsonIct jsonIct;
     protected boolean isRunning = false;
+    protected String password = Trytes.randomSequenceOfLength(30); // will be set with setPassword()
     protected Set<RouteImpl> routes = new HashSet<>();
 
     public RestApi(Ict ict) {
@@ -58,6 +60,15 @@ public class RestApi {
         for(RouteImpl route : routes)
             service.post(route.getPath(), route);
 
+        service.before(new Filter() {
+            @Override
+            public void handle(Request request, Response response) {
+                String queryPassword = request.queryParams("password");
+                if (!queryPassword.equals(password))
+                    spark.Spark.halt(401, "Access denied: password incorrect.");
+            }
+        });
+
         service.after(new Filter() {
             @Override
             public void handle(Request request, Response response) {
@@ -82,6 +93,10 @@ public class RestApi {
 
     public boolean isRunning() {
         return isRunning;
+    }
+
+    public void setPaswword(String paswword) {
+        this.password = paswword;
     }
 
     /**

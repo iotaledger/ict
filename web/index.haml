@@ -40,7 +40,7 @@
               %div.input
                 %input#config_name
               %div.description
-                %div.hidden_info The name of this Ict.
+                %div.hidden_info The name of this Ict. It does not have any use currently.
 
             %div.property
               %div.name Round Duration (ms)
@@ -85,14 +85,21 @@
               %div.input
                 %input#config_gui_enabled{:type => :checkbox}
               %div.description
-                %div.hidden_info The port on which Ict will exchange messages with neighbors. (default: 2187)
+                %div.hidden_info Disabling this will stop this web GUI.
 
             %div.property
               %div.name GUI Port
               %div.input
                 %input#config_gui_port{:type => :number}
               %div.description
-                %div.hidden_info The port on which Ict will exchange messages with neighbors. (default: 2187)
+                %div.hidden_info The port of this web GUI. If you change it, the page will disappear on this port. (default: 2187)
+
+            %div.property
+              %div.name GUI Password
+              %div.input
+                %input#config_gui_password{:type => :password}
+              %div.description
+                %div.hidden_info The port for this GUI. Make sure it is secure. Otherwise you Ict will be controlled by evil deamons. (default: 2187)
 
 
 
@@ -104,24 +111,24 @@
               %div.input
                 %input#config_min_forward_delay{:type => :number}
               %div.description
-                %div.hidden_info The name of your Ict.
+                %div.hidden_info The minimum amount of milliseconds to wait before forwarding transactions to your neighbors.
 
             %div.property
               %div.name Max. Forward Delay (ms)
               %div.input
                 %input#config_max_forward_delay{:type => :number}
               %div.description
-                %div.hidden_info The name of your Ict.
+                %div.hidden_info The maximum amount of milliseconds to wait before forwarding transactions to your neighbors.
 
             %div.property
               %div.name Max. Abs. Tx./Round
               %div.input
                 %input#config_anti_spam_abs{:type => :number}
               %div.description
-                %div.hidden_info The name of your Ict.
+                %div.hidden_info Spam protection: your Ict will not accept more than this many transactions per round from each neighbor.
 
           %button{:onclick => "Form.save_config(); return false;"} save
-          %button{:onclick => "return false;"} reset
+          %button{:onclick => "Form.put_config(default_config); return false;"} reset
       %div#page_neighbors.page.hidden
         %div{:class => "page_content"}
           %div#neighbors

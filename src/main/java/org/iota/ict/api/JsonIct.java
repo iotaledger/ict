@@ -46,7 +46,7 @@ public class JsonIct {
     }
 
     public JSONObject getConfig() {
-        return ict.getCopyOfProperties().toJSON();
+        return ict.getCopyOfProperties().toJSON().put("gui_password","");
     }
 
     public JSONArray getNeighbors() {
