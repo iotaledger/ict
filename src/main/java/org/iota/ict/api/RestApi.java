@@ -23,10 +23,10 @@ public class RestApi {
         this.jsonIct = new JsonIct(ict);
 
         try {
-            if(!new File(WEB_GUI_PATH).exists())
+            if(!new File(Constants.WEB_GUI_PATH).exists())
                 extractWebDirectory();
         } catch (IOException e) {
-            LOGGER.error("Failed to extract Web GUI into " + new File(WEB_GUI_PATH).getAbsolutePath(), e);
+            LOGGER.error("Failed to extract Web GUI into " + new File(Constants.WEB_GUI_PATH).getAbsolutePath(), e);
             throw new RuntimeException(e);
         }
 
@@ -97,7 +97,7 @@ public class RestApi {
             if(!file.getName().startsWith("web/"))
                 continue;
             LOGGER.info("extracting file: " + file.getName() + " ...");
-            java.io.File f = new java.io.File(WEB_GUI_PATH + java.io.File.separator + file.getName().replaceAll("^web/", ""));
+            java.io.File f = new java.io.File(Constants.WEB_GUI_PATH + java.io.File.separator + file.getName().replaceAll("^web/", ""));
             if (file.isDirectory()) {
                 f.mkdirs();
                 continue;
