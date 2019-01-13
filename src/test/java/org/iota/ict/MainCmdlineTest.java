@@ -30,7 +30,6 @@ public class MainCmdlineTest {
         DEFAULT_PROPERTIES_MAP.put(Properties.Property.neighbors.name(), hardcoded.neighbors.isEmpty() ? "" : hardcoded.neighbors.toString());
         DEFAULT_PROPERTIES_MAP.put(Properties.Property.port.name(), hardcoded.port);
         DEFAULT_PROPERTIES_MAP.put(Properties.Property.round_duration.name(), hardcoded.roundDuration);
-        DEFAULT_PROPERTIES_MAP.put(Properties.Property.spam_enabled.name(), hardcoded.spamEnabled);
         DEFAULT_PROPERTIES_MAP.put(Properties.Property.tangle_capacity.name(), hardcoded.tangleCapacity);
         DEFAULT_PROPERTIES_MAP.put(Properties.Property.gui_port.name(), hardcoded.guiPort);
 
