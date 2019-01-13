@@ -3,14 +3,13 @@ package org.iota.ict.api;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.Ict;
+import org.iota.ict.utils.Constants;
 import spark.*;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public class RestApi {
-
-    protected static final String WEB_GUI_PATH = "web/";
 
     protected static final Logger LOGGER = LogManager.getLogger(RestApi.class);
     protected Service service;
@@ -45,7 +44,7 @@ public class RestApi {
         service = Service.ignite();
         service.port(port);
 
-        service.staticFiles.externalLocation(WEB_GUI_PATH);
+        service.staticFiles.externalLocation(Constants.WEB_GUI_PATH);
         for(RouteImpl route : routes)
             service.post(route.getPath(), route);
 

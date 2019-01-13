@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.Ict;
 import org.iota.ict.Main;
+import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.IOHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,23 +40,47 @@ public class IxiModuleHolder {
     public boolean uninstall(String path) {
 
         IxiModule module = modulesByPath.get(path);
+        LOGGER.info("Uninstalling module " + path + " ...");
 
         if(module == null)
             throw new RuntimeException("No module '"+path+"' installed.");
+
+        IxiModuleInfo info = modulesWithInfo.get(module);
 
         modulesWithInfo.remove(module);
         modulesByPath.remove(path);
         module.terminate();
 
-        File file = new File(DEFAULT_MODULE_DIRECTORY, path);
+        File jar = new File(DEFAULT_MODULE_DIRECTORY, path);
+        File guiDirectory = new File(Constants.WEB_GUI_PATH, "modules/" + info.name+"/");
 
-        if(!file.exists())
+        if(!jar.exists())
             throw new RuntimeException("Could not find file '"+path+"'.");
-        if(file.isDirectory())
+        if(jar.isDirectory())
             throw new RuntimeException("Path '"+path+"' is a directory.");
         if(!path.endsWith(".jar"))
             throw new RuntimeException("Path '"+path+"' is a directory.");
-        return file.delete();
+
+        boolean jarDeletedSuccess = deleteRecursively(jar);
+        boolean guiDirectoryDeletedSuccess = deleteRecursively(guiDirectory);
+        return jarDeletedSuccess && guiDirectoryDeletedSuccess;
+    }
+
+    private static boolean deleteRecursively(File file) {
+        if(!file.exists())
+            return true;
+        boolean success = true;
+        LOGGER.info("Deleting " + file + " ...");
+        try {
+            if(file.isDirectory())
+                for(String subPath : file.list())
+                    success = success && deleteRecursively(new File(file.getPath(), subPath));
+            success = success && file.delete();
+        } catch (Throwable t) {
+            LOGGER.error("Could not delete " + file.getAbsolutePath(), t);
+            success = false;
+        }
+        return success;
     }
 
     public void install(URL url) throws Throwable {

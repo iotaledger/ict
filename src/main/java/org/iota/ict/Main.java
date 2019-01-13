@@ -2,9 +2,11 @@ package org.iota.ict;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.iota.ict.api.GithubGateway;
 import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.ErrorHandler;
 import org.iota.ict.utils.Properties;
+import org.iota.ict.utils.VersionComparator;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -221,6 +223,8 @@ public class Main {
 
         Constants.TESTING = false;
 
+        checkForUpdates();
+
         Cmdline cmdline = new Cmdline()
                 .useEnvironmentProperties()
                 .useDefaultConfigFile()
@@ -269,5 +273,21 @@ public class Main {
             finalRefToIct.terminate();
             }
         });
+    }
+
+    private static void checkForUpdates() {
+        System.out.println();
+        logger.info("Checking for updates ...");
+
+        try {
+            String latestReleaseVersion = GithubGateway.getLatestReleaseLabel(Constants.ICT_REPOSITORY);
+            if(VersionComparator.getInstance().compare(Constants.ICT_VERSION, latestReleaseVersion) < 0)
+                logger.warn(">>>>> A new release of Ict is available. Please update to " + latestReleaseVersion + "! <<<<<");
+            else
+                logger.info("You are already up-to-date!");
+        } catch (Throwable t) {
+            logger.error("Failed checking for updates", t);
+        }
+        System.out.println();
     }
 }

@@ -17,6 +17,7 @@ public class Constants {
     public static final String ICT_REPOSITORY = "iotaledger/ict";
     public static final String GITHUB_URL = "https://github.com/";
     public static final String DEFAULT_PROPERTY_FILE_PATH = "ict.cfg";
+    public static final String WEB_GUI_PATH = "web/";
 
     public static final int MAX_NEIGHBOR_COUNT = 3;
     public static final int TRANSACTION_SIZE_TRITS = Transaction.Field.REQUEST_HASH.tritOffset + Transaction.Field.REQUEST_HASH.tritLength;
