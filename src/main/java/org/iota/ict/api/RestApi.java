@@ -5,6 +5,8 @@ import org.apache.logging.log4j.Logger;
 import org.iota.ict.Ict;
 import spark.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,6 +22,14 @@ public class RestApi {
 
     public RestApi(Ict ict) {
         this.jsonIct = new JsonIct(ict);
+
+        try {
+            if(!new File(WEB_GUI_PATH).exists())
+                extractWebDirectory();
+        } catch (IOException e) {
+            LOGGER.error("Failed to extract Web GUI into " + new File(WEB_GUI_PATH).getAbsolutePath(), e);
+            throw new RuntimeException(e);
+        }
 
         routes.add(new RouteGetInfo(jsonIct));
         routes.add(new RouteGetLog(jsonIct));
@@ -73,5 +83,35 @@ public class RestApi {
 
     public boolean isRunning() {
         return isRunning;
+    }
+
+    /**
+     * CREDITS: https://stackoverflow.com/questions/1529611/how-to-write-a-java-program-which-can-extract-a-jar-file-and-store-its-data-in-s/1529707#1529707
+     * */
+    private void extractWebDirectory() throws IOException {
+        File jarFile = new File(this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
+        java.util.jar.JarFile jar = new java.util.jar.JarFile(jarFile);
+        java.util.Enumeration enumEntries = jar.entries();
+        LOGGER.info("extracting web gui ...");
+        while (enumEntries.hasMoreElements()) {
+            java.util.jar.JarEntry file = (java.util.jar.JarEntry) enumEntries.nextElement();
+            if(!file.getName().startsWith("web/"))
+                continue;
+            LOGGER.info("extracting file: " + file.getName() + " ...");
+            java.io.File f = new java.io.File(WEB_GUI_PATH + java.io.File.separator + file.getName().replaceAll("^web/", ""));
+            if (file.isDirectory()) {
+                f.mkdirs();
+                continue;
+            }
+            f.createNewFile();
+            java.io.InputStream is = jar.getInputStream(file); // get the input stream
+            java.io.FileOutputStream fos = new java.io.FileOutputStream(f);
+            while (is.available() > 0) {
+                fos.write(is.read());
+            }
+            fos.close();
+            is.close();
+        }
+        jar.close();
     }
 }
