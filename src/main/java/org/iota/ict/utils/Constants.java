@@ -13,9 +13,8 @@ public class Constants {
 
     public static final Path WORKING_DIRECTORY = (new File("./")).toPath();;
 
-    public static final String ICT_VERSION = "0.4-SNAPSHOT";
+    public static final String ICT_VERSION = "0.4";
     public static final String ICT_REPOSITORY = "iotaledger/ict";
-    public static final String GITHUB_URL = "https://github.com/";
     public static final String DEFAULT_PROPERTY_FILE_PATH = "ict.cfg";
     public static final String WEB_GUI_PATH = "web/";
 
