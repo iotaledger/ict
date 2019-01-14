@@ -21,7 +21,7 @@ This method is recommended for beginners.
 
 #### Method B: Build the .jar Yourself
 
-This method is recommended for advanced users. You have to install **Git** and **Gradle**.
+This method is recommended for advanced users. You have to install **Git**, **Gradle** amd **NPM**.
 
 ```shell
 # 1) clone the source code (you will need Git)
@@ -32,6 +32,10 @@ cd ict
 
 # 3) build the runnable .jar file (you will need Gradle)
 gradle fatJar
+
+#4) install the web gui dependencies
+cd web
+npm install
 ```
 
 ### Running the Client
