@@ -15,7 +15,6 @@ import org.iota.ict.network.Receiver;
 import org.iota.ict.network.Sender;
 import org.iota.ict.model.Transaction;
 import org.iota.ict.utils.Constants;
-import org.iota.ict.utils.ErrorHandler;
 import org.iota.ict.utils.Properties;
 
 import java.net.DatagramSocket;
@@ -295,7 +294,7 @@ public class Ict {
             try {
                 socket = new DatagramSocket(address);
             } catch (SocketException socketException) {
-                ErrorHandler.handleError(LOGGER, socketException, "Could not create socket for Ict. Are you already running another instance on " + address + "?");
+                LOGGER.error("Could not create socket for Ict. Are you already running another instance on " + address + "?", socketException);
                 throw new RuntimeException(socketException);
             }
         }

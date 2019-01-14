@@ -3,7 +3,6 @@ package org.iota.ict.network;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.Ict;
-import org.iota.ict.utils.ErrorHandler;
 
 import java.net.*;
 
@@ -47,7 +46,7 @@ public class Neighbor {
             if (!address.getAddress().equals(InetAddress.getByName(address.getHostName())))
                 address = new InetSocketAddress(address.getHostName(), address.getPort());
         } catch (UnknownHostException e) {
-            ErrorHandler.handleWarning(logger, e, "Unknown Host for: " + address.getHostString());
+            logger.warn(("Unknown Host for: " + address.getHostString()) + " (" + e.getMessage() + ")");
         }
     }
 

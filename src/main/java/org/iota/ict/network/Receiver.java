@@ -5,7 +5,6 @@ import org.iota.ict.model.Tangle;
 import org.iota.ict.model.Transaction;
 import org.iota.ict.network.event.GossipEvent;
 import org.iota.ict.utils.Constants;
-import org.iota.ict.utils.ErrorHandler;
 import org.iota.ict.utils.Trytes;
 
 import java.io.IOException;
@@ -80,7 +79,6 @@ public class Receiver extends Thread {
             byte[] bytes = packet.getData();
             return new Transaction(Trytes.fromBytes(bytes), bytes);
         } catch (Throwable t) {
-            //ErrorHandler.handleWarning(Ict.LOGGER, t,"Received invalid transaction from neighbor: " + sender.getAddress());
             return null;
         }
     }

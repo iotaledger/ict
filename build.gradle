@@ -22,9 +22,12 @@ dependencies {
     compile 'com.github.mikrohash:iota.curl.java:master'
 
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.11.1'
+<<<<<<< HEAD
 
     // to prevent warning: https://www.slf4j.org/codes.html#StaticLoggerBinder
     compile group: 'org.slf4j', name: 'slf4j-nop', version: '1.7.25'
+=======
+>>>>>>> master
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'pl.pragmatists', name: 'JUnitParams', version: '1.1.1'

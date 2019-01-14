@@ -59,7 +59,7 @@ public final class TransferBuilder {
         orderedChanges.addAll(outputBuilders);
 
         String determinedBundleHash = determineBundleHash(orderedChanges);
-        ;
+
         createAllSignatures(determinedBundleHash, orderedChanges);
 
         for (BalanceChangeBuilder changeBuilder : orderedChanges)

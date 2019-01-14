@@ -33,11 +33,20 @@ public class TransactionBuilder {
         return Trytes.padRight("", field.tryteLength);
     }
 
+    public Transaction buildWhileUpdatingTimestamp() {
+        return doPow(true);
+    }
+
     public Transaction build() {
+        return doPow(false);
+    }
+
+    private Transaction doPow(boolean updateTimestamp) {
         // try different nonces to find transaction which satisfies required flagging by doing proof-of-work
         Transaction transaction = null;
         do {
-            issuanceTimestamp = System.currentTimeMillis();
+            if(updateTimestamp)
+                issuanceTimestamp = System.currentTimeMillis();
             nonce = Trytes.randomSequenceOfLength(Transaction.Field.NONCE.tryteLength);
             try {
                 transaction = new Transaction(this);
