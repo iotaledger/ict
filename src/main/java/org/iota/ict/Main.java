@@ -383,8 +383,6 @@ public class Main {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-            finalRefToIct.terminate();
-                logger.info("Terminating Ict ...");
                 finalRefToIct.terminate();
             }
         });
