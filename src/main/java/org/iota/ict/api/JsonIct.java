@@ -14,7 +14,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URL;
-import java.nio.file.Path;
 
 public class JsonIct {
 
@@ -39,9 +38,13 @@ public class JsonIct {
 
     public JSONObject setConfig(String configString) {
         JSONObject configJson = new JSONObject(configString);
-        Properties properties = Properties.fromJSON(configJson);
-        ict.changeProperties(properties);
-        properties.store(Constants.DEFAULT_PROPERTY_FILE_PATH);
+        Properties newConfig = Properties.fromJSON(configJson);
+        Properties currentConfig = ict.getCopyOfProperties();
+        newConfig.neighbors = currentConfig.neighbors;
+        if(newConfig.guiPassword.length() == 0)
+            newConfig.guiPassword = currentConfig.guiPassword;
+        ict.changeProperties(newConfig);
+        newConfig.store(Constants.DEFAULT_PROPERTY_FILE_PATH);
         return success();
     }
 
