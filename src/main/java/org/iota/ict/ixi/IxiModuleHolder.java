@@ -127,6 +127,8 @@ public class IxiModuleHolder {
         String path = DEFAULT_MODULE_DIRECTORY.toURI().relativize(jar.toUri()).toString();
         URLClassLoader classLoader = new URLClassLoader (new URL[] {jar.toFile().toURI().toURL()}, Main.class.getClassLoader());
         IxiModuleInfo info = readModuleInfoFromJar(classLoader, path);
+        if(!info.supportsCurrentVersion())
+            LOGGER.warn("IXI module '"+info.name+"' does not specify your Ict's version '"+Constants.ICT_VERSION+"' as supported in module.json.");
         IxiModule module = initModule(classLoader, info.mainClass);
         modulesWithInfo.put(module, info);
         modulesByPath.put(path, module);

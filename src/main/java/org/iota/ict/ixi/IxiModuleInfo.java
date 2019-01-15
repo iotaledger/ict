@@ -21,8 +21,6 @@ public class IxiModuleInfo {
     public IxiModuleInfo(JSONObject json, String path) throws JSONException {
         version = json.getString("version");
         supportedVersions = json.getJSONArray("supported_versions");
-        if(!supportsCurrentVersion())
-            throw new RuntimeException("IXI module does not specify your Ict's version '"+Constants.ICT_VERSION+"' as supported in module.json.");
         name = json.getString("name");
         description = json.getString("description");
         repository = json.getString("repository");
@@ -57,7 +55,7 @@ public class IxiModuleInfo {
         }
     }
 
-    private boolean supportsCurrentVersion() {
+    boolean supportsCurrentVersion() {
         for(int i = 0; i < supportedVersions.length(); i++)
             if(supportedVersions.getString(i).equals(Constants.ICT_VERSION))
                 return true;
