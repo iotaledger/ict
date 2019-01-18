@@ -2,7 +2,6 @@ package org.iota.ict.ixi;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.iota.ict.Ict;
 import org.iota.ict.IctInterface;
 import org.iota.ict.Main;
 import org.iota.ict.utils.Constants;
@@ -63,33 +62,16 @@ public class IxiModuleHolder extends RestartableThread {
         if(!jar.exists())
             throw new RuntimeException("Could not find file '"+path+"'.");
         if(jar.isDirectory())
-            throw new RuntimeException("Path '"+path+"' is a directory.");
+            throw new RuntimeException("'"+path+"' is a directory.");
         if(!path.endsWith(".jar"))
-            throw new RuntimeException("Path '"+path+"' is a directory.");
+            throw new RuntimeException("'"+path+"' is not a .jar file.");
 
-        boolean jarDeletedSuccess = deleteRecursively(jar);
-        boolean guiDirectoryDeletedSuccess = deleteRecursively(guiDirectory);
+        boolean jarDeletedSuccess = IOHelper.deleteRecursively(jar);
+        boolean guiDirectoryDeletedSuccess = IOHelper.deleteRecursively(guiDirectory);
         return jarDeletedSuccess && guiDirectoryDeletedSuccess;
     }
 
-    private static boolean deleteRecursively(File file) {
-        if(!file.exists())
-            return true;
-        boolean success = true;
-        LOGGER.info("Deleting " + file + " ...");
-        try {
-            if(file.isDirectory())
-                for(String subPath : file.list())
-                    success = success && deleteRecursively(new File(file.getPath(), subPath));
-            success = success && file.delete();
-        } catch (Throwable t) {
-            LOGGER.error("Could not delete " + file.getAbsolutePath(), t);
-            success = false;
-        }
-        return success;
-    }
-
-    public void install(URL url) throws Throwable {
+    public IxiModule install(URL url) throws Throwable {
 
         String split[] = url.getFile().split("/");
         String fileName = split[split.length-1];
@@ -100,9 +82,7 @@ public class IxiModuleHolder extends RestartableThread {
             Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
         }
         LOGGER.info("Download of " + target.toString() + " complete.");
-
-        IxiModule module = initModule(target);
-        module.start();
+        return initModule(target);
     }
 
     public void initAllModules() {
@@ -115,7 +95,13 @@ public class IxiModuleHolder extends RestartableThread {
         initModulesFromFiles(files);
     }
 
-    public void initModulesFromFiles(File[] files) {
+    public void startAllModules() {
+        for(IxiModule module : modulesWithInfo.keySet())
+            if(!module.isRunning())
+                module.start();
+    }
+
+    private void initModulesFromFiles(File[] files) {
         for(File file : files) {
             Path jar = Paths.get(file.toURI());
             if(!jar.toString().endsWith(".jar"))
@@ -128,21 +114,21 @@ public class IxiModuleHolder extends RestartableThread {
         }
     }
 
-    public IxiModule initModule(Path jar) throws Exception {
+    private IxiModule initModule(Path jar) throws Exception {
         LOGGER.info("loading IXI module "+jar.getFileName()+"...");
         String path = DEFAULT_MODULE_DIRECTORY.toURI().relativize(jar.toUri()).toString();
         URLClassLoader classLoader = new URLClassLoader (new URL[] {jar.toFile().toURI().toURL()}, Main.class.getClassLoader());
         IxiModuleInfo info = readModuleInfoFromJar(classLoader, path);
         if(!info.supportsCurrentVersion())
             LOGGER.warn("IXI module '"+info.name+"' does not specify your Ict's version '"+Constants.ICT_VERSION+"' as supported in module.json.");
-        IxiModule module = initModule(classLoader, info.mainClass);
+        IxiModule module = createInstance(classLoader, info.mainClass);
         modulesWithInfo.put(module, info);
         modulesByPath.put(path, module);
         subWorkers.add(module);
         return module;
     }
 
-    private IxiModule initModule(URLClassLoader classLoader, String mainClassName) throws Exception {
+    private IxiModule createInstance(URLClassLoader classLoader, String mainClassName) throws Exception {
         Class ixiClass = getIxiClass(classLoader, mainClassName);
         Constructor<?> c = ixiClass.getConstructor(Ixi.class);
         return (IxiModule) c.newInstance(ict);
@@ -156,7 +142,7 @@ public class IxiModuleHolder extends RestartableThread {
         }
     }
 
-    public static IxiModuleInfo readModuleInfoFromJar(URLClassLoader classLoader, String path) {
+    private static IxiModuleInfo readModuleInfoFromJar(URLClassLoader classLoader, String path) {
         try {
             InputStream is = classLoader.getResourceAsStream("module.json");
             if(is == null)

@@ -155,14 +155,4 @@ public class Ict extends RestartableThread implements IctInterface {
     public void onGossipEvent(GossipEvent event) {
         eventDispatcher.notifyListeners(event);
     }
-
-    @Override
-    public void onTerminate() {
-        LOGGER.info("terminated Ict.");
-    }
-
-    @Override
-    public void onStart() {
-        LOGGER.info("started Ict.");
-    }
 }

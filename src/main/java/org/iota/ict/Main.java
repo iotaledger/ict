@@ -377,7 +377,7 @@ public class Main {
         }
 
         ict.getModuleHolder().initAllModules();
-        ict.getModuleHolder().start();
+        ict.getModuleHolder().startAllModules();
 
         final Ict finalRefToIct = ict;
         Runtime.getRuntime().addShutdownHook(new Thread() {

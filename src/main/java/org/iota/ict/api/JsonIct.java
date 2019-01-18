@@ -123,7 +123,8 @@ public class JsonIct {
             nmoduleBeingCurrentlyInstalled = repository;
             String label = findRecommendedOrLatestLabel(repository);
             URL url = GithubGateway.getAssetDownloadUrl(repository, label);
-            ict.getModuleHolder().install(url);
+            IxiModule module = ict.getModuleHolder().install(url);
+            module.start();
             return success();
         } catch (Throwable t) {
             nmoduleBeingCurrentlyInstalled = null;
