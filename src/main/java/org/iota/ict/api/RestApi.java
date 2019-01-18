@@ -70,8 +70,8 @@ public class RestApi extends RestartableThread implements PropertiesUser {
             initRoutes();
 
         service = Service.ignite();
-        int port = properties.port();
-        service.port(port);
+        int guiPort = properties.guiPort();
+        service.port(guiPort);
 
         service.staticFiles.externalLocation(Constants.WEB_GUI_PATH);
         for(RouteImpl route : routes)
@@ -96,7 +96,7 @@ public class RestApi extends RestartableThread implements PropertiesUser {
 
         service.init();
         service.awaitInitialization();
-        LOGGER.info("Started Web GUI on port " + port + ". Access it by visiting '{HOST}:"+port+"' from your web browser.");
+        LOGGER.info("Started Web GUI on port " + guiPort + ". Access it by visiting '{HOST}:"+guiPort+"' from your web browser.");
     }
 
     @Override

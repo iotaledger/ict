@@ -38,6 +38,9 @@ public class Node extends RestartableThread implements PropertiesUser {
         ict.addGossipListener(sender);
         subWorkers.add(receiver);
         subWorkers.add(sender);
+
+        for(InetSocketAddress neighbor : properties.neighbors())
+            neighbor(neighbor);
     }
 
     @Override
