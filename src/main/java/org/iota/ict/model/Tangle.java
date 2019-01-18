@@ -3,12 +3,9 @@ package org.iota.ict.model;
 import org.iota.ict.Ict;
 import org.iota.ict.IctInterface;
 import org.iota.ict.network.Neighbor;
-import org.iota.ict.utils.Constants;
-import org.iota.ict.utils.Properties;
-import org.iota.ict.utils.PropertiesUser;
-import org.iota.ict.utils.Trytes;
+import org.iota.ict.utils.properties.FinalProperties;
+import org.iota.ict.utils.properties.PropertiesUser;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +31,7 @@ public class Tangle implements PropertiesUser {
     }
 
     @Override
-    public void updateProperties(Properties properties) { }
+    public void updateProperties(FinalProperties properties) { }
 
     public TransactionLog createTransactionLogIfAbsent(Transaction transaction) {
         TransactionLog log = findTransactionLog(transaction);

@@ -7,7 +7,7 @@ import org.iota.ict.api.GithubGateway;
 import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.iota.ict.utils.Constants;
-import org.iota.ict.utils.Properties;
+import org.iota.ict.utils.properties.Properties;
 import org.iota.ict.utils.VersionComparator;
 
 import java.io.File;
@@ -172,7 +172,7 @@ public class Main {
         }
 
         /**
-         * Try to read all {@link org.iota.ict.utils.Properties.Property} from {@code system properties}. Ignore not existing property keys.
+         * Try to read all {@link Properties.Property} from {@code system properties}. Ignore not existing property keys.
          */
         public Cmdline useSystemProperties() {
             try {
@@ -184,7 +184,7 @@ public class Main {
         }
 
         /**
-         * Try to read all {@link org.iota.ict.utils.Properties.Property} from {@code environment}. Looking for {@code upper case} keys only. Ignore not
+         * Try to read all {@link Properties.Property} from {@code environment}. Looking for {@code upper case} keys only. Ignore not
          * existing one.
          */
         public Cmdline useEnvironmentProperties() {
@@ -197,7 +197,7 @@ public class Main {
         }
 
         /**
-         * Try to read all {@link org.iota.ict.utils.Properties.Property} from default config file {@link Constants#DEFAULT_PROPERTY_FILE_PATH}. Ignore not existing
+         * Try to read all {@link Properties.Property} from default config file {@link Constants#DEFAULT_PROPERTY_FILE_PATH}. Ignore not existing
          * files. But fail if no read permission exist.
          */
         public Cmdline useDefaultConfigFile() {
@@ -363,13 +363,13 @@ public class Main {
             System.exit(0);
         }
 
-        logger.info("Starting new Ict '" + ictProperties.name + "' (version: " + Constants.ICT_VERSION + ")");
+        logger.info("Starting new Ict '" + ictProperties.name() + "' (version: " + Constants.ICT_VERSION + ")");
         Ict ict;
         try {
-            ict = new Ict(ictProperties);
+            ict = new Ict(ictProperties.toFinal());
         } catch (Throwable t) {
             if (t.getCause() instanceof BindException) {
-                logger.error("Could not start Ict on " + ictProperties.host + ":" + ictProperties.port, t);
+                logger.error("Could not start Ict on " + ictProperties.host() + ":" + ictProperties.port(), t);
                 logger.info("Make sure that the address is correct and you are not already running an Ict instance or any other service on that port. You can change the port in your properties file.");
             } else
                 logger.error("Could not start Ict.", t);

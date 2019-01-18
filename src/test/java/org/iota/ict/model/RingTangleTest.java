@@ -2,7 +2,7 @@ package org.iota.ict.model;
 
 import org.iota.ict.Ict;
 import org.iota.ict.IctTestTemplate;
-import org.iota.ict.utils.Properties;
+import org.iota.ict.utils.properties.EditableProperties;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -14,8 +14,8 @@ public class RingTangleTest extends IctTestTemplate {
     public void testSameTimestamp() {
         int ringTangleCapacity = 10;
 
-        Properties properties = new Properties();
-        properties.tangleCapacity = ringTangleCapacity;
+        EditableProperties properties = new EditableProperties();
+        properties.tangleCapacity(ringTangleCapacity);
         Ict ict = createIct(properties);
 
         TransactionBuilder builder = new TransactionBuilder();
@@ -33,8 +33,8 @@ public class RingTangleTest extends IctTestTemplate {
         int offset = ringTangleCapacity / 2;
         int totalTransactions = ringTangleCapacity * 2;
 
-        Properties properties = new Properties();
-        properties.tangleCapacity = ringTangleCapacity;
+        EditableProperties properties = new EditableProperties();
+        properties.tangleCapacity (ringTangleCapacity);
         Ict ict = createIct(properties);
 
         List<Transaction> transactionsOrderedByTimestamps = generateTransactionsOrderedByTimestamps(totalTransactions);

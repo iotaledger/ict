@@ -1,4 +1,4 @@
-package org.iota.ict.utils;
+package org.iota.ict.utils.properties;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,22 +19,22 @@ import java.util.*;
  */
 public class Properties implements Cloneable {
 
-    private static final String LIST_DELIMITER = ",";
-    private static final Properties DEFAULT_PROPERTIES = new Properties();
-    private static final Logger logger = LogManager.getLogger(Properties.class);
+    protected static final String LIST_DELIMITER = ",";
+    protected static final Properties DEFAULT_PROPERTIES = new Properties();
+    protected static final Logger logger = LogManager.getLogger(Properties.class);
 
-    public long antiSpamAbs = 1000;
-    public boolean guiEnabled = true;
-    public long tangleCapacity = 10000;
-    public long minForwardDelay = 0;
-    public long maxForwardDelay = 200;
-    public String name = "ict";
-    public String host = "0.0.0.0";
-    public String guiPassword = "change_me_now";
-    public int port = 1337;
-    public int guiPort = 2187;
-    public long roundDuration = 60000;
-    public List<InetSocketAddress> neighbors = new LinkedList<>();
+    protected long antiSpamAbs = 1000;
+    protected boolean guiEnabled = true;
+    protected long tangleCapacity = 10000;
+    protected long minForwardDelay = 0;
+    protected long maxForwardDelay = 200;
+    protected String name = "ict";
+    protected String host = "0.0.0.0";
+    protected String guiPassword = "change_me_now";
+    protected int port = 1337;
+    protected int guiPort = 2187;
+    protected long roundDuration = 60000;
+    protected List<InetSocketAddress> neighbors = new LinkedList<>();
 
     public static Properties fromFile(String path) {
         java.util.Properties propObject = new java.util.Properties();
@@ -68,7 +68,7 @@ public class Properties implements Cloneable {
 
     }
 
-    private Properties(java.util.Properties propObject) {
+    Properties(java.util.Properties propObject) {
         tangleCapacity = readLongProperty(propObject, Property.tangle_capacity, 10, Long.MAX_VALUE, DEFAULT_PROPERTIES.tangleCapacity);
         antiSpamAbs = readLongProperty(propObject, Property.anti_spam_abs, 1, Long.MAX_VALUE, DEFAULT_PROPERTIES.antiSpamAbs);
         minForwardDelay = readLongProperty(propObject, Property.min_forward_delay, 0, 10000, DEFAULT_PROPERTIES.minForwardDelay);
@@ -231,15 +231,62 @@ public class Properties implements Cloneable {
         json.put(Property.gui_password.name(), guiPassword);
         return json;
     }
-
-    public Properties port(int port) {
-        this.port = port;
-        return this;
+    public EditableProperties toEditable() {
+        return new EditableProperties(toPropObject());
     }
 
-    public Properties host(String host) {
-        this.host = host;
-        return this;
+    public FinalProperties toFinal() {
+        return new FinalProperties(toPropObject());
+    }
+
+    // === GETTERS ===
+
+    public int port() {
+        return port;
+    }
+
+    public String host() {
+        return host;
+    }
+
+    public int guiPort() {
+        return guiPort;
+    }
+
+    public boolean guiEnabled() {
+        return guiEnabled;
+    }
+
+    public List<InetSocketAddress> neighbors() {
+        return new LinkedList<>(neighbors);
+    }
+
+    public long antiSpamAbs() {
+        return antiSpamAbs;
+    }
+
+    public long maxForwardDelay() {
+        return maxForwardDelay;
+    }
+
+    public long minForwardDelay() {
+        return minForwardDelay;
+    }
+
+    public long roundDuration() {
+        return roundDuration;
+    }
+
+    public long tangleCapacity() {
+        return tangleCapacity;
+    }
+
+    public String guiPassword() {
+        return guiPassword;
+    }
+
+    public String name() {
+        return name;
     }
 
     public enum Property {

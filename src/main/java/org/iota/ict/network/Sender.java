@@ -4,12 +4,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.Ict;
 import org.iota.ict.network.event.GossipEvent;
-import org.iota.ict.utils.Constants;
-import org.iota.ict.utils.Properties;
+import org.iota.ict.utils.*;
 import org.iota.ict.model.Tangle;
 import org.iota.ict.model.Transaction;
-import org.iota.ict.utils.RestartableThread;
-import org.iota.ict.utils.Trytes;
+import org.iota.ict.utils.properties.FinalProperties;
+import org.iota.ict.utils.properties.Properties;
 
 import java.net.DatagramPacket;
 import java.util.Comparator;
@@ -69,7 +68,7 @@ public class Sender extends RestartableThread implements SenderInterface {
     }
 
     private void manageRounds() {
-        if (roundStart + properties.roundDuration < System.currentTimeMillis()) {
+        if (roundStart + properties.roundDuration() < System.currentTimeMillis()) {
             // ict.newRound(); TODO
             roundStart = System.currentTimeMillis();
         }
@@ -79,7 +78,7 @@ public class Sender extends RestartableThread implements SenderInterface {
         try {
             synchronized (queue) {
                 // keep queue.isEmpty() within the synchronized block so notify is not called after the empty check and before queue.wait()
-                queue.wait(queue.isEmpty() ? properties.roundDuration : Math.max(1, queue.peek().sendingTime - System.currentTimeMillis()));
+                queue.wait(queue.isEmpty() ? properties.roundDuration() : Math.max(1, queue.peek().sendingTime - System.currentTimeMillis()));
             }
         } catch (InterruptedException e) {
             if (isRunning())
@@ -115,7 +114,7 @@ public class Sender extends RestartableThread implements SenderInterface {
     }
 
     public void queue(Transaction transaction) {
-        long forwardDelay = properties.minForwardDelay + ThreadLocalRandom.current().nextLong(properties.maxForwardDelay - properties.minForwardDelay);
+        long forwardDelay = properties.minForwardDelay()+ ThreadLocalRandom.current().nextLong(properties.maxForwardDelay() - properties.minForwardDelay());
         queue.add(new SendingTask(System.currentTimeMillis() + forwardDelay, transaction));
         synchronized (queue) {
             queue.notify();
@@ -123,8 +122,8 @@ public class Sender extends RestartableThread implements SenderInterface {
     }
 
     @Override
-    public void updateProperties(Properties properties) {
-        this.properties = properties.clone();
+    public void updateProperties(FinalProperties properties) {
+        this.properties = properties;
         synchronized (queue) {
             // notify queue to stop wait() and enforce new round duration
             queue.notify();

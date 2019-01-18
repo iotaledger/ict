@@ -1,6 +1,7 @@
-package org.iota.ict.utils;
+package org.iota.ict.utils.properties;
 
-import org.iota.ict.Ict;
+import org.iota.ict.utils.Trytes;
+import org.iota.ict.utils.properties.Properties;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;

@@ -4,12 +4,11 @@ import org.iota.ict.Ict;
 import org.iota.ict.model.Transaction;
 import org.iota.ict.model.TransactionBuilder;
 import org.iota.ict.utils.Constants;
-import org.iota.ict.utils.Properties;
+import org.iota.ict.utils.properties.EditableProperties;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class SpamProtectionTest extends GossipTest {
@@ -19,8 +18,8 @@ public class SpamProtectionTest extends GossipTest {
 
         int maxTransactionsPerRound = 666;
 
-        Properties properties = new Properties();
-        properties.antiSpamAbs = maxTransactionsPerRound;
+        EditableProperties properties = new EditableProperties();
+        properties.antiSpamAbs(maxTransactionsPerRound);
 
         Ict a = createIct();
         Ict b = createIct(properties);

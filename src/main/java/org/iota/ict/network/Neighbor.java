@@ -79,7 +79,7 @@ public class Neighbor {
             Neighbor.logHeader();
         // two separate FOR-loops to prevent delays between newRound() calls
         for (Neighbor neighbor : ict.getNeighbors()) {
-            long tolerance = ict.getCopyOfProperties().antiSpamAbs;
+            long tolerance = ict.getProperties().antiSpamAbs();
             neighbor.newRound(tolerance);
         }
         for (Neighbor neighbor : ict.getNeighbors())

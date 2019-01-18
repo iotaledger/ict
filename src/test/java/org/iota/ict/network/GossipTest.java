@@ -4,8 +4,6 @@ import org.iota.ict.Ict;
 import org.iota.ict.IctTestTemplate;
 import org.iota.ict.model.Transaction;
 import org.iota.ict.model.TransactionBuilder;
-import org.iota.ict.utils.Properties;
-import org.junit.After;
 import org.junit.Assert;
 
 import java.util.*;

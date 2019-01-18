@@ -12,7 +12,7 @@ import org.iota.ict.network.event.GossipEvent;
 import org.iota.ict.network.event.GossipEventDispatcher;
 import org.iota.ict.network.event.GossipListener;
 import org.iota.ict.model.Transaction;
-import org.iota.ict.utils.Properties;
+import org.iota.ict.utils.properties.FinalProperties;
 import org.iota.ict.utils.RestartableThread;
 
 import java.net.InetSocketAddress;
@@ -37,14 +37,14 @@ public class Ict extends RestartableThread implements IctInterface {
     protected final Node node;
 
     // inner state
-    protected Properties properties;
+    protected FinalProperties properties;
     public final static Logger LOGGER = LogManager.getLogger(Ict.class);
     protected int round;
 
     /**
-     * @param properties The properties to use for this Ict. To change or replace them, use {@link #updateProperties(Properties)}
+     * @param properties The properties to use for this Ict. To change or replace them, use {@link #updateProperties(FinalProperties)}.
      */
-    public Ict(Properties properties) {
+    public Ict(FinalProperties properties) {
         super(LOGGER);
 
         this.properties = properties;
@@ -90,22 +90,17 @@ public class Ict extends RestartableThread implements IctInterface {
         return new LinkedList<>(node.getNeighbors());
     }
 
-    public Properties getCopyOfProperties() {
-        return properties.clone();
+    public FinalProperties getProperties() {
+        return properties;
     }
 
 
     @Override
-    public synchronized void updateProperties(Properties newProp) {
-
-        Properties oldProp = this.properties;
-
+    public synchronized void updateProperties(FinalProperties newProp) {
         this.properties = newProp;
-        Properties copyOfNewProperties = newProp.clone();
-
-        restApi.updateProperties(copyOfNewProperties);
-        tangle.updateProperties(copyOfNewProperties);
-        node.updateProperties(copyOfNewProperties);
+        restApi.updateProperties(this.properties);
+        tangle.updateProperties(this.properties);
+        node.updateProperties(this.properties);
     }
 
     /**

@@ -2,9 +2,11 @@ package org.iota.ict.api;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.iota.ict.Ict;
 import org.iota.ict.IctInterface;
 import org.iota.ict.utils.*;
+import org.iota.ict.utils.properties.FinalProperties;
+import org.iota.ict.utils.properties.Properties;
+import org.iota.ict.utils.properties.PropertiesUser;
 import spark.*;
 
 import java.io.File;
@@ -17,13 +19,13 @@ public class RestApi extends RestartableThread implements PropertiesUser {
     protected static final Logger LOGGER = LogManager.getLogger(RestApi.class);
     protected Service service;
     protected final JsonIct jsonIct;
-    protected Properties properties;
+    protected FinalProperties properties;
     protected Set<RouteImpl> routes = new HashSet<>();
 
     public RestApi(IctInterface ict) {
         super(LOGGER);
 
-        this.properties = ict.getCopyOfProperties();
+        this.properties = ict.getProperties();
         this.jsonIct = new JsonIct(ict);
 
         try {
@@ -60,11 +62,11 @@ public class RestApi extends RestartableThread implements PropertiesUser {
 
     @Override
     public void onStart() {
-        if(!properties.guiEnabled)
+        if(!properties.guiEnabled())
             return;
 
         service = Service.ignite();
-        int port = properties.port;
+        int port = properties.port();
         service.port(port);
 
         service.staticFiles.externalLocation(Constants.WEB_GUI_PATH);
@@ -75,7 +77,7 @@ public class RestApi extends RestartableThread implements PropertiesUser {
             @Override
             public void handle(Request request, Response response) {
                 String queryPassword = request.queryParams("password");
-                if (!queryPassword.equals(properties.guiPassword))
+                if (!queryPassword.equals(properties.guiPassword()))
                     spark.Spark.halt(401, "Access denied: password incorrect.");
             }
         });
@@ -105,16 +107,15 @@ public class RestApi extends RestartableThread implements PropertiesUser {
     }
 
     @Override
-    public void updateProperties(Properties properties) {
+    public void updateProperties(FinalProperties newProp) {
         Properties oldProp = this.properties;
-        Properties newProp = properties.clone();
         this.properties = newProp;
 
-        if(oldProp.guiEnabled && !newProp.guiEnabled)
+        if(oldProp.guiEnabled() && !newProp.guiEnabled())
             terminate();
-        else if(!oldProp.guiEnabled && newProp.guiEnabled)
+        else if(!oldProp.guiEnabled() && newProp.guiEnabled())
             start();
-        else if(oldProp.guiEnabled && newProp.guiEnabled && oldProp.port != newProp.port) {
+        else if(oldProp.guiEnabled() && newProp.guiEnabled() && oldProp.port() != newProp.port()) {
             terminate();
             start();
         }

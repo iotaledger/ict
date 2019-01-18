@@ -1,10 +1,12 @@
 package org.iota.ict;
 
 import org.iota.ict.network.Neighbor;
-import org.iota.ict.utils.Properties;
+import org.iota.ict.utils.properties.EditableProperties;
 import org.junit.After;
 
+import java.net.InetSocketAddress;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public abstract class IctTestTemplate {
@@ -13,15 +15,16 @@ public abstract class IctTestTemplate {
     private final static int DEFAULT_PORT = 1337;
 
     protected Ict createIct() {
-        return createIct(new Properties());
+        return createIct(new EditableProperties());
     }
 
-    protected Ict createIct(Properties properties) {
-        properties.host("localhost").port(DEFAULT_PORT + runningIcts.size());
-        properties.minForwardDelay = 0;
-        properties.maxForwardDelay = 10;
-        properties.guiEnabled = false;
-        Ict ict = new Ict(properties);
+    protected Ict createIct(EditableProperties properties) {
+        properties.host("localhost")
+                .port(DEFAULT_PORT + runningIcts.size())
+                .minForwardDelay(0)
+                .maxForwardDelay(10)
+                .guiEnabled(false);
+        Ict ict = new Ict(properties.toFinal());
         runningIcts.add(ict);
         return ict;
     }
@@ -47,9 +50,11 @@ public abstract class IctTestTemplate {
     }
 
     private static void addNeighborToIct(Ict ict, Ict neighbor) {
-        Properties properties = ict.getCopyOfProperties();
-        properties.neighbors.add(neighbor.getAddress());
-        ict.updateProperties(properties);
+        EditableProperties properties = ict.getProperties().toEditable();
+        List<InetSocketAddress> neighbors = properties.neighbors();
+        neighbors.add(neighbor.getAddress());
+        properties.neighbors(neighbors);
+        ict.updateProperties(properties.toFinal());
     }
 
     protected void waitUntilCommunicationEnds(long maxWaitTime) {

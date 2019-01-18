@@ -5,6 +5,9 @@ import org.apache.logging.log4j.Logger;
 import org.iota.ict.IctInterface;
 import org.iota.ict.model.Transaction;
 import org.iota.ict.utils.*;
+import org.iota.ict.utils.properties.FinalProperties;
+import org.iota.ict.utils.properties.Properties;
+import org.iota.ict.utils.properties.PropertiesUser;
 
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
@@ -20,7 +23,7 @@ public class Node extends RestartableThread implements PropertiesUser {
     protected final List<Neighbor> neighbors = new LinkedList<>();
     protected final SenderInterface sender;
     protected final Restartable receiver;
-    protected Properties properties;
+    protected FinalProperties properties;
 
     protected InetSocketAddress address;
     protected DatagramSocket socket;
@@ -28,9 +31,9 @@ public class Node extends RestartableThread implements PropertiesUser {
     public Node(IctInterface ict) {
         super(LOGGER);
         this.ict = ict;
-        this.properties = ict.getCopyOfProperties();
+        this.properties = ict.getProperties();
         this.receiver = new Receiver(this);
-        this.sender = new Sender(this, properties.clone());
+        this.sender = new Sender(this, properties);
 
         ict.addGossipListener(sender);
         subWorkers.add(receiver);
@@ -39,7 +42,7 @@ public class Node extends RestartableThread implements PropertiesUser {
 
     @Override
     public void onStart() {
-        this.address = new InetSocketAddress(properties.host, properties.port);
+        this.address = new InetSocketAddress(properties.host(), properties.port());
         this.socket = createDatagramSocket(address);
     }
 
@@ -54,13 +57,13 @@ public class Node extends RestartableThread implements PropertiesUser {
     public void run() { }
 
     @Override
-    public void updateProperties(Properties newProperties) {
-        Properties oldProperties = properties;
-        this.properties = newProperties.clone();
+    public void updateProperties(FinalProperties newProperties) {
+        FinalProperties oldProperties = properties;
+        this.properties = newProperties;
         updateNeighborsBecausePropertiesChanged(oldProperties, newProperties);
 
-        if(address.getPort() != newProperties.port || !address.getHostName().equals(newProperties.host))
-            updateHostAndPort(newProperties.host, newProperties.port);
+        if(address.getPort() != newProperties.port() || !address.getHostName().equals(newProperties.host()))
+            updateHostAndPort(newProperties.host(), newProperties.port());
 
         sender.updateProperties(newProperties);
     }
@@ -100,27 +103,27 @@ public class Node extends RestartableThread implements PropertiesUser {
     public void neighbor(InetSocketAddress neighborAddress) {
         if (neighbors.size() >= Constants.MAX_NEIGHBOR_COUNT)
             throw new IllegalStateException("Already reached maximum amount of neighbors.");
-        neighbors.add(new Neighbor(neighborAddress, properties.antiSpamAbs));
+        neighbors.add(new Neighbor(neighborAddress, properties.antiSpamAbs()));
     }
 
     private void updateNeighborsBecausePropertiesChanged(Properties oldProp, Properties newProp) {
         // remove neighbors who are no longer neighbors
         List<Neighbor> toRemove = new LinkedList<>();
         for(Neighbor nb : neighbors)
-            if(!newProp.neighbors.contains(nb.getAddress()))
+            if(!newProp.neighbors().contains(nb.getAddress()))
                 toRemove.add(nb);
         neighbors.removeAll(toRemove);
 
         // add neighbors who are new
         List<InetSocketAddress> newNeighbors = new LinkedList<>();
-        for(InetSocketAddress inetAddress : newProp.neighbors) {
-            if(oldProp == null  || !oldProp.neighbors.contains(inetAddress))
+        for(InetSocketAddress inetAddress : newProp.neighbors()) {
+            if(oldProp == null  || !oldProp.neighbors().contains(inetAddress))
                 newNeighbors.add(inetAddress);
         }
         for(InetSocketAddress toAdd : newNeighbors)
             neighbor(toAdd);
 
-        assert neighbors.size() == newProp.neighbors.size();
+        assert neighbors.size() == newProp.neighbors().size();
     }
 
     private static DatagramSocket createDatagramSocket(InetSocketAddress address) {

@@ -1,6 +1,5 @@
 package org.iota.ict.api;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.Ict;
 import org.iota.ict.IctInterface;
@@ -8,15 +7,17 @@ import org.iota.ict.ixi.IxiModule;
 import org.iota.ict.ixi.IxiModuleHolder;
 import org.iota.ict.ixi.IxiModuleInfo;
 import org.iota.ict.network.Neighbor;
-import org.iota.ict.utils.Constants;
-import org.iota.ict.utils.Properties;
-import org.iota.ict.utils.Updater;
+import org.iota.ict.utils.*;
+import org.iota.ict.utils.properties.EditableProperties;
+import org.iota.ict.utils.properties.FinalProperties;
+import org.iota.ict.utils.properties.Properties;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URL;
+import java.util.List;
 
 public class JsonIct {
 
@@ -42,18 +43,18 @@ public class JsonIct {
 
     public JSONObject setConfig(String configString) {
         JSONObject configJson = new JSONObject(configString);
-        Properties newConfig = Properties.fromJSON(configJson);
-        Properties currentConfig = ict.getCopyOfProperties();
-        newConfig.neighbors = currentConfig.neighbors;
-        if(newConfig.guiPassword.length() == 0)
-            newConfig.guiPassword = currentConfig.guiPassword;
-        ict.updateProperties(newConfig);
+        EditableProperties newConfig = Properties.fromJSON(configJson).toEditable();
+        FinalProperties currentConfig = ict.getProperties();
+        newConfig.neighbors(currentConfig.neighbors());
+        if(newConfig.guiPassword().length() == 0)
+            newConfig.guiPassword(currentConfig.guiPassword());
+        ict.updateProperties(newConfig.toFinal());
         newConfig.store(Constants.DEFAULT_PROPERTY_FILE_PATH);
         return success();
     }
 
     public JSONObject getConfig() {
-        return ict.getCopyOfProperties().toJSON().put("gui_password","");
+        return ict.getProperties().toJSON().put("gui_password","");
     }
 
     public JSONArray getNeighbors() {
@@ -76,20 +77,26 @@ public class JsonIct {
             throw new IllegalArgumentException("Address does not match required format 'host:port'.");
         String host = address.split(":")[0];
         int port = Integer.parseInt(address.split(":")[1]);
-        Properties properties = ict.getCopyOfProperties();
-        properties.neighbors.add(new InetSocketAddress(host, port));
-        ict.updateProperties(properties);
+        EditableProperties properties = ict.getProperties().toEditable();
+
+        List<InetSocketAddress> neighbors = properties.neighbors();
+        neighbors.add(new InetSocketAddress(host, port));
+        properties.neighbors(neighbors);
+        ict.updateProperties(properties.toFinal());
+
         LOGGER.info("added neighbor: " + address);
         properties.store(Constants.DEFAULT_PROPERTY_FILE_PATH);
         return success();
     }
 
     public JSONObject removeNeighbor(String address) {
-        Properties properties = ict.getCopyOfProperties();
-        for(InetSocketAddress nb : properties.neighbors) {
+        EditableProperties properties = ict.getProperties().toEditable();
+        List<InetSocketAddress> neighbors = properties.neighbors();
+        for(InetSocketAddress nb : neighbors) {
             if(nb.toString().equals(address)) {
-                properties.neighbors.remove(nb);
-                ict.updateProperties(properties);
+                neighbors.remove(nb);
+                properties.neighbors(neighbors);
+                ict.updateProperties(properties.toFinal());
                 LOGGER.info("removed neighbor: " + address);
                 properties.store(Constants.DEFAULT_PROPERTY_FILE_PATH);
                 return success();
