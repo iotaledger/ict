@@ -58,7 +58,6 @@ public class Properties implements Cloneable {
                 value = "";
             if(value instanceof JSONArray) {
                 value = value.toString().replace("[", "").replace("]", "").replace("\"", "");
-                System.out.println(value);
             }
             propObject.put(key, value.toString());
         }

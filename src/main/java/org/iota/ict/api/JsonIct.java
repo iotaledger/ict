@@ -1,6 +1,9 @@
 package org.iota.ict.api;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.iota.ict.Ict;
+import org.iota.ict.IctInterface;
 import org.iota.ict.ixi.IxiModule;
 import org.iota.ict.ixi.IxiModuleHolder;
 import org.iota.ict.ixi.IxiModuleInfo;
@@ -17,10 +20,11 @@ import java.net.URL;
 
 public class JsonIct {
 
-    protected final Ict ict;
+    protected static final Logger LOGGER = Ict.LOGGER;
+    protected final IctInterface ict;
     protected String nmoduleBeingCurrentlyInstalled = null;
 
-    public JsonIct(Ict ict) {
+    public JsonIct(IctInterface ict) {
         this.ict = ict;
     }
 
@@ -43,7 +47,7 @@ public class JsonIct {
         newConfig.neighbors = currentConfig.neighbors;
         if(newConfig.guiPassword.length() == 0)
             newConfig.guiPassword = currentConfig.guiPassword;
-        ict.changeProperties(newConfig);
+        ict.updateProperties(newConfig);
         newConfig.store(Constants.DEFAULT_PROPERTY_FILE_PATH);
         return success();
     }
@@ -74,8 +78,8 @@ public class JsonIct {
         int port = Integer.parseInt(address.split(":")[1]);
         Properties properties = ict.getCopyOfProperties();
         properties.neighbors.add(new InetSocketAddress(host, port));
-        ict.changeProperties(properties);
-        System.out.println("added neighbor: " + address);
+        ict.updateProperties(properties);
+        LOGGER.info("added neighbor: " + address);
         properties.store(Constants.DEFAULT_PROPERTY_FILE_PATH);
         return success();
     }
@@ -85,8 +89,8 @@ public class JsonIct {
         for(InetSocketAddress nb : properties.neighbors) {
             if(nb.toString().equals(address)) {
                 properties.neighbors.remove(nb);
-                ict.changeProperties(properties);
-                System.out.println("removed neighbor: " + address);
+                ict.updateProperties(properties);
+                LOGGER.info("removed neighbor: " + address);
                 properties.store(Constants.DEFAULT_PROPERTY_FILE_PATH);
                 return success();
             }

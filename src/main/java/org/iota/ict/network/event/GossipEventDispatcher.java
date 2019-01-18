@@ -1,18 +1,27 @@
 package org.iota.ict.network.event;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.iota.ict.utils.RestartableThread;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class GossipEventDispatcher extends Thread {
+public class GossipEventDispatcher extends RestartableThread {
 
+    private static final Logger LOGGER = LogManager.getLogger(GossipEventDispatcher.class);
     public final List<GossipListener> listeners = new LinkedList<>();
     private final BlockingQueue<GossipEvent> eventQueue = new LinkedBlockingQueue<>();
 
+    public GossipEventDispatcher() {
+        super(LOGGER);
+    }
+
     @Override
     public void run() {
-        while (!interrupted()) {
+        while (isRunning()) {
             try {
                 GossipEvent event = eventQueue.take();
                 for (GossipListener listener : listeners)
@@ -23,12 +32,12 @@ public class GossipEventDispatcher extends Thread {
         }
     }
 
-    public void terminate() {
-        interrupt();
+    @Override
+    public void onTerminate() {
+        runningThread.interrupt();
     }
 
     public void notifyListeners(GossipEvent event) {
         eventQueue.add(event);
     }
-
 }

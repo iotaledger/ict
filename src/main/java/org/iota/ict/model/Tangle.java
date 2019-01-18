@@ -1,9 +1,11 @@
 package org.iota.ict.model;
 
 import org.iota.ict.Ict;
+import org.iota.ict.IctInterface;
 import org.iota.ict.network.Neighbor;
 import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.Properties;
+import org.iota.ict.utils.PropertiesUser;
 import org.iota.ict.utils.Trytes;
 
 import java.util.Collections;
@@ -19,19 +21,20 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Instances of this class provide a database which stores {@link Transaction} objects during runtime and allows to find
  * them by their hash, address or tag. Each {@link Ict} uses a {@link Tangle} object to keep track of all received transactions.
  */
-public class Tangle {
-    protected final Ict ict;
+public class Tangle implements PropertiesUser {
+    protected final IctInterface ict;
     protected final Map<String, TransactionLog> transactionsByHash = new ConcurrentHashMap<>();
     protected final Map<String, List<TransactionLog>> transactionsByAddress = new ConcurrentHashMap<>();
     protected final Map<String, List<TransactionLog>> transactionsByTag = new ConcurrentHashMap<>();
     protected final Map<String, List<Transaction>> waitingReferrersTransactionsByHash = new ConcurrentHashMap<>();
 
-    public Tangle(Ict ict) {
+    public Tangle(IctInterface ict) {
         this.ict = Objects.requireNonNull(ict,"'ict' must not null");
         createTransactionLogIfAbsent(Transaction.NULL_TRANSACTION);
     }
 
-    public void onIctPropertiesChanged() { ; }
+    @Override
+    public void updateProperties(Properties properties) { }
 
     public TransactionLog createTransactionLogIfAbsent(Transaction transaction) {
         TransactionLog log = findTransactionLog(transaction);
@@ -115,7 +118,7 @@ public class Tangle {
     public class TransactionLog {
         final Transaction transaction;
         public final Set<Neighbor> senders = new HashSet<>();
-        public boolean sent;
+        public boolean wasSent;
 
         private TransactionLog(Transaction transaction) {
             this.transaction = transaction;

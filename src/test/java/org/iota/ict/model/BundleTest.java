@@ -24,7 +24,8 @@ public class BundleTest extends IctTestTemplate {
         submitTransactions(ict, referenceFromTailToHead);
 
         String headHash = referenceFromTailToHead.getLast().hash;
-        Transaction head = ict.getTangle().findTransactionByHash(headHash);
+        Transaction head = ict
+                .findTransactionByHash(headHash);
         Bundle bundle = new Bundle(head);
 
         LinkedList<Transaction> referenceFromHeadToTail = new LinkedList<>(referenceFromTailToHead);
@@ -49,7 +50,7 @@ public class BundleTest extends IctTestTemplate {
         waitUntilCommunicationEnds(100);
 
         String headHash = referenceFromTailToHead.getLast().hash;
-        Transaction head = b.getTangle().findTransactionByHash(headHash);
+        Transaction head = b.findTransactionByHash(headHash);
         Assert.assertNotNull("did not receive head", head);
 
         Bundle bundle = new Bundle(head);
@@ -86,7 +87,7 @@ public class BundleTest extends IctTestTemplate {
         submitTransactions(ict, referenceFromTailToHead);
 
         String headHash = referenceFromTailToHead.getLast().hash;
-        Transaction head = ict.getTangle().findTransactionByHash(headHash);
+        Transaction head = ict.findTransactionByHash(headHash);
         Bundle bundle = new Bundle(head);
 
         Assert.assertTrue("bundle is not complete", bundle.isComplete());

@@ -35,9 +35,9 @@ public class SpamProtectionTest extends GossipTest {
     }
 
     private void assertTransactionDoesNotMakeItThrough(Ict sender, Ict receiver) {
-        Transaction toIgnore = sender.submit("");
+        Transaction toIgnore = new TransactionBuilder().build();
         waitUntilCommunicationEnds(100);
-        Assert.assertNull("Spam protection failed: transaction passed.", receiver.getTangle().findTransactionByHash(toIgnore.hash));
+        Assert.assertNull("Spam protection failed: transaction passed.", receiver.findTransactionByHash(toIgnore.hash));
     }
 
 

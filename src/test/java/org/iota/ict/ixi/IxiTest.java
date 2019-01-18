@@ -18,8 +18,8 @@ public class IxiTest extends IctTestTemplate {
 
         // given
         Ict ict = createIct();
-        TestIxiModule module = new TestIxiModule(new IctProxy(ict));
-        new Thread(module).run();
+        TestIxiModule module = new TestIxiModule(ict);
+        module.start();
         safeSleep(100);
 
         // then
@@ -54,8 +54,6 @@ class TestIxiModule extends IxiModule {
 
     @Override
     public void run() {
-
-        // when
         ixi.submit(transaction);
     }
 

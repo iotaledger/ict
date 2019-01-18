@@ -1,6 +1,8 @@
 package org.iota.ict.model;
 
-import org.iota.ict.Ict;
+import org.iota.ict.IctInterface;
+import org.iota.ict.utils.Properties;
+import org.iota.ict.utils.PropertiesUser;
 
 import java.util.*;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -10,20 +12,20 @@ import java.util.concurrent.PriorityBlockingQueue;
  * The transactions are pruned in order of their timestamp, always keeping the N ({@link #transactionCapacity}) most recent ones.
  * As an exception, the NULL transaction will never be pruned away.
  */
-public class RingTangle extends Tangle {
+public class RingTangle extends Tangle implements PropertiesUser {
 
     private final PriorityBlockingQueue<Transaction> transactionsOrderedByTimestamp ;
     private long transactionCapacity;
 
-    public RingTangle(Ict ict) {
+    public RingTangle(IctInterface ict) {
         super(ict);
         transactionCapacity = ict.getCopyOfProperties().tangleCapacity;
         transactionsOrderedByTimestamp = new PriorityBlockingQueue<>((int)Math.min(Integer.MAX_VALUE, transactionCapacity), TimestampComparator.INSTANCE);
     }
 
     @Override
-    public void onIctPropertiesChanged() {
-        transactionCapacity = ict.getCopyOfProperties().tangleCapacity;
+    public void updateProperties(Properties newProperties) {
+        transactionCapacity = newProperties.tangleCapacity;
     }
 
     public TransactionLog createTransactionLogIfAbsent(Transaction transaction) {

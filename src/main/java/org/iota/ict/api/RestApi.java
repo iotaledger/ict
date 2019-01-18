@@ -3,8 +3,8 @@ package org.iota.ict.api;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.Ict;
-import org.iota.ict.utils.Constants;
-import org.iota.ict.utils.Trytes;
+import org.iota.ict.IctInterface;
+import org.iota.ict.utils.*;
 import spark.*;
 
 import java.io.File;
@@ -12,16 +12,18 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-public class RestApi {
+public class RestApi extends RestartableThread implements PropertiesUser {
 
     protected static final Logger LOGGER = LogManager.getLogger(RestApi.class);
     protected Service service;
     protected final JsonIct jsonIct;
-    protected boolean isRunning = false;
-    protected String password = Trytes.randomSequenceOfLength(30); // will be set with setPassword()
+    protected Properties properties;
     protected Set<RouteImpl> routes = new HashSet<>();
 
-    public RestApi(Ict ict) {
+    public RestApi(IctInterface ict) {
+        super(LOGGER);
+
+        this.properties = ict.getCopyOfProperties();
         this.jsonIct = new JsonIct(ict);
 
         try {
@@ -32,6 +34,13 @@ public class RestApi {
             throw new RuntimeException(e);
         }
 
+        initRoutes();
+    }
+
+    @Override
+    public void run() { ; }
+
+    private void initRoutes() {
         routes.add(new RouteGetInfo(jsonIct));
         routes.add(new RouteGetLog(jsonIct));
         routes.add(new RouteUpdate(jsonIct));
@@ -49,11 +58,13 @@ public class RestApi {
         routes.add(new RouteUpdateModule(jsonIct));
     }
 
-    public void start(int port) {
-        if (service != null)
-            terminate();
-        isRunning = true;
+    @Override
+    public void onStart() {
+        if(!properties.guiEnabled)
+            return;
+
         service = Service.ignite();
+        int port = properties.port;
         service.port(port);
 
         service.staticFiles.externalLocation(Constants.WEB_GUI_PATH);
@@ -64,7 +75,7 @@ public class RestApi {
             @Override
             public void handle(Request request, Response response) {
                 String queryPassword = request.queryParams("password");
-                if (!queryPassword.equals(password))
+                if (!queryPassword.equals(properties.guiPassword))
                     spark.Spark.halt(401, "Access denied: password incorrect.");
             }
         });
@@ -82,21 +93,31 @@ public class RestApi {
         LOGGER.info("Started Web GUI on port " + port + ".");
     }
 
-    public void terminate() {
+    @Override
+    public void onTerminate() {
+        if(service == null) // wasn't running
+            return;
         for(RouteImpl route : routes)
             service.delete(route.getPath(), route);
         service.stop();
-        isRunning = false;
         service = null;
         LOGGER.info("Stopped Web GUI.");
     }
 
-    public boolean isRunning() {
-        return isRunning;
-    }
+    @Override
+    public void updateProperties(Properties properties) {
+        Properties oldProp = this.properties;
+        Properties newProp = properties.clone();
+        this.properties = newProp;
 
-    public void setPaswword(String paswword) {
-        this.password = paswword;
+        if(oldProp.guiEnabled && !newProp.guiEnabled)
+            terminate();
+        else if(!oldProp.guiEnabled && newProp.guiEnabled)
+            start();
+        else if(oldProp.guiEnabled && newProp.guiEnabled && oldProp.port != newProp.port) {
+            terminate();
+            start();
+        }
     }
 
     /**

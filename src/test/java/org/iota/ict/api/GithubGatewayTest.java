@@ -23,7 +23,7 @@ public class GithubGatewayTest {
 
         Assert.assertNotNull("Failed fetching label of latest release.", label);
         Assert.assertTrue("Unexpected label of most recent release: " + label, label.matches("0\\.[0-9]{1,2}(\\.[0-9])?"));
-        Assert.assertTrue("Label of most recent release appears to be greater than current version.", VersionComparator.getInstance().compare(Constants.ICT_VERSION, label) > 0);
+        Assert.assertTrue("Label of most recent release ('"+label+"') appears to be greater than or equal to current version ("+Constants.ICT_VERSION+").", VersionComparator.getInstance().compare(Constants.ICT_VERSION, label) > 0);
     }
 
     @Test

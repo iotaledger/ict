@@ -1,15 +1,18 @@
 package org.iota.ict.network;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.iota.ict.Ict;
 import org.iota.ict.model.Tangle;
 import org.iota.ict.model.Transaction;
 import org.iota.ict.network.event.GossipEvent;
 import org.iota.ict.utils.Constants;
+import org.iota.ict.utils.Restartable;
+import org.iota.ict.utils.RestartableThread;
 import org.iota.ict.utils.Trytes;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 
 /**
  * This class receives transactions from neighbors. Together with the {@link Sender}, they are the two important gateways
@@ -19,31 +22,33 @@ import java.net.DatagramSocket;
  * @see Ict
  * @see Sender
  */
-public class Receiver extends Thread {
-    private final Tangle tangle;
-    private final Ict ict;
-    private final DatagramSocket socket;
+public class Receiver extends RestartableThread implements Restartable {
 
-    public Receiver(Ict ict, Tangle tangle, DatagramSocket socket) {
-        super("Receiver");
-        this.ict = ict;
-        this.tangle = tangle;
-        this.socket = socket;
+    protected static final Logger LOGGER = LogManager.getLogger(Receiver.class);
+    protected Node node;
+
+    public Receiver(Node node) {
+        super(LOGGER);
+        this.node = node;
     }
 
     @Override
     public void run() {
-        while (ict.isRunning()) {
-
+        while (isRunning()) {
             DatagramPacket packet = new DatagramPacket(new byte[Constants.TRANSACTION_SIZE_BYTES], Constants.TRANSACTION_SIZE_BYTES);
             try {
-                socket.receive(packet);
+                node.socket.receive(packet);
                 processIncoming(packet);
             } catch (IOException e) {
-                if (ict.isRunning())
+                if (isRunning())
                     e.printStackTrace();
             }
         }
+    }
+
+    @Override
+    public void onTerminate() {
+        node.socket.close();
     }
 
     private void processIncoming(DatagramPacket packet) {
@@ -84,12 +89,12 @@ public class Receiver extends Thread {
     }
 
     private void updateTransactionLog(Neighbor sender, Transaction transaction) {
-        Tangle.TransactionLog log = tangle.findTransactionLog(transaction);
+        Tangle.TransactionLog log = node.ict.getTangle().findTransactionLog(transaction);
         if (log == null) {
-            log = tangle.createTransactionLogIfAbsent(transaction);
+            log = node.ict.getTangle().createTransactionLogIfAbsent(transaction);
             sender.stats.receivedNew++;
             log.senders.add(sender);
-            ict.notifyListeners(new GossipEvent(transaction, false));
+            node.ict.onGossipEvent(new GossipEvent(transaction, false));
         }
         log.senders.add(sender);
     }
@@ -97,29 +102,28 @@ public class Receiver extends Thread {
     private void processRequest(Neighbor requester, Transaction transaction) {
         if (transaction.requestHash.equals(Trytes.NULL_HASH))
             return; // no transaction requested
-        Transaction requested = tangle.findTransactionByHash(transaction.requestHash);
+        Transaction requested = node.ict.findTransactionByHash(transaction.requestHash);
         requester.stats.requested++;
         if (requested == null)
             return; // unknown transaction
-        sendRequested(requested, requester);
+        answerRequest(requested, requester);
         // unset requestHash because it's header information and does not actually belong to the transaction
         transaction.requestHash = Trytes.NULL_HASH;
     }
 
-    private void sendRequested(Transaction requested, Neighbor requester) {
-        Tangle.TransactionLog requestedLog = tangle.findTransactionLog(requested);
+    private void answerRequest(Transaction requested, Neighbor requester) {
+        Tangle.TransactionLog requestedLog = node.ict.getTangle().findTransactionLog(requested);
         requestedLog.senders.remove(requester); // remove so requester is no longer marked as already knowing this transaction
-        ict.broadcast(requested);
+        node.sender.queue(requested);
     }
 
     private Neighbor determineNeighborWhoSent(DatagramPacket packet) {
-        for (Neighbor nb : ict.getNeighbors())
+        for (Neighbor nb : node.neighbors)
             if (nb.sentPacket(packet))
                 return nb;
-        for (Neighbor nb : ict.getNeighbors())
+        for (Neighbor nb : node.neighbors)
             if (nb.sentPacketFromSameIP(packet))
                 return nb;
-        //Ict.LOGGER.warn("Received transaction from unknown address: " + packet.getAddress());
         return null;
     }
 }

@@ -2,6 +2,8 @@ package org.iota.ict.network;
 
 import org.iota.ict.Ict;
 import org.iota.ict.IctTestTemplate;
+import org.iota.ict.model.Transaction;
+import org.iota.ict.model.TransactionBuilder;
 import org.iota.ict.utils.Properties;
 import org.junit.After;
 import org.junit.Assert;
@@ -28,11 +30,13 @@ public abstract class GossipTest extends IctTestTemplate {
 
     Map<String, String> sendMessages(Ict sender, int amountOfMessages) {
         Map<String, String> sentMessagesByHash = new HashMap<>();
-
+        TransactionBuilder builder = new TransactionBuilder();
         for (int i = 0; i < amountOfMessages; i++) {
             String message = randomAsciiMessage();
-            String hash = sender.submit(message).hash;
-            sentMessagesByHash.put(hash, message);
+            builder.asciiMessage(message);
+            Transaction transaction = builder.buildWhileUpdatingTimestamp();
+            sender.submit(transaction);
+            sentMessagesByHash.put(transaction.hash, message);
         }
         return sentMessagesByHash;
     }
@@ -40,7 +44,7 @@ public abstract class GossipTest extends IctTestTemplate {
     void assertThatTransactionsReceived(Ict receiver, Map<String, String> sentMessagesByHash, int minRequired) {
         int receivedTransactions = 0;
         for (String hash : sentMessagesByHash.keySet())
-            if (receiver.getTangle().findTransactionByHash(hash) != null)
+            if (receiver.findTransactionByHash(hash) != null)
                 receivedTransactions++;
         // tolerate if 80% of transactions went through
         if (receivedTransactions < minRequired)

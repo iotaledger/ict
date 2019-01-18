@@ -3,9 +3,11 @@ package org.iota.ict.ixi;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.Ict;
+import org.iota.ict.IctInterface;
 import org.iota.ict.Main;
 import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.IOHelper;
+import org.iota.ict.utils.RestartableThread;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -19,12 +21,12 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 
-public class IxiModuleHolder {
+public class IxiModuleHolder extends RestartableThread {
 
     public static final Logger LOGGER = LogManager.getLogger(IxiModuleHolder.class);
     protected static final File DEFAULT_MODULE_DIRECTORY = new File("modules/");
 
-    protected final Ict ict;
+    protected final IctInterface ict;
     protected Map<String, IxiModule> modulesByPath = new HashMap<>();
     protected Map<IxiModule, IxiModuleInfo> modulesWithInfo = new HashMap<>();
 
@@ -33,9 +35,13 @@ public class IxiModuleHolder {
             DEFAULT_MODULE_DIRECTORY.mkdirs();
     }
 
-    public IxiModuleHolder(Ict ict) {
+    public IxiModuleHolder(IctInterface ict) {
+        super(LOGGER);
         this.ict = ict;
     }
+
+    @Override
+    public void run() { }
 
     public boolean uninstall(String path) {
 
@@ -96,7 +102,7 @@ public class IxiModuleHolder {
         LOGGER.info("Download of " + target.toString() + " complete.");
 
         IxiModule module = initModule(target);
-        new Thread(module).start();
+        module.start();
     }
 
     public void initAllModules() {
@@ -132,13 +138,14 @@ public class IxiModuleHolder {
         IxiModule module = initModule(classLoader, info.mainClass);
         modulesWithInfo.put(module, info);
         modulesByPath.put(path, module);
+        subWorkers.add(module);
         return module;
     }
 
     private IxiModule initModule(URLClassLoader classLoader, String mainClassName) throws Exception {
         Class ixiClass = getIxiClass(classLoader, mainClassName);
         Constructor<?> c = ixiClass.getConstructor(Ixi.class);
-        return (IxiModule) c.newInstance(new IctProxy(ict));
+        return (IxiModule) c.newInstance(ict);
     }
 
     private static Class getIxiClass(URLClassLoader classLoader, String mainClassName) {
@@ -162,16 +169,6 @@ public class IxiModuleHolder {
         } catch (JSONException e) {
             throw new RuntimeException("Failed parsing 'module.json' file: " + e.getMessage());
         }
-    }
-
-    public void start() {
-        for(IxiModule module : modulesWithInfo.keySet())
-            new Thread(module).start();
-    }
-
-    public void terminate() {
-        for(IxiModule module: modulesWithInfo.keySet())
-            module.terminate();
     }
 
     public Set<IxiModule> getModules() {

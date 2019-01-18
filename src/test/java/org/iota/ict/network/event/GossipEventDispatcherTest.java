@@ -2,6 +2,8 @@ package org.iota.ict.network.event;
 
 import org.iota.ict.Ict;
 import org.iota.ict.IctTestTemplate;
+import org.iota.ict.model.Transaction;
+import org.iota.ict.model.TransactionBuilder;
 import org.iota.ict.utils.Properties;
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,7 +28,7 @@ public class GossipEventDispatcherTest extends IctTestTemplate {
             }
         });
 
-        ict.submit("Hello World");
+        ict.submit(new TransactionBuilder().build());
         sleep(100);
         Assert.assertEquals("event not delivered to gossip listener", true, eventReceived);
 

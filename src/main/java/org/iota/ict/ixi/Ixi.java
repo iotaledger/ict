@@ -13,8 +13,6 @@ public interface Ixi {
 
     Transaction findTransactionByHash(String hash);
 
-    Transaction submit(String asciiMessage);
-
     void submit(Transaction transaction);
 
     void addGossipListener(GossipListener gossipListener);

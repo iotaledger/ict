@@ -1,6 +1,6 @@
 package org.iota.ict.network.event;
 
-public abstract class GossipListener {
+public interface GossipListener {
 
-    abstract public void onGossipEvent(GossipEvent event);
+    void onGossipEvent(GossipEvent event);
 }

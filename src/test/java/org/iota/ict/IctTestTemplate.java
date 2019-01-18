@@ -42,8 +42,14 @@ public abstract class IctTestTemplate {
     }
 
     protected static void connect(Ict ict1, Ict ict2) {
-        ict1.neighbor(ict2.getAddress());
-        ict2.neighbor(ict1.getAddress());
+        addNeighborToIct(ict1, ict2);
+        addNeighborToIct(ict2, ict1);
+    }
+
+    private static void addNeighborToIct(Ict ict, Ict neighbor) {
+        Properties properties = ict.getCopyOfProperties();
+        properties.neighbors.add(neighbor.getAddress());
+        ict.updateProperties(properties);
     }
 
     protected void waitUntilCommunicationEnds(long maxWaitTime) {

@@ -6,71 +6,62 @@ import org.iota.ict.api.RestApi;
 import org.iota.ict.ixi.IxiModuleHolder;
 import org.iota.ict.model.RingTangle;
 import org.iota.ict.model.Tangle;
-import org.iota.ict.model.TransactionBuilder;
 import org.iota.ict.network.Neighbor;
+import org.iota.ict.network.Node;
 import org.iota.ict.network.event.GossipEvent;
 import org.iota.ict.network.event.GossipEventDispatcher;
 import org.iota.ict.network.event.GossipListener;
-import org.iota.ict.network.Receiver;
-import org.iota.ict.network.Sender;
 import org.iota.ict.model.Transaction;
-import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.Properties;
+import org.iota.ict.utils.RestartableThread;
 
-import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
-import java.net.SocketException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * This class is the central component of the project. Each instance is an independent Ict node that can communicate with
  * other Icts. This class is not supposed to perform complex tasks but to delegate them to the correct submodule. It can
  * therefore be seen as a hub of all those components which, when working together, form an Ict node.
  */
-public class Ict {
+public class Ict extends RestartableThread implements IctInterface {
 
+    // services
+    protected final GossipEventDispatcher eventDispatcher = new GossipEventDispatcher();
     protected final IxiModuleHolder moduleHolder = new IxiModuleHolder(Ict.this);
-    protected final List<Neighbor> neighbors = new LinkedList<>();
-    protected Sender sender;
-    protected Receiver receiver;
-    protected State state = new StateTerminated();
-    protected Tangle tangle;
+    protected final RestApi restApi;
+    protected final Tangle tangle;
+
+    // network
+    protected final Node node;
+
+    // inner state
     protected Properties properties;
-    protected DatagramSocket socket;
-    protected InetSocketAddress address;
-    protected GossipEventDispatcher eventDispatcher;
     public final static Logger LOGGER = LogManager.getLogger(Ict.class);
     protected int round;
-    protected final RestApi restApi = new RestApi(this);
 
     /**
-     * @param properties The properties to use for this Ict. Changing them afterwards might or might not work for some properties.
-     *                   TODO allow them to be configured afterwards.
+     * @param properties The properties to use for this Ict. To change or replace them, use {@link #updateProperties(Properties)}
      */
     public Ict(Properties properties) {
-        changeProperties(properties);
+        super(LOGGER);
+
+        this.properties = properties;
+        this.node = new Node(this);
+        this.tangle = new RingTangle(this);
+        this.restApi = new RestApi(this);
+
+        subWorkers.add(eventDispatcher);
+        subWorkers.add(node);
+        subWorkers.add(moduleHolder);
+        subWorkers.add(restApi);
+
+        start();
     }
 
-    private void start() {
-        state.start();
-    }
-
-    /**
-     * Opens a new connection to a neighbor. Both nodes will directly gossip transactions.
-     *
-     * @param neighborAddress Address of neighbor to connect to.
-     * @throws IllegalStateException If already has {@link Constants#MAX_NEIGHBOR_COUNT} neighbors.
-     */
-    public void neighbor(InetSocketAddress neighborAddress) {
-        if (neighbors.size() >= Constants.MAX_NEIGHBOR_COUNT)
-            throw new IllegalStateException("Already reached maximum amount of neighbors.");
-        neighbors.add(new Neighbor(neighborAddress, properties.antiSpamAbs));
-    }
-
-    public void unneighbor(Neighbor neighbor) {
-        neighbors.remove(neighbor);
-    }
+    @Override
+    public void run() { }
 
     /**
      * Adds a listener to this object. Every {@link GossipEvent} will be passed on to the listener.
@@ -89,85 +80,32 @@ public class Ict {
      * @return The address of this node. Required by other nodes to neighbor.
      */
     public InetSocketAddress getAddress() {
-        return address;
+        return node.getAddress();
     }
 
     /**
      * @return A list containing all neighbors. This list is a copy: manipulating it directly will have no effects.
      */
     public List<Neighbor> getNeighbors() {
-        return new LinkedList<>(neighbors);
+        return new LinkedList<>(node.getNeighbors());
     }
 
     public Properties getCopyOfProperties() {
         return properties.clone();
     }
 
-    public synchronized void changeProperties(Properties newProp) {
+
+    @Override
+    public synchronized void updateProperties(Properties newProp) {
 
         Properties oldProp = this.properties;
 
-        boolean restartRequired = oldProp == null || !newProp.host.equals(oldProp.host) || newProp.port != oldProp.port;
-        if(restartRequired && isRunning()) {
-            terminate();
-        }
-
         this.properties = newProp;
-        restApi.setPaswword(newProp.guiPassword);
-        updateNeighborsBecausePropertiesChanged(oldProp, newProp);
+        Properties copyOfNewProperties = newProp.clone();
 
-        if(restartRequired || !isRunning())
-            start();
-        else {
-            tangle.onIctPropertiesChanged();
-            sender.onIctPropertiesChanged();
-            updateGuiBecausePropertiesChanged(oldProp, newProp);
-        }
-    }
-
-    private void updateNeighborsBecausePropertiesChanged(Properties oldProp, Properties newProp) {
-        // remove neighbors who are no longer neighbors
-        List<Neighbor> toRemove = new LinkedList<>();
-        for(Neighbor nb : neighbors)
-            if(!newProp.neighbors.contains(nb.getAddress()))
-                toRemove.add(nb);
-        neighbors.removeAll(toRemove);
-
-        // add neighbors who are new
-        List<InetSocketAddress> newNeighbors = new LinkedList<>();
-        for(InetSocketAddress inetAddress : newProp.neighbors) {
-            if(oldProp == null  || !oldProp.neighbors.contains(inetAddress))
-                newNeighbors.add(inetAddress);
-        }
-        for(InetSocketAddress toAdd : newNeighbors)
-            neighbor(toAdd);
-
-        assert neighbors.size() == newProp.neighbors.size();
-    }
-
-    private void updateGuiBecausePropertiesChanged(Properties oldProp, Properties newProp) {
-        if(restApi.isRunning() && oldProp != null && newProp.guiEnabled && oldProp.guiPort == newProp.guiPort)
-            return; // keep running with same port
-        if(newProp.guiEnabled)
-            restApi.start(newProp.guiPort);
-    }
-
-    public Tangle getTangle() {
-        return tangle;
-    }
-
-    /**
-     * Submits a new message to the protocol. The message will be packaged as a Transaction and sent to all neighbors.
-     *
-     * @param asciiMessage ASCII encoded message which will be encoded to trytes and used as transaction message.
-     * @return Hash of sent transaction.
-     */
-    public Transaction submit(String asciiMessage) {
-        TransactionBuilder builder = new TransactionBuilder();
-        builder.asciiMessage(asciiMessage);
-        Transaction transaction = builder.build();
-        submit(transaction);
-        return transaction;
+        restApi.updateProperties(copyOfNewProperties);
+        tangle.updateProperties(copyOfNewProperties);
+        node.updateProperties(copyOfNewProperties);
     }
 
     /**
@@ -177,27 +115,16 @@ public class Ict {
      */
     public void submit(Transaction transaction) {
         tangle.createTransactionLogIfAbsent(transaction);
-        sender.queueTransaction(transaction);
-        notifyListeners(new GossipEvent(transaction, true));
-    }
-
-    public void broadcast(Transaction transaction) {
-        sender.queueTransaction(transaction);
-    }
-
-    public void notifyListeners(GossipEvent event) {
-        eventDispatcher.notifyListeners(event);
+        broadcast(transaction);
+        onGossipEvent(new GossipEvent(transaction, true));
     }
 
     public void request(String requestedHash) {
-        sender.request(requestedHash);
+        node.request(requestedHash);
     }
 
-    /**
-     * @return Whether the Ict node is currently active/running.
-     */
-    public boolean isRunning() {
-        return state instanceof StateRunning;
+    public void broadcast(Transaction transaction) {
+        node.broadcast(transaction);
     }
 
     public void newRound() {
@@ -209,94 +136,38 @@ public class Ict {
         return moduleHolder;
     }
 
-    public void terminate() {
-        state.terminate();
+    @Override
+    public Set<Transaction> findTransactionsByAddress(String address) {
+        return tangle.findTransactionsByAddress(address);
     }
 
-    private class State {
-        protected final String name;
-
-        private State(String name) {
-            this.name = name;
-        }
-
-        private void throwIllegalStateException(String actionName) {
-            throw new IllegalStateException("Action '" + actionName + "' cannot be performed from state '" + name + "'.");
-        }
-
-        void start() {
-            throwIllegalStateException("start");
-        }
-
-        void terminate() {
-            throwIllegalStateException("terminate");
-        }
+    @Override
+    public Set<Transaction> findTransactionsByTag(String tag) {
+         return tangle.findTransactionsByTag(tag);
     }
 
-    private class StateRunning extends State {
-        private StateRunning() {
-            super("running");
-        }
-
-        @Override
-        void terminate() {
-            state = new StateTerminating();
-            LOGGER.info("Terminating Ict ...");
-
-            socket.close();
-            sender.terminate();
-            receiver.interrupt();
-            eventDispatcher.terminate();
-            moduleHolder.terminate();
-            if(properties.guiEnabled) restApi.terminate();
-
-            // TODO block until terminated
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {}
-
-            state = new StateTerminated();
-            LOGGER.info("Ict terminated.");
-        }
+    @Override
+    public Transaction findTransactionByHash(String hash) {
+        return tangle.findTransactionByHash(hash);
     }
 
-    private class StateTerminating extends State {
-        private StateTerminating() {
-            super("terminating");
-        }
+    @Override
+    public Tangle getTangle() {
+        return tangle;
     }
 
-    private class StateTerminated extends State {
-        private StateTerminated() {
-            super("terminated");
-        }
+    @Override
+    public void onGossipEvent(GossipEvent event) {
+        eventDispatcher.notifyListeners(event);
+    }
 
-        @Override
-        void start() {
-            LOGGER.info("Starting Ict ...");
-            eventDispatcher = new GossipEventDispatcher();
-            setAddressAndSocket();
-            tangle = new RingTangle(Ict.this);
-            sender = new Sender(Ict.this, tangle, socket);
-            receiver = new Receiver(Ict.this, tangle, socket);
+    @Override
+    public void onTerminate() {
+        LOGGER.info("terminated Ict.");
+    }
 
-            state = new StateRunning();
-            eventDispatcher.start();
-            sender.start();
-            receiver.start();
-            if(properties.guiEnabled) restApi.start(properties.guiPort);
-            moduleHolder.start();
-            LOGGER.info("Ict started.");
-        }
-
-        private void setAddressAndSocket() {
-            address = new InetSocketAddress(properties.host, properties.port);
-            try {
-                socket = new DatagramSocket(address);
-            } catch (SocketException socketException) {
-                LOGGER.error("Could not create socket for Ict. Are you already running another instance on " + address + "?", socketException);
-                throw new RuntimeException(socketException);
-            }
-        }
+    @Override
+    public void onStart() {
+        LOGGER.info("started Ict.");
     }
 }

@@ -8,11 +8,10 @@ import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.Properties;
 import org.iota.ict.model.Tangle;
 import org.iota.ict.model.Transaction;
-import org.iota.ict.network.event.GossipListener;
+import org.iota.ict.utils.RestartableThread;
 import org.iota.ict.utils.Trytes;
 
 import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.util.Comparator;
 import java.util.Queue;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -30,40 +29,36 @@ import java.util.concurrent.ThreadLocalRandom;
  * @see Ict
  * @see Receiver
  */
-public class Sender extends Thread {
-    private final Tangle tangle;
-    private final Ict ict;
+public class Sender extends RestartableThread implements SenderInterface {
+
+    private Node node;
     private final SendingTaskQueue queue = new SendingTaskQueue();
-    private final DatagramSocket socket;
+
     private final Queue<String> transactionsToRequest = new PriorityBlockingQueue<>();
-    private static final Logger logger = LogManager.getLogger(Sender.class);
+    private static final Logger LOGGER = LogManager.getLogger(Sender.class);
     private long roundStart = System.currentTimeMillis();
     private Properties properties;
 
-    public Sender(final Ict ict, final Tangle tangle, DatagramSocket socket) {
-        super("Sender");
-        this.ict = ict;
-        properties = ict.getCopyOfProperties();
-        this.tangle = tangle;
-        this.socket = socket;
+    public Sender(Node node, Properties properties) {
+        super(LOGGER);
+        this.node = node;
+        this.properties = properties;
+    }
 
-        ict.addGossipListener(new GossipListener() {
-            @Override
-            public void onGossipEvent(GossipEvent event) {
-                if(!event.isOwnTransaction()) {
-                    Tangle.TransactionLog log = tangle.findTransactionLog(event.getTransaction());
-                    if (!log.sent && log.senders.size() < ict.getNeighbors().size()) {
-                        log.sent = true;
-                        queueTransaction(event.getTransaction());
-                    }
-                }
+    @Override
+    public void onGossipEvent(GossipEvent event) {
+        if(!event.isOwnTransaction()) {
+            Tangle.TransactionLog log = node.ict.getTangle().findTransactionLog(event.getTransaction());
+            if (!log.wasSent && log.senders.size() < node.neighbors.size()) {
+                log.wasSent = true;
+                queue(event.getTransaction());
             }
-        });
+        }
     }
 
     @Override
     public void run() {
-        while (ict.isRunning()) {
+        while (isRunning()) {
             if (!queue.isEmpty() && queue.peek().sendingTime <= System.currentTimeMillis()) {
                 sendTransaction(queue.poll().transaction);
             } else {
@@ -75,7 +70,7 @@ public class Sender extends Thread {
 
     private void manageRounds() {
         if (roundStart + properties.roundDuration < System.currentTimeMillis()) {
-            ict.newRound();
+            // ict.newRound(); TODO
             roundStart = System.currentTimeMillis();
         }
     }
@@ -87,17 +82,17 @@ public class Sender extends Thread {
                 queue.wait(queue.isEmpty() ? properties.roundDuration : Math.max(1, queue.peek().sendingTime - System.currentTimeMillis()));
             }
         } catch (InterruptedException e) {
-            if (ict.isRunning())
+            if (isRunning())
                 logger.error("Unexpected interrupt.", e);
         }
     }
 
     private void sendTransaction(Transaction transaction) {
-        Tangle.TransactionLog transactionLog = tangle.findTransactionLog(transaction);
+        Tangle.TransactionLog transactionLog = node.ict.getTangle().findTransactionLog(transaction);
         if (Math.abs(transaction.issuanceTimestamp - System.currentTimeMillis()) > Constants.TIMESTAMP_DIFFERENCE_TOLERANCE_IN_MILLIS * 0.9)
             return;
         transaction.requestHash = transactionsToRequest.isEmpty() ? Trytes.NULL_HASH : transactionsToRequest.poll();
-        for (Neighbor nb : ict.getNeighbors())
+        for (Neighbor nb : node.neighbors)
             if (transactionLog == null || !transactionLog.senders.contains(nb))
                 sendTransactionToNeighbor(nb, transaction);
     }
@@ -106,22 +101,20 @@ public class Sender extends Thread {
         try {
             DatagramPacket packet = transaction.toDatagramPacket();
             packet.setSocketAddress(nb.getAddress());
-            socket.send(packet);
+            node.socket.send(packet);
         } catch (Exception e) {
-            if (ict.isRunning())
+            if (isRunning())
                 logger.error("Failed to send transaction to neighbor.", e);
         }
     }
 
     public void terminate() {
-        if (ict.isRunning())
-            throw new IllegalStateException("Cannot terminate: Ict is still running.");
         synchronized (queue) {
             queue.notify();
         }
     }
 
-    public void queueTransaction(Transaction transaction) {
+    public void queue(Transaction transaction) {
         long forwardDelay = properties.minForwardDelay + ThreadLocalRandom.current().nextLong(properties.maxForwardDelay - properties.minForwardDelay);
         queue.add(new SendingTask(System.currentTimeMillis() + forwardDelay, transaction));
         synchronized (queue) {
@@ -129,14 +122,16 @@ public class Sender extends Thread {
         }
     }
 
-    public void onIctPropertiesChanged() {
-        this.properties = ict.getCopyOfProperties();
+    @Override
+    public void updateProperties(Properties properties) {
+        this.properties = properties.clone();
         synchronized (queue) {
             // notify queue to stop wait() and enforce new round duration
             queue.notify();
         }
     }
 
+    @Override
     public void request(String requestedHash) {
         transactionsToRequest.add(requestedHash);
     }

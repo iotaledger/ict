@@ -21,8 +21,8 @@ public class ReferenceTest extends GossipTest {
         connect(a, b);
         connect(b, c);
 
-        String branchHash = a.submit("branch transaction").hash;
-        String trunkHash = b.submit("trunk transaction").hash;
+        String branchHash = submitTransactionAndReturnHash(a);
+        String trunkHash = submitTransactionAndReturnHash(b);
         waitUntilCommunicationEnds(200);
 
         String referrerHash = sendReferrer(c, branchHash, trunkHash);
@@ -42,8 +42,8 @@ public class ReferenceTest extends GossipTest {
         Ict a = createIct();
         Ict b = createIct();
 
-        String branchHash = a.submit("branch transaction").hash;
-        String trunkHash = b.submit("trunk transaction").hash;
+        String branchHash = submitTransactionAndReturnHash(a);
+        String trunkHash = submitTransactionAndReturnHash(b);
         waitUntilCommunicationEnds(200);
 
         connect(a, b);
@@ -86,19 +86,19 @@ public class ReferenceTest extends GossipTest {
     @Test
     public void testNotRequestOldTransactions() {
         Ict a = createIct();
-        Transaction reallyOld = a.submit("will not be referenced after b started");
-        String justABitTooOld = sendReferrer(a, reallyOld.hash, reallyOld.hash);
+        String hashOfReallyOld = submitTransactionAndReturnHash(a);
+        String justABitTooOld = sendReferrer(a, hashOfReallyOld, hashOfReallyOld);
         sleep(100); // sleep just a bit so a does not accidentally send to b
 
         Ict b = createIct();
         connect(a, b);
         String newTransaction = sendReferrer(a, justABitTooOld, justABitTooOld);
         waitUntilCommunicationEnds(200);
-        b.submit("request carrier");
+        submitTransactionAndReturnHash(b); // carries the request
         waitUntilCommunicationEnds(200);
 
         assertCorrectReferences(b, newTransaction);
-        Assert.assertNull("requested transaction which should be ignored because it was referenced by old transaction", b.getTangle().findTransactionByHash(reallyOld.hash));
+        Assert.assertNull("requested transaction which should be ignored because it was referenced by old transaction", b.findTransactionByHash(hashOfReallyOld));
     }
 
     private String sendReferrer(Ict sender, String branchHash, String trunkHash) {
@@ -113,13 +113,19 @@ public class ReferenceTest extends GossipTest {
     }
 
     private void assertCorrectReferences(Ict ict, String referrerHash) {
-        Transaction referrer = ict.getTangle().findTransactionByHash(referrerHash);
+        Transaction referrer = ict.findTransactionByHash(referrerHash);
         Assert.assertNotNull("not received referrer " + referrerHash, referrer);
-        Assert.assertNotNull("not received trunk " + referrer.trunkHash, ict.getTangle().findTransactionByHash(referrer.trunkHash));
-        Assert.assertNotNull("not received branch " + referrer.branchHash, ict.getTangle().findTransactionByHash(referrer.branchHash));
+        Assert.assertNotNull("not received trunk " + referrer.trunkHash, ict.findTransactionByHash(referrer.trunkHash));
+        Assert.assertNotNull("not received branch " + referrer.branchHash, ict.findTransactionByHash(referrer.branchHash));
         Assert.assertNotNull("not built edge to branch", referrer.getBranch());
         Assert.assertEquals("built edge to incorrect branch", referrer.branchHash, referrer.getBranch().hash);
         Assert.assertNotNull("not built edge to trunk", referrer.getTrunk());
         Assert.assertEquals("built edge to incorrect trunk", referrer.trunkHash, referrer.getTrunk().hash);
+    }
+
+    private static String submitTransactionAndReturnHash(Ict sender) {
+        Transaction transaction = new TransactionBuilder().build();
+        sender.submit(transaction);
+        return transaction.hash;
     }
 }
