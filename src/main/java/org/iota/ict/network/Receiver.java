@@ -24,7 +24,7 @@ import java.net.DatagramPacket;
  */
 public class Receiver extends RestartableThread implements Restartable {
 
-    protected static final Logger LOGGER = LogManager.getLogger(Receiver.class);
+    protected static final Logger LOGGER = LogManager.getLogger("Receiver");
     protected Node node;
 
     public Receiver(Node node) {

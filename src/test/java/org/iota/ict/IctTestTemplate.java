@@ -34,7 +34,6 @@ public abstract class IctTestTemplate {
         for (Ict ict : runningIcts)
             ict.terminate();
         runningIcts = new HashSet<>();
-        sleep(50);
     }
 
     protected static void sleep(long ms) {
@@ -62,8 +61,8 @@ public abstract class IctTestTemplate {
         int newReceived = sumNeighborStatsReceivedTransaction(runningIcts);
         do {
             lastReceived = newReceived;
-            sleep(50);
-            maxWaitTime -= 50;
+            sleep(30);
+            maxWaitTime -= 30;
             newReceived = sumNeighborStatsReceivedTransaction(runningIcts);
         } while (lastReceived != newReceived && maxWaitTime > 0);
     }

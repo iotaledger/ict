@@ -315,14 +315,42 @@ public class Main {
     }
 
 
-    private static final Logger logger = LogManager.getLogger(Main.class);
+    private static final Logger logger = LogManager.getLogger("Main");
 
     public static void main(String[] args) {
-        Log4JConfig log4jConfig = Log4JConfig.getDefault();
 
         Constants.TESTING = false;
-
         checkForUpdates();
+
+        Properties ictProperties = processCmdLineArgs(args);
+
+        logger.info("Starting new Ict '" + ictProperties.name() + "' (version: " + Constants.ICT_VERSION + ")");
+        IctInterface ict;
+        try {
+            ict = new Ict(ictProperties.toFinal());
+        } catch (Throwable t) {
+            if (t.getCause() instanceof BindException) {
+                logger.error("Could not start Ict on " + ictProperties.host() + ":" + ictProperties.port(), t);
+                logger.info("Make sure that the address is correct and you are not already running an Ict instance or any other service on that port. You can change the port in your properties file.");
+            } else
+                logger.error("Could not start Ict.", t);
+            return;
+        }
+
+        ict.getModuleHolder().initAllModules();
+        ict.getModuleHolder().startAllModules();
+
+        final IctInterface finalRefToIct = ict;
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                finalRefToIct.terminate();
+            }
+        });
+    }
+
+    private static Properties processCmdLineArgs(String[] args) {
+        Log4JConfig log4jConfig = Log4JConfig.getDefault();
 
         Cmdline cmdline = new Cmdline()
                 .useEnvironmentProperties()
@@ -363,29 +391,7 @@ public class Main {
             System.exit(0);
         }
 
-        logger.info("Starting new Ict '" + ictProperties.name() + "' (version: " + Constants.ICT_VERSION + ")");
-        Ict ict;
-        try {
-            ict = new Ict(ictProperties.toFinal());
-        } catch (Throwable t) {
-            if (t.getCause() instanceof BindException) {
-                logger.error("Could not start Ict on " + ictProperties.host() + ":" + ictProperties.port(), t);
-                logger.info("Make sure that the address is correct and you are not already running an Ict instance or any other service on that port. You can change the port in your properties file.");
-            } else
-                logger.error("Could not start Ict.", t);
-            return;
-        }
-
-        ict.getModuleHolder().initAllModules();
-        ict.getModuleHolder().startAllModules();
-
-        final Ict finalRefToIct = ict;
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                finalRefToIct.terminate();
-            }
-        });
+        return ictProperties;
     }
 
     private static void checkForUpdates() {

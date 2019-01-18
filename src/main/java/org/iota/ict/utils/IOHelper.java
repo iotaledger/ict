@@ -9,7 +9,7 @@ import java.util.jar.JarFile;
 
 public class IOHelper {
 
-    protected static final Logger LOGGER = LogManager.getLogger(IOHelper.class);
+    protected static final Logger LOGGER = LogManager.getLogger("IOHelper");
     protected static final File CODE_SOURCE;
 
     static {

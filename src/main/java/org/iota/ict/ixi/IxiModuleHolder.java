@@ -22,7 +22,7 @@ import java.util.*;
 
 public class IxiModuleHolder extends RestartableThread {
 
-    public static final Logger LOGGER = LogManager.getLogger(IxiModuleHolder.class);
+    public static final Logger LOGGER = LogManager.getLogger("IxiMH");
     protected static final File DEFAULT_MODULE_DIRECTORY = new File("modules/");
 
     protected final IctInterface ict;

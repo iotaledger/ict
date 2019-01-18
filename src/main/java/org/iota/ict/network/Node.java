@@ -17,7 +17,7 @@ import java.util.List;
 
 public class Node extends RestartableThread implements PropertiesUser {
 
-    protected final static Logger LOGGER = LogManager.getLogger(Node.class);
+    protected final static Logger LOGGER = LogManager.getLogger("Node");
     protected final IctInterface ict;
 
     protected final List<Neighbor> neighbors = new LinkedList<>();

@@ -13,7 +13,7 @@ import java.nio.file.StandardCopyOption;
 
 public final class Updater {
 
-    private static final Logger LOGGER = LogManager.getLogger(Updater.class);
+    private static final Logger LOGGER = LogManager.getLogger("Updater");
 
     public static String getLabelOfAvailableUpdate() {
         String latestReleaseLabel = GithubGateway.getLatestReleaseLabel(Constants.ICT_REPOSITORY);

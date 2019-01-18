@@ -211,7 +211,7 @@ public class Transaction {
      * @return Calculated hash of this transaction.
      */
     private String curlHash() {
-        return IotaCurlHash.iotaCurlHash(trytes, trytes.length(), Constants.CURL_ROUNDS_TRANSACTION_HASH);
+        return IotaCurlHash.iotaCurlHash(trytes, trytes.length(), Constants.TESTING ? 9 : Constants.CURL_ROUNDS_TRANSACTION_HASH);
     }
 
     private static void putField(char[] target, Field field, long value) {

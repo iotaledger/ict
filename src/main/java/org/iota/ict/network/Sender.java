@@ -34,7 +34,7 @@ public class Sender extends RestartableThread implements SenderInterface {
     private final SendingTaskQueue queue = new SendingTaskQueue();
 
     private final Queue<String> transactionsToRequest = new PriorityBlockingQueue<>();
-    private static final Logger LOGGER = LogManager.getLogger(Sender.class);
+    private static final Logger LOGGER = LogManager.getLogger("Sender");
     private long roundStart = System.currentTimeMillis();
     private Properties properties;
 

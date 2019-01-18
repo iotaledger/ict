@@ -38,7 +38,7 @@ public class Ict extends RestartableThread implements IctInterface {
 
     // inner state
     protected FinalProperties properties;
-    public final static Logger LOGGER = LogManager.getLogger(Ict.class);
+    public final static Logger LOGGER = LogManager.getLogger("Ict");
     protected int round;
 
     /**

@@ -16,7 +16,7 @@ public final class GithubGateway {
 
     private GithubGateway() {}
 
-    private static Logger LOGGER = LogManager.getLogger(GithubGateway.class);
+    private static Logger LOGGER = LogManager.getLogger("GitHubGW");
     protected static String BASE_URL = "https://api.github.com";
 
     public static JSONObject getRepoInfo(String userSlashRepo) {

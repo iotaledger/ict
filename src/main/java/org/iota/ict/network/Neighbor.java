@@ -13,7 +13,7 @@ import java.net.*;
  */
 public class Neighbor {
 
-    public static final Logger logger = LogManager.getLogger(Neighbor.class);
+    public static final Logger logger = LogManager.getLogger("Neighbor");
     private InetSocketAddress address;
     public final Stats stats = new Stats();
     private double maxAllowedTransactionsForRound;

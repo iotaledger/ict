@@ -1,5 +1,6 @@
 package org.iota.ict.model;
 
+import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.Trytes;
 import org.junit.Assert;
 import org.junit.Test;
@@ -42,7 +43,9 @@ public class TransactionTest {
 
     @Test
     public void testCurl123() {
+        Constants.TESTING = false; // reset curl rounds from test environment to runtime environment
         Transaction transaction = new Transaction(TRYTES_VALID_FLAGS, null);
+        Constants.TESTING = true;
         Assert.assertEquals(HASH_OF_TRYTES_VALID_FLAGS, transaction.hash);
     }
 

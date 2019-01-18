@@ -16,18 +16,14 @@ import java.util.Set;
 
 public class RestApi extends RestartableThread implements PropertiesUser {
 
-    protected static final Logger LOGGER = LogManager.getLogger(RestApi.class);
+    protected static final Logger LOGGER = LogManager.getLogger("RestAPI");
     protected Service service;
     protected final JsonIct jsonIct;
     protected FinalProperties properties;
     protected Set<RouteImpl> routes = new HashSet<>();
+    protected boolean initialized = false;
 
-    public RestApi(IctInterface ict) {
-        super(LOGGER);
-
-        this.properties = ict.getProperties();
-        this.jsonIct = new JsonIct(ict);
-
+    static {
         try {
             if(!new File(Constants.WEB_GUI_PATH).exists())
                 IOHelper.extractDirectoryFromJarFile("web/", Constants.WEB_GUI_PATH);
@@ -35,8 +31,12 @@ public class RestApi extends RestartableThread implements PropertiesUser {
             LOGGER.error("Failed to extract Web GUI into " + new File(Constants.WEB_GUI_PATH).getAbsolutePath(), e);
             throw new RuntimeException(e);
         }
+    }
 
-        initRoutes();
+    public RestApi(IctInterface ict) {
+        super(LOGGER);
+        this.properties = ict.getProperties();
+        this.jsonIct = new JsonIct(ict);
     }
 
     @Override
@@ -58,12 +58,16 @@ public class RestApi extends RestartableThread implements PropertiesUser {
         routes.add(new RouteAddModule(jsonIct));
         routes.add(new RouteRemoveModule(jsonIct));
         routes.add(new RouteUpdateModule(jsonIct));
+        initialized = true;
     }
 
     @Override
     public void onStart() {
         if(!properties.guiEnabled())
             return;
+
+        if(!initialized)
+            initRoutes();
 
         service = Service.ignite();
         int port = properties.port();
@@ -92,7 +96,7 @@ public class RestApi extends RestartableThread implements PropertiesUser {
 
         service.init();
         service.awaitInitialization();
-        LOGGER.info("Started Web GUI on port " + port + ".");
+        LOGGER.info("Started Web GUI on port " + port + ". Access it by visiting '{HOST}:"+port+"' from your web browser.");
     }
 
     @Override
@@ -103,7 +107,6 @@ public class RestApi extends RestartableThread implements PropertiesUser {
             service.delete(route.getPath(), route);
         service.stop();
         service = null;
-        LOGGER.info("Stopped Web GUI.");
     }
 
     @Override

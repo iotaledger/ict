@@ -11,7 +11,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class GossipEventDispatcher extends RestartableThread {
 
-    private static final Logger LOGGER = LogManager.getLogger(GossipEventDispatcher.class);
+    private static final Logger LOGGER = LogManager.getLogger("GsspEvDisp");
     public final List<GossipListener> listeners = new LinkedList<>();
     private final BlockingQueue<GossipEvent> eventQueue = new LinkedBlockingQueue<>();
 

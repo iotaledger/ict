@@ -15,13 +15,13 @@ import java.util.*;
  * With instances of this class, the Ict and its sub-components can be easily configured. The properties can be read from files or defined during runtime. Some
  * properties might not be changeable yet after passing them to the Ict.
  *
- * @see org.iota.ict.Ict#Ict(Properties)
+ * @see org.iota.ict.Ict#Ict(FinalProperties) 
  */
 public class Properties implements Cloneable {
 
     protected static final String LIST_DELIMITER = ",";
     protected static final Properties DEFAULT_PROPERTIES = new Properties();
-    protected static final Logger logger = LogManager.getLogger(Properties.class);
+    protected static final Logger logger = LogManager.getLogger("Properties");
 
     protected long antiSpamAbs = 1000;
     protected boolean guiEnabled = true;

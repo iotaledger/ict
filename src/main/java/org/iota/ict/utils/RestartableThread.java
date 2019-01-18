@@ -49,17 +49,17 @@ public abstract class RestartableThread implements Restartable, Runnable {
 
         @Override
         public void start() {
-            if(logger != null)
+            if(!Constants.TESTING && logger != null)
                 logger.debug("starting ...");
             state = new StateStarting();
             onStart();
             for(Restartable subWorker : subWorkers)
                 subWorker.start();
             runningThread = new Thread(RestartableThread.this);
-            state = new StateRunning();
             runningThread.start();
+            state = new StateRunning();
             onStarted();
-            if(logger != null)
+            if(!Constants.TESTING && logger != null)
                 logger.debug("started");
         }
     }
@@ -73,17 +73,17 @@ public abstract class RestartableThread implements Restartable, Runnable {
 
         @Override
         public void terminate() {
-            if(logger != null)
+            if(!Constants.TESTING && logger != null)
                 logger.debug("terminating ...");
             state = new StateTerminating();
             onTerminate();
             while (runningThread.isAlive())
-                safeSleep(10);
+                safeSleep(1);
             for(Restartable subWorker : subWorkers)
                 subWorker.terminate();
             state = new StateTerminated();
             onTerminated();
-            if(logger != null)
+            if(!Constants.TESTING && logger != null)
                 logger.debug("terminated");
         }
 
