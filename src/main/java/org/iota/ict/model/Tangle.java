@@ -72,6 +72,8 @@ public class Tangle implements PropertiesUser {
     }
 
     public void deleteTransaction(Transaction transaction) {
+        transaction.branch = null;
+        transaction.trunk = null;
         TransactionLog log = transactionsByHash.remove(transaction.hash);
         if (log != null) {
             log.removeFromSetMap(transactionsByTag, transaction.tag);

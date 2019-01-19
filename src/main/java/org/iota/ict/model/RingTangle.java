@@ -68,15 +68,6 @@ public class RingTangle extends Tangle implements PropertiesUser {
         }
     }
 
-    @Override
-    public void deleteTransaction(Transaction transaction) {
-        TransactionLog log = transactionsByHash.remove(transaction.hash);
-        if (log != null) {
-            log.removeFromSetMap(transactionsByTag, transaction.tag);
-            log.removeFromSetMap(transactionsByAddress, transaction.address);
-        }
-    }
-
     private static class TimestampComparator implements Comparator<Transaction> {
 
         static final TimestampComparator INSTANCE = new TimestampComparator();
