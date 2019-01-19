@@ -31,7 +31,7 @@ public class RingTangle extends Tangle implements PropertiesUser {
     public TransactionLog createTransactionLogIfAbsent(Transaction transaction) {
 
         TransactionLog log = super.createTransactionLogIfAbsent(transaction);
-        if (transactionsOrderedByTimestamp != null) {
+        if (transactionsOrderedByTimestamp != null && !transactionsOrderedByTimestamp.contains(log.transaction)) {
             // == null only when calling the super constructor and adding NULL transaction
             // do not add NULL transaction to transactionsOrderedByTimestamp to prevent it from being pruned
             transactionsOrderedByTimestamp.put(transaction);
@@ -45,12 +45,10 @@ public class RingTangle extends Tangle implements PropertiesUser {
 
     @Override
     public void deleteTransaction(Transaction transaction) {
-
         TransactionLog log = transactionsByHash.remove(transaction.hash);
         if (log != null) {
             log.removeFromSetMap(transactionsByTag, transaction.tag);
             log.removeFromSetMap(transactionsByAddress, transaction.address);
-            transactionsOrderedByTimestamp.remove(log);
         }
     }
 

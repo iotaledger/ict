@@ -59,10 +59,10 @@ public class RingTangleTest extends IctTestTemplate {
     }
 
     private static void assertTangleContainsExactlyPlusNullTx(Tangle tangle, Set<Transaction> transactionsToContain) {
-        Assert.assertEquals("Unexpected amount of transactions.", transactionsToContain.size() + 1, tangle.size());
-        Assert.assertNotNull(tangle.findTransactionLog(Transaction.NULL_TRANSACTION));
+        Assert.assertNotNull("The NULL transaction is missing.", tangle.findTransactionLog(Transaction.NULL_TRANSACTION));
         for (Transaction transaction : transactionsToContain)
             Assert.assertNotNull("A transaction is missing.", tangle.findTransactionLog(transaction));
+        Assert.assertEquals("Unexpected amount of transactions.", transactionsToContain.size() + 1, tangle.size());
     }
 
     private static List<Transaction> generateTransactionsOrderedByTimestamps(int amount) {
