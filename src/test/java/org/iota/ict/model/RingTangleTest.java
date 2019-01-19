@@ -16,6 +16,7 @@ public class RingTangleTest extends IctTestTemplate {
 
         EditableProperties properties = new EditableProperties();
         properties.tangleCapacity(ringTangleCapacity);
+        properties.maxHeapSize(1.0);
         Ict ict = createIct(properties);
 
         TransactionBuilder builder = new TransactionBuilder();
@@ -34,6 +35,7 @@ public class RingTangleTest extends IctTestTemplate {
         int totalTransactions = ringTangleCapacity * 2;
 
         EditableProperties properties = new EditableProperties();
+        properties.maxHeapSize(1.0);
         properties.tangleCapacity (ringTangleCapacity);
         Ict ict = createIct(properties);
 

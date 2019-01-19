@@ -1,5 +1,7 @@
 package org.iota.ict.model;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.iota.ict.Ict;
 import org.iota.ict.IctInterface;
 import org.iota.ict.network.Neighbor;
@@ -19,6 +21,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * them by their hash, address or tag. Each {@link Ict} uses a {@link Tangle} object to keep track of all received transactions.
  */
 public class Tangle implements PropertiesUser {
+
+    protected static final Logger LOGGER = LogManager.getLogger("Tangle");
+
     protected final IctInterface ict;
     protected final Map<String, TransactionLog> transactionsByHash = new ConcurrentHashMap<>();
     protected final Map<String, List<TransactionLog>> transactionsByAddress = new ConcurrentHashMap<>();
