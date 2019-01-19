@@ -107,7 +107,8 @@ public class Sender extends RestartableThread implements SenderInterface {
         }
     }
 
-    public void terminate() {
+    @Override
+    public void onTerminate() {
         synchronized (queue) {
             queue.notify();
         }

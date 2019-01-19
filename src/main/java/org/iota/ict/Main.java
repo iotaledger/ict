@@ -27,6 +27,16 @@ import java.util.Objects;
  */
 public class Main {
 
+    static {
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread thread, Throwable throwable) {
+                System.err.println("Uncaught exeption in thread " + thread);
+                throwable.printStackTrace();
+            }
+        });
+    }
+
     public static final String DEFAULT_LOG_DIR_PATH = "logs/";
     private static final File DEFAULT_LOG_DIR = new File(DEFAULT_LOG_DIR_PATH);
     private static final String DEFAULT_LOG_FILE_NAME = "ict.log";

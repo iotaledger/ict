@@ -31,7 +31,7 @@ public class JsonIct {
 
     public JSONObject getInfo() {
         JSONObject info = new JSONObject();
-        info.put("update", Updater.getLabelOfAvailableUpdate());
+        // info.put("update", Updater.getLabelOfAvailableUpdate()); TODO check rarely
         info.put("default_config", (new Properties()).toJSON());
         return info;
     }

@@ -21,7 +21,7 @@ setTimeout(window.onload, 1);
 
 function init() {
     Page.init_pages();
-    Page.switch_to(Page.IXIS);
+    Page.switch_to(Page.NEIGHBORS);
     Ajax.INSTANCE.get_info(function () {
         Form.load_config();
         NeighborViewer.load();

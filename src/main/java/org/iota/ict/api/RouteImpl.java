@@ -27,6 +27,7 @@ public abstract class RouteImpl implements Route {
         try {
             return execute(request);
         } catch (Throwable t) {
+            t.printStackTrace();
             return error(t);
         }
     }

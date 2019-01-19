@@ -22,7 +22,7 @@ public class Node extends RestartableThread implements PropertiesUser {
 
     protected final List<Neighbor> neighbors = new LinkedList<>();
     protected final SenderInterface sender;
-    protected final Restartable receiver;
+    protected final RestartableThread receiver;
     protected FinalProperties properties;
 
     protected InetSocketAddress address;
@@ -72,13 +72,14 @@ public class Node extends RestartableThread implements PropertiesUser {
     }
 
     private void updateHostAndPort(String newHost, int newPort) {
+        receiver.terminate(); // closes socket()
+        sender.terminate();
+
         address = new InetSocketAddress(newHost, newPort);
-        try {
-            socket.close();
-            socket.connect(address);
-        } catch (SocketException e) {
-            throw new RuntimeException(e);
-        }
+        this.socket = createDatagramSocket(address);
+
+        sender.start();
+        receiver.start();
     }
 
     public void broadcast(Transaction transaction) {

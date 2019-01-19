@@ -101,12 +101,14 @@ public class RestApi extends RestartableThread implements PropertiesUser {
 
     @Override
     public void onTerminate() {
+        throw new RuntimeException();
+        /*
         if(service == null) // wasn't running
             return;
         for(RouteImpl route : routes)
             service.delete(route.getPath(), route);
         service.stop();
-        service = null;
+        service = null;*/
     }
 
     @Override
@@ -118,7 +120,7 @@ public class RestApi extends RestartableThread implements PropertiesUser {
             terminate();
         else if(!oldProp.guiEnabled() && newProp.guiEnabled())
             start();
-        else if(oldProp.guiEnabled() && newProp.guiEnabled() && oldProp.port() != newProp.port()) {
+        else if(oldProp.guiEnabled() && newProp.guiEnabled() && oldProp.guiPort() != newProp.guiPort()) {
             terminate();
             start();
         }

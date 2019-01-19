@@ -22,7 +22,7 @@ import java.net.DatagramPacket;
  * @see Ict
  * @see Sender
  */
-public class Receiver extends RestartableThread implements Restartable {
+public class Receiver extends RestartableThread {
 
     protected static final Logger LOGGER = LogManager.getLogger("Receiver");
     protected Node node;
