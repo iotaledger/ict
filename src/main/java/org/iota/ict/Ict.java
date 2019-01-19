@@ -73,6 +73,9 @@ public class Ict extends RestartableThread implements IctInterface {
             }
             if (roundStart + properties.roundDuration() < System.currentTimeMillis()) {
                 Neighbor.newRound(this, round);
+                node.log();
+                eventDispatcher.log();
+                LOGGER.debug("tangle size: " + tangle.size());
                 round++;
                 roundStart = System.currentTimeMillis();
             }
@@ -132,7 +135,6 @@ public class Ict extends RestartableThread implements IctInterface {
      */
     public void submit(Transaction transaction) {
         tangle.createTransactionLogIfAbsent(transaction);
-        broadcast(transaction);
         onGossipEvent(new GossipEvent(transaction, true));
     }
 

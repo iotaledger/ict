@@ -32,6 +32,10 @@ public class GossipEventDispatcher extends RestartableThread {
         }
     }
 
+    public void log() {
+        LOGGER.debug("gossip listeners: " + listeners.size() + " / event queue size: " + eventQueue.size());
+    }
+
     @Override
     public void onTerminate() {
         runningThread.interrupt();

@@ -10,16 +10,13 @@ import java.util.*;
 
 public abstract class GossipTest extends IctTestTemplate {
 
-    void testUnidirectionalCommunication(Ict sender, Ict receiver, int messagesPerDirection) {
-        testCommunicationPath(sender, receiver, messagesPerDirection);
-    }
 
     void testBidirectionalCommunication(Ict ictA, Ict ictB, int messagesPerDirection) {
         testUnidirectionalCommunication(ictA, ictB, messagesPerDirection);
         testUnidirectionalCommunication(ictB, ictA, messagesPerDirection);
     }
 
-    private void testCommunicationPath(Ict sender, Ict receiver, int amountOfMessages) {
+    void testUnidirectionalCommunication(Ict sender, Ict receiver, int amountOfMessages) {
         Map<String, String> sentMessagesByHash = sendMessages(sender, amountOfMessages);
         Assert.assertEquals("unique hashes of sent transactions", amountOfMessages, sentMessagesByHash.values().size());
         waitUntilCommunicationEnds(1000);

@@ -9,4 +9,5 @@ public interface SenderInterface extends Restartable, PropertiesUser, GossipList
 
     void request(String transactionHash);
     void queue(Transaction transaction);
+    int queueSize();
 }

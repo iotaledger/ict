@@ -43,6 +43,11 @@ public class Node extends RestartableThread implements PropertiesUser {
             neighbor(neighbor);
     }
 
+    public void log() {
+        int queueSize = sender.queueSize();
+        LOGGER.debug("forwarding queue size: " + queueSize);
+    }
+
     @Override
     public void onStart() {
         this.address = new InetSocketAddress(properties.host(), properties.port());

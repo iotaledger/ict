@@ -35,7 +35,6 @@ public class Sender extends RestartableThread implements SenderInterface {
 
     private final Queue<String> transactionsToRequest = new PriorityBlockingQueue<>();
     private static final Logger LOGGER = LogManager.getLogger("Sender");
-    private long roundStart = System.currentTimeMillis();
     private Properties properties;
 
     public Sender(Node node, Properties properties) {
@@ -46,12 +45,10 @@ public class Sender extends RestartableThread implements SenderInterface {
 
     @Override
     public void onGossipEvent(GossipEvent event) {
-        if(!event.isOwnTransaction()) {
-            Tangle.TransactionLog log = node.ict.getTangle().findTransactionLog(event.getTransaction());
-            if (!log.wasSent && log.senders.size() < node.neighbors.size()) {
-                log.wasSent = true;
-                queue(event.getTransaction());
-            }
+        Tangle.TransactionLog log = node.ict.getTangle().createTransactionLogIfAbsent(event.getTransaction());
+        if (!log.wasSent && log.senders.size() < node.neighbors.size()) {
+            log.wasSent = true;
+            queue(event.getTransaction());
         }
     }
 
@@ -138,6 +135,11 @@ public class Sender extends RestartableThread implements SenderInterface {
             this.transaction = transaction;
         }
     }
+
+    public int queueSize() {
+        return queue.size();
+    }
+
 
     private static class SendingTaskQueue extends PriorityBlockingQueue<SendingTask> {
         private SendingTaskQueue() {

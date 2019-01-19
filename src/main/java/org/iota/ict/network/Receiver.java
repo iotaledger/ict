@@ -64,7 +64,7 @@ public class Receiver extends RestartableThread {
             return;
         }
 
-        Transaction transaction = unpack(packet, sender);
+        Transaction transaction = unpack(packet);
 
         if (transaction == null) {
             sender.stats.receivedInvalid++;
@@ -73,13 +73,14 @@ public class Receiver extends RestartableThread {
 
         if (Math.abs(transaction.issuanceTimestamp - System.currentTimeMillis()) > Constants.TIMESTAMP_DIFFERENCE_TOLERANCE_IN_MILLIS) {
             sender.stats.ignored++;
+            return;
         }
 
         updateTransactionLog(sender, transaction);
         processRequest(sender, transaction);
     }
 
-    private Transaction unpack(DatagramPacket packet, Neighbor sender) {
+    private Transaction unpack(DatagramPacket packet) {
         try {
             byte[] bytes = packet.getData();
             return new Transaction(Trytes.fromBytes(bytes), bytes);
