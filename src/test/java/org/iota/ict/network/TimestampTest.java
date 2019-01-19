@@ -21,7 +21,6 @@ public class TimestampTest extends GossipTest {
         waitUntilCommunicationEnds(100);
         Neighbor.Stats statsForA = b.getNeighbors().get(0).stats;
         Assert.assertEquals("Ict did forward transaction with timestamp out of tolerated time interval.", 0, statsForA.receivedAll);
-        b.newRound();
 
         builder.issuanceTimestamp = System.currentTimeMillis() - (long) (Constants.TIMESTAMP_DIFFERENCE_TOLERANCE_IN_MILLIS * 0.8);
         a.submit(builder.build());

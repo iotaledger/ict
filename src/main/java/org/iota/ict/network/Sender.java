@@ -63,14 +63,6 @@ public class Sender extends RestartableThread implements SenderInterface {
             } else {
                 waitForNextTransaction();
             }
-            manageRounds();
-        }
-    }
-
-    private void manageRounds() {
-        if (roundStart + properties.roundDuration() < System.currentTimeMillis()) {
-            // ict.newRound(); TODO
-            roundStart = System.currentTimeMillis();
         }
     }
 

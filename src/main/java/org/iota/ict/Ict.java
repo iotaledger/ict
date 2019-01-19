@@ -40,6 +40,9 @@ public class Ict extends RestartableThread implements IctInterface {
     protected FinalProperties properties;
     public final static Logger LOGGER = LogManager.getLogger("Ict");
     protected int round;
+    protected long roundStart = System.currentTimeMillis();
+
+    protected Object notifySyncObject = new Object();
 
     /**
      * @param properties The properties to use for this Ict. To change or replace them, use {@link #updateProperties(FinalProperties)}.
@@ -61,7 +64,25 @@ public class Ict extends RestartableThread implements IctInterface {
     }
 
     @Override
-    public void run() { }
+    public void run() {
+        while (isRunning()) {
+            synchronized (notifySyncObject) {
+                try {
+                    notifySyncObject.wait(Math.max(1, Math.min(roundStart + properties.roundDuration() - System.currentTimeMillis(), 30000)));
+                } catch (InterruptedException e) {}
+            }
+            if (roundStart + properties.roundDuration() < System.currentTimeMillis()) {
+                Neighbor.newRound(this, round);
+                round++;
+                roundStart = System.currentTimeMillis();
+            }
+        }
+    }
+
+    @Override
+    public void onTerminate() {
+        synchronized (notifySyncObject) { notifySyncObject.notify(); /* stop run() */  }
+    }
 
     /**
      * Adds a listener to this object. Every {@link GossipEvent} will be passed on to the listener.
@@ -101,6 +122,7 @@ public class Ict extends RestartableThread implements IctInterface {
         restApi.updateProperties(this.properties);
         tangle.updateProperties(this.properties);
         node.updateProperties(this.properties);
+        synchronized (notifySyncObject) { notifySyncObject.notify(); /* apply new round duration */  }
     }
 
     /**
@@ -120,11 +142,6 @@ public class Ict extends RestartableThread implements IctInterface {
 
     public void broadcast(Transaction transaction) {
         node.broadcast(transaction);
-    }
-
-    public void newRound() {
-        Neighbor.newRound(this, round);
-        round++;
     }
 
     public IxiModuleHolder getModuleHolder() {

@@ -101,14 +101,12 @@ public class RestApi extends RestartableThread implements PropertiesUser {
 
     @Override
     public void onTerminate() {
-        throw new RuntimeException();
-        /*
         if(service == null) // wasn't running
             return;
         for(RouteImpl route : routes)
             service.delete(route.getPath(), route);
         service.stop();
-        service = null;*/
+        service = null;
     }
 
     @Override
