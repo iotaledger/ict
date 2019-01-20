@@ -67,6 +67,9 @@ public class RingTangle extends Tangle implements PropertiesUser {
 
             if(capacityFactor != capacityFactorBefore)
                 LOGGER.debug("Adjusting effective tangle_capacity to ~"+(int)Math.round(capacity * capacityFactor)+" transactions based on max_heap_size.");
+
+            if(changeFactor < 0.9)
+                System.gc();
         }
     }
 
