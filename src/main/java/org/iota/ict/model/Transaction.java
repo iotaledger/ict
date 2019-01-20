@@ -23,23 +23,22 @@ public class Transaction {
 
     public static final Transaction NULL_TRANSACTION = new Transaction();
 
-    public final String signatureFragments;
-    public final String extraDataDigest;
-    public final String address;
-    public final BigInteger value;
+    private String signatureFragments;
+    private String extraDataDigest;
+    private String address;
+    private String bundleNonce;
+    private String trunkHash, branchHash;
+    private String tag;
+    private String nonce;
+    private String decodedSignatureFragments;
+    private String essence;
+
     public final long issuanceTimestamp;
     public final long timelockLowerBound, timelockUpperBound;
-    public final String bundleNonce;
-    public final String trunkHash, branchHash;
-    public final String tag;
     public final long attachmentTimestamp, attachmentTimestampLowerBound, attachmentTimestampUpperBound;
-    public final String nonce;
-    public final String decodedSignatureFragments;
 
-    public final String trytes;
-    public transient String requestHash;
+    public BigInteger value;
     public final String hash;
-    public final String essence;
 
     public final boolean isBundleHead, isBundleTail;
 
@@ -52,6 +51,7 @@ public class Transaction {
      * all trit flags are set to 0 thus making this transaction actually invalid.
      */
     private Transaction() {
+        bytes = new byte[Constants.PACKET_SIZE_BYTES];
         signatureFragments = generateNullTrytes(Field.SIGNATURE_FRAGMENTS);
         extraDataDigest = generateNullTrytes(Field.EXTRA_DATA_DIGEST);
         address = generateNullTrytes(Field.ADDRESS);
@@ -69,16 +69,12 @@ public class Transaction {
         nonce = generateNullTrytes(Field.NONCE);
         decodedSignatureFragments = "";
 
-        trytes = trytes();
-        hash = curlHash();
-        essence = extractField(trytes, Field.ESSENCE);
+        hash = curlHash(trytes());
         isBundleHead = true;
         isBundleTail = true;
 
         branch = this;
         trunk = this;
-
-        bytes = Trytes.toBytes(trytes);
 
         assert trytes().equals(Trytes.padRight("", Constants.TRANSACTION_SIZE_TRYTES));
     }
@@ -88,6 +84,7 @@ public class Transaction {
     }
 
     Transaction(TransactionBuilder builder) {
+        bytes = new byte[Constants.PACKET_SIZE_BYTES];
         signatureFragments = builder.signatureFragments;
         extraDataDigest = builder.extraDataDigest;
         address = builder.address;
@@ -103,16 +100,14 @@ public class Transaction {
         attachmentTimestampLowerBound = builder.attachmentTimestampLowerBound;
         attachmentTimestampUpperBound = builder.attachmentTimestampUpperBound;
         nonce = builder.nonce;
-        requestHash = builder.requestHash;
 
-        trytes = trytes();
-        essence = extractField(trytes, Field.ESSENCE);
-        if (!Trytes.isTrytes(trytes))
-            throw new IllegalArgumentException("at least one field contains non-tryte characters");
+        String trytes = trytes();
+        if(!Trytes.isTrytes(trytes))
+            throw new IllegalArgumentException("Transaction contains non-tryte characters.");
 
-        hash = curlHash();
+        hash = curlHash(trytes);
         decodedSignatureFragments = Trytes.toAscii(signatureFragments);
-        bytes = Trytes.toBytes(trytes);
+        System.arraycopy(Trytes.toBytes(trytes), 0, bytes, 0, Constants.TRANSACTION_SIZE_BYTES);
 
         byte[] hashTrits = Trytes.toTrits(hash);
         isBundleHead = isFlagSet(hashTrits, Constants.HashFlags.BUNDLE_HEAD_FLAG);
@@ -129,7 +124,7 @@ public class Transaction {
      * @throws InvalidTransactionFlagException if flag trit is 0.
      */
     private static boolean isFlagSet(byte[] hashTrits, int position) {
-        assert hashTrits.length == Field.REQUEST_HASH.tritLength;
+        assert hashTrits.length == Field.TRUNK_HASH.tritLength;
         if (hashTrits[position] == 0)
             throw new InvalidTransactionFlagException(position);
         return hashTrits[position] == 1;
@@ -142,47 +137,29 @@ public class Transaction {
                     throw new InvalidWeightException();
     }
 
-    /**
-     * Creates a transaction object from its trytes.
-     *
-     * @param trytes Trytes containing all information describing this transaction. Must have length = {@link Constants#TRANSACTION_SIZE_TRYTES}.
-     */
-    public Transaction(String trytes, byte[] bytes) {
-        assert trytes.length() == Constants.TRANSACTION_SIZE_TRYTES;
-        signatureFragments = extractField(trytes, Field.SIGNATURE_FRAGMENTS);
-        extraDataDigest = extractField(trytes, Field.EXTRA_DATA_DIGEST);
-        address = extractField(trytes, Field.ADDRESS);
-        value = Trytes.toNumber(extractField(trytes, Field.VALUE));
-        issuanceTimestamp = Trytes.toLong(extractField(trytes, Field.ISSUANCE_TIMESTAMP));
-        timelockLowerBound = Trytes.toLong(extractField(trytes, Field.TIMELOCK_LOWER_BOUND));
-        timelockUpperBound = Trytes.toLong(extractField(trytes, Field.TIMELOCK_UPPER_BOUND));
-        bundleNonce = extractField(trytes, Field.BUNDLE_NONCE);
-        trunkHash = extractField(trytes, Field.TRUNK_HASH);
-        branchHash = extractField(trytes, Field.BRANCH_HASH);
-        tag = extractField(trytes, Field.TAG);
-        attachmentTimestamp = Trytes.toLong(extractField(trytes, Field.ATTACHMENT_TIMESTAMP));
-        attachmentTimestampLowerBound = Trytes.toLong(extractField(trytes, Field.ATTACHMENT_TIMESTAMP_LOWER_BOUND));
-        attachmentTimestampUpperBound = Trytes.toLong(extractField(trytes, Field.ATTACHMENT_TIMESTAMP_UPPER_BOUND));
-        nonce = extractField(trytes, Field.NONCE);
-        requestHash = extractField(trytes, Field.REQUEST_HASH);
+    public Transaction(byte[] bytes) {
+        assert bytes.length == Constants.PACKET_SIZE_BYTES;
+        this.bytes = bytes;
 
-        this.trytes = trytes();
-        assert trytes.startsWith(this.trytes.substring(0, Field.REQUEST_HASH.tryteOffset));
-        essence = extractField(trytes, Field.ESSENCE);
-        hash = curlHash();
-        decodedSignatureFragments = Trytes.toAscii(signatureFragments);
+        issuanceTimestamp = Trytes.toLong(decodeTryteField(Field.ISSUANCE_TIMESTAMP));
+        timelockLowerBound = Trytes.toLong(decodeTryteField(Field.TIMELOCK_LOWER_BOUND));
+        timelockUpperBound = Trytes.toLong(decodeTryteField(Field.TIMELOCK_UPPER_BOUND));
+
+        attachmentTimestamp = Trytes.toLong(decodeTryteField(Field.ATTACHMENT_TIMESTAMP));
+        attachmentTimestampLowerBound = Trytes.toLong(decodeTryteField(Field.ATTACHMENT_TIMESTAMP_LOWER_BOUND));
+        attachmentTimestampUpperBound = Trytes.toLong(decodeTryteField(Field.ATTACHMENT_TIMESTAMP_UPPER_BOUND));
+        value = Trytes.toNumber(decodeTryteField(Field.VALUE));
+
+        hash = curlHash(bytes);
 
         byte[] hashTrits = Trytes.toTrits(hash);
         isBundleHead = isFlagSet(hashTrits, Constants.HashFlags.BUNDLE_HEAD_FLAG);
         isBundleTail = isFlagSet(hashTrits, Constants.HashFlags.BUNDLE_TAIL_FLAG);
-
-        assert bytes == null || bytes.length == Constants.TRANSACTION_SIZE_BYTES;
-        this.bytes = bytes != null ? bytes : Trytes.toBytes(trytes);
         assertMinWeightMagnitude(hashTrits);
     }
 
     /**
-     * @return Trytes of this transaction (length = {@link Constants#TRANSACTION_SIZE_TRYTES}). {@link #requestHash} trytes are always NULL.
+     * @return Trytes of this transaction (length = {@link Constants#TRANSACTION_SIZE_TRYTES}).
      */
     private String trytes() {
         char[] trytes = new char[Constants.TRANSACTION_SIZE_TRYTES];
@@ -201,17 +178,23 @@ public class Transaction {
         putField(trytes, Field.ATTACHMENT_TIMESTAMP_LOWER_BOUND, attachmentTimestampLowerBound);
         putField(trytes, Field.ATTACHMENT_TIMESTAMP_UPPER_BOUND, attachmentTimestampUpperBound);
         putField(trytes, Field.NONCE, nonce);
-        putField(trytes, Field.REQUEST_HASH, Trytes.NULL_HASH);
         return new String(trytes);
     }
 
+    protected String decodeTryteField(Field field) {
+        return Trytes.fromBytes(bytes, field.byteOffset, field.byteLength);
+    }
+
+    private static String curlHash(byte[] bytes) {
+        String trytes = Trytes.fromBytes(bytes, 0, Constants.TRANSACTION_SIZE_BYTES);
+        return curlHash(trytes);
+    }
+
     /**
-     * Requires {@link #trytes} to be set.
-     *
      * @return Calculated hash of this transaction.
      */
-    private String curlHash() {
-        return IotaCurlHash.iotaCurlHash(trytes, trytes.length(), Constants.TESTING ? 9 : Constants.CURL_ROUNDS_TRANSACTION_HASH);
+    private static String curlHash(String trytes) {
+        return IotaCurlHash.iotaCurlHash(trytes, Constants.TRANSACTION_SIZE_TRYTES, Constants.TESTING ? 9 : Constants.CURL_ROUNDS_TRANSACTION_HASH);
     }
 
     private static void putField(char[] target, Field field, long value) {
@@ -235,9 +218,9 @@ public class Transaction {
         return extracted;
     }
 
-    public DatagramPacket toDatagramPacket() {
+    public DatagramPacket toDatagramPacket(String requestHash) {
         byte[] requestHashBytes = Trytes.toBytes(requestHash);
-        System.arraycopy( requestHashBytes, 0, bytes, Field.REQUEST_HASH.byteOffset, Field.REQUEST_HASH.byteLength);
+        System.arraycopy(requestHashBytes, 0, bytes, Constants.TRANSACTION_SIZE_BYTES, requestHashBytes.length);
         return new DatagramPacket(bytes, bytes.length);
     }
 
@@ -265,7 +248,6 @@ public class Transaction {
                 ATTACHMENT_TIMESTAMP_LOWER_BOUND = new Field(27, ATTACHMENT_TIMESTAMP),
                 ATTACHMENT_TIMESTAMP_UPPER_BOUND = new Field(27, ATTACHMENT_TIMESTAMP_LOWER_BOUND),
                 NONCE = new Field(81, ATTACHMENT_TIMESTAMP_UPPER_BOUND),
-                REQUEST_HASH = new Field(243, NONCE),
 
         ESSENCE = new Field(TRUNK_HASH.tritOffset - EXTRA_DATA_DIGEST.tritOffset, SIGNATURE_FRAGMENTS);
 
@@ -295,4 +277,20 @@ public class Transaction {
             super("Transaction does not satisfy minimum required weight magnitude = "+Constants.MIN_WEIGHT_MAGNITUDE+".");
         }
     }
+
+    public String decodeBytesToTrytes() {
+        return Trytes.fromBytes(bytes, 0, Constants.TRANSACTION_SIZE_BYTES);
+    }
+
+    public String address() { return address == null ? address = decodeTryteField(Field.ADDRESS) : address; }
+    public String tag() { return tag == null ? tag = decodeTryteField(Field.TAG) : tag; }
+    public String signatureFragments() { return signatureFragments == null ? signatureFragments = decodeTryteField(Field.SIGNATURE_FRAGMENTS) : signatureFragments; }
+    public String extraDataDigest() { return extraDataDigest == null ? extraDataDigest = decodeTryteField(Field.EXTRA_DATA_DIGEST) : extraDataDigest; }
+    public String bundleNonce() { return bundleNonce == null ? bundleNonce = decodeTryteField(Field.BUNDLE_NONCE) : bundleNonce; }
+    public String trunkHash() { return trunkHash == null ? trunkHash = decodeTryteField(Field.TRUNK_HASH) : trunkHash; }
+    public String branchHash() { return branchHash == null ? branchHash = decodeTryteField(Field.BRANCH_HASH) : branchHash; }
+    public String nonce() { return nonce == null ? nonce = decodeTryteField(Field.NONCE) : nonce; }
+    public String essence() { return essence == null ? essence = decodeTryteField(Field.ESSENCE) : essence; }
+
+    public String decodedSignatureFragments() { return decodedSignatureFragments == null ? decodedSignatureFragments = Trytes.toAscii(signatureFragments()) : decodedSignatureFragments; }
 }

@@ -52,6 +52,6 @@ public class GossipFilter implements Serializable {
     }
 
     public boolean passes(Transaction transaction) {
-        return watchingAll || watchedAddresses.contains(transaction.address) || watchedTags.contains(transaction.tag);
+        return watchingAll || watchedAddresses.contains(transaction.address()) || watchedTags.contains(transaction.tag());
     }
 }

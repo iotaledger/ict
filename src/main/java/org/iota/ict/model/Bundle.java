@@ -79,7 +79,7 @@ public class Bundle {
         if (complete)
             return;
         Transaction fetchedLast = transactions.get(transactions.size() - 1);
-        ict.request(fetchedLast.trunkHash);
+        ict.request(fetchedLast.trunkHash());
     }
 
     /**
@@ -114,20 +114,20 @@ public class Bundle {
             currentInput = determineInputOfTransaction(currentInput, transaction);
             boolean transactionIsOutput = currentInput == null;
             if (transactionIsOutput) {
-                String hashOfMessage = IotaCurlHash.iotaCurlHash(transaction.signatureFragments, transaction.signatureFragments.length(), Constants.CURL_ROUNDS_BUNDLE_HASH);
+                String hashOfMessage = IotaCurlHash.iotaCurlHash(transaction.signatureFragments(), transaction.signatureFragments().length(), Constants.CURL_ROUNDS_BUNDLE_HASH);
                 concat.append(hashOfMessage);
             }
-            concat.append(transaction.essence);
+            concat.append(transaction.essence());
         }
 
         return IotaCurlHash.iotaCurlHash(concat.toString(), concat.length(), Constants.CURL_ROUNDS_BUNDLE_HASH);
     }
 
     private static BalanceChange determineInputOfTransaction(BalanceChange currentInput, Transaction transaction) {
-        if (currentInput != null && (transaction.value.compareTo(BigInteger.ZERO) != 0 || !currentInput.address.equals(transaction.address)))
+        if (currentInput != null && (transaction.value.compareTo(BigInteger.ZERO) != 0 || !currentInput.address.equals(transaction.address())))
             currentInput = null;
         if (currentInput == null && transaction.value.compareTo(BigInteger.ZERO) < 0)
-            currentInput = new BalanceChange(transaction.address, transaction.value, "");
+            currentInput = new BalanceChange(transaction.address(), transaction.value, "");
         return currentInput;
 
     }

@@ -7,7 +7,6 @@ import org.iota.ict.model.Tangle;
 import org.iota.ict.model.Transaction;
 import org.iota.ict.network.event.GossipEvent;
 import org.iota.ict.utils.Constants;
-import org.iota.ict.utils.Restartable;
 import org.iota.ict.utils.RestartableThread;
 import org.iota.ict.utils.Trytes;
 
@@ -35,7 +34,7 @@ public class Receiver extends RestartableThread {
     @Override
     public void run() {
         while (isRunning()) {
-            DatagramPacket packet = new DatagramPacket(new byte[Constants.TRANSACTION_SIZE_BYTES], Constants.TRANSACTION_SIZE_BYTES);
+            DatagramPacket packet = new DatagramPacket(new byte[Constants.PACKET_SIZE_BYTES], Constants.PACKET_SIZE_BYTES);
             try {
                 node.socket.receive(packet);
                 processIncoming(packet);
@@ -77,13 +76,15 @@ public class Receiver extends RestartableThread {
         }
 
         updateTransactionLog(sender, transaction);
-        processRequest(sender, transaction);
+
+        String requestedHash = Trytes.fromBytes(packet.getData(), Constants.TRANSACTION_SIZE_BYTES, Transaction.Field.BRANCH_HASH.byteLength);
+        processRequest(sender, requestedHash);
     }
 
     private Transaction unpack(DatagramPacket packet) {
         try {
             byte[] bytes = packet.getData();
-            return new Transaction(Trytes.fromBytes(bytes), bytes);
+            return new Transaction(bytes);
         } catch (Throwable t) {
             return null;
         }
@@ -100,16 +101,14 @@ public class Receiver extends RestartableThread {
         log.senders.add(sender);
     }
 
-    private void processRequest(Neighbor requester, Transaction transaction) {
-        if (transaction.requestHash.equals(Trytes.NULL_HASH))
+    private void processRequest(Neighbor requester, String requestHash) {
+        if (requestHash.equals(Trytes.NULL_HASH))
             return; // no transaction requested
-        Transaction requested = node.ict.findTransactionByHash(transaction.requestHash);
+        Transaction requested = node.ict.findTransactionByHash(requestHash);
         requester.stats.requested++;
         if (requested == null)
             return; // unknown transaction
         answerRequest(requested, requester);
-        // unset requestHash because it's header information and does not actually belong to the transaction
-        transaction.requestHash = Trytes.NULL_HASH;
     }
 
     private void answerRequest(Transaction requested, Neighbor requester) {

@@ -115,12 +115,12 @@ public class ReferenceTest extends GossipTest {
     private void assertCorrectReferences(Ict ict, String referrerHash) {
         Transaction referrer = ict.findTransactionByHash(referrerHash);
         Assert.assertNotNull("not received referrer " + referrerHash, referrer);
-        Assert.assertNotNull("not received trunk " + referrer.trunkHash, ict.findTransactionByHash(referrer.trunkHash));
-        Assert.assertNotNull("not received branch " + referrer.branchHash, ict.findTransactionByHash(referrer.branchHash));
+        Assert.assertNotNull("not received trunk " + referrer.trunkHash(), ict.findTransactionByHash(referrer.trunkHash()));
+        Assert.assertNotNull("not received branch " + referrer.branchHash(), ict.findTransactionByHash(referrer.branchHash()));
         Assert.assertNotNull("not built edge to branch", referrer.getBranch());
-        Assert.assertEquals("built edge to incorrect branch", referrer.branchHash, referrer.getBranch().hash);
+        Assert.assertEquals("built edge to incorrect branch", referrer.branchHash(), referrer.getBranch().hash);
         Assert.assertNotNull("not built edge to trunk", referrer.getTrunk());
-        Assert.assertEquals("built edge to incorrect trunk", referrer.trunkHash, referrer.getTrunk().hash);
+        Assert.assertEquals("built edge to incorrect trunk", referrer.trunkHash(), referrer.getTrunk().hash);
     }
 
     private static String submitTransactionAndReturnHash(Ict sender) {

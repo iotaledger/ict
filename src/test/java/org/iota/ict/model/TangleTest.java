@@ -42,7 +42,7 @@ public class TangleTest {
         underTest.createTransactionLogIfAbsent(expected);
 
         //then
-        Set<Transaction> actual = underTest.findTransactionsByAddress(expected.address);
+        Set<Transaction> actual = underTest.findTransactionsByAddress(expected.address());
         assertThatTransactionContainedInSet(expected, actual);
     }
 

@@ -22,9 +22,9 @@ public class TransactionRequestTest extends GossipTest {
 
         // scenario: existing ict forgets transaction
         a.getTangle().deleteTransaction(original);
-        Assert.assertNull("delete original transaction", a.findTransactionByHash(original.hash));
+        Assert.assertNull("did not delete original transaction", a.findTransactionByHash(original.hash));
         requestTransaction(a, original.hash);
-        Assert.assertNotNull("request transaction from neighbor", a.findTransactionByHash(original.hash));
+        Assert.assertNotNull("could not request transaction from neighbor", a.findTransactionByHash(original.hash));
 
         // scenario: new ict joins
         Ict c = createIct();

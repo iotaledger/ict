@@ -131,7 +131,7 @@ public class Transfer {
 
             boolean valueNegative = t.value.compareTo(BigInteger.ZERO) < 0;
             boolean valueZero = t.value.compareTo(BigInteger.ZERO) == 0;
-            boolean canAppendToBuilder = currentBuilder != null && valueZero && currentBuilder.address.equals(t.address);
+            boolean canAppendToBuilder = currentBuilder != null && valueZero && currentBuilder.address.equals(t.address());
 
             // transaction is part of current change
             if (canAppendToBuilder)

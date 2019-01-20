@@ -56,7 +56,7 @@ public abstract class RestartableThread implements Restartable, Runnable {
             for(Restartable subWorker : subWorkers)
                 subWorker.start();
             state = new StateRunning();
-            runningThread = new Thread(RestartableThread.this);
+            runningThread = new Thread(RestartableThread.this, RestartableThread.this.getClass().getName());
             runningThread.start();
             onStarted();
             if(!Constants.TESTING && logger != null)

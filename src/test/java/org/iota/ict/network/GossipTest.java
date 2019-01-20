@@ -41,7 +41,6 @@ public abstract class GossipTest extends IctTestTemplate {
         for (String hash : sentMessagesByHash.keySet())
             if (receiver.findTransactionByHash(hash) != null)
                 receivedTransactions++;
-        // tolerate if 80% of transactions went through
         if (receivedTransactions < minRequired)
             Assert.fail("sent " + sentMessagesByHash.size() + " but received " + receivedTransactions);
     }

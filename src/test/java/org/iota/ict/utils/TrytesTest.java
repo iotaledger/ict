@@ -38,6 +38,6 @@ public class TrytesTest {
         String trytes = Trytes.randomSequenceOfLength(3 * (int) (10 * Math.random()));
         byte[] bytes = Trytes.toBytes(trytes);
         Assert.assertEquals(bytes.length, 2 * (int) Math.ceil(trytes.length() / 3.0));
-        Assert.assertEquals("decoded bytes did not result in original trytes", trytes, Trytes.fromBytes(bytes));
+        Assert.assertEquals("decoded bytes did not result in original trytes", trytes, Trytes.fromBytes(bytes, 0, bytes.length));
     }
 }

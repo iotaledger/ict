@@ -170,12 +170,13 @@ public final class Trytes {
         return bytes;
     }
 
-    public static String fromBytes(byte[] bytes) {
-        assert bytes.length % 2 == 0;
-        char[] trytes = new char[bytes.length / 2 * 3];
+    public static String fromBytes(byte[] bytes, int bytesOffset, int bytesLength) {
+        assert bytesLength % 2 == 0;
+        char[] trytes = new char[bytesLength / 2 * 3];
         for (int i = 0; i < trytes.length / 3; i++) {
-            int b0 = bytes[2*i] < 0 ? bytes[2*i] + 256 : bytes[2*i];
-            int b1 = bytes[2*i+1] < 0 ? bytes[2*i+1] + 256 : bytes[2*i+1];
+            int bytesPos = bytesOffset + 2*i;
+            int b0 = bytes[bytesPos] < 0 ? bytes[bytesPos] + 256 : bytes[bytesPos];
+            int b1 = bytes[bytesPos+1] < 0 ? bytes[bytesPos+1] + 256 : bytes[bytesPos+1];
             trytes[3*i] = TRYTE_CHARS[b0/8];
             trytes[3*i+1] = TRYTE_CHARS[b1/8];
             trytes[3*i+2] = TRYTE_CHARS[b0%8+8*(b1%8)];

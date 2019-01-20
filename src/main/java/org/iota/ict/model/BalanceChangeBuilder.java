@@ -28,9 +28,9 @@ public class BalanceChangeBuilder {
     }
 
     public BalanceChangeBuilder(Transaction transaction) {
-        this.address = transaction.address;
+        this.address = transaction.address();
         this.value = transaction.value;
-        this.signatureOrMessage = new StringBuilder(transaction.signatureFragments);
+        this.signatureOrMessage = new StringBuilder(transaction.signatureFragments());
         createTransactionBuildersFromTailToHead();
     }
 
@@ -54,10 +54,10 @@ public class BalanceChangeBuilder {
     }
 
     public void append(Transaction transaction) {
-        if (!address.equals(transaction.address))
+        if (!address.equals(transaction.address()))
             throw new IllegalArgumentException("cannot append transaction from different address");
         value = value.add(transaction.value);
-        signatureOrMessage.append(transaction.signatureFragments);
+        signatureOrMessage.append(transaction.signatureFragments());
     }
 
     public boolean isInput() {

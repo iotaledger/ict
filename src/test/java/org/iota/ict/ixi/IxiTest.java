@@ -26,7 +26,7 @@ public class IxiTest extends IctTestTemplate {
         Assert.assertNotNull("IXI module did not receive event.", module.gossipEvent);
         Assert.assertEquals("Event received by IXI module contains wrong transaction", module.transaction, module.gossipEvent.getTransaction());
         Assert.assertNotNull("Ict did not store transaction submitted by IXI module.", ict.getTangle().findTransactionByHash(module.transaction.hash));
-        Assert.assertTrue("IXI module can't query transaction from tangle.", module.findTransactionsByAddress(module.transaction.address).contains(module.transaction));
+        Assert.assertTrue("IXI module can't query transaction from tangle.", module.findTransactionsByAddress(module.transaction.address()).contains(module.transaction));
     }
 
     private static void safeSleep(long ms) {

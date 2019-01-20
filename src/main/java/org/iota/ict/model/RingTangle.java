@@ -34,17 +34,19 @@ public class RingTangle extends Tangle implements PropertiesUser {
         maxHeapSize = newProperties.maxHeapSize();
     }
 
+    @Override
     public TransactionLog createTransactionLogIfAbsent(Transaction transaction) {
 
         TransactionLog log = super.createTransactionLogIfAbsent(transaction);
-        if (transactionsOrderedByTimestamp != null && !transactionsOrderedByTimestamp.contains(log.transaction)) {
-            // == null only when calling the super constructor and adding NULL transaction
-            // do not add NULL transaction to transactionsOrderedByTimestamp to prevent it from being pruned
+
+        // do not add NULL transaction to transactionsOrderedByTimestamp to prevent it from being pruned
+
+        if (transaction != Transaction.NULL_TRANSACTION && !transactionsOrderedByTimestamp.contains(log.transaction)) {
+            // transactionsOrderedByTimestamp == null only when calling the super constructor and adding NULL transaction
             transactionsOrderedByTimestamp.put(transaction);
             while (transactionsOrderedByTimestamp.size() + 1 > capacity * capacityFactor) { // +1 fpr NULL transaction
                 deleteTransaction(transactionsOrderedByTimestamp.poll());
             }
-            assert size() <= capacity;
             adjustTangleCapacityFactor();
         }
 

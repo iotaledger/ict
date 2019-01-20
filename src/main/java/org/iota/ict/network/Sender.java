@@ -79,7 +79,6 @@ public class Sender extends RestartableThread implements SenderInterface {
         Tangle.TransactionLog transactionLog = node.ict.getTangle().findTransactionLog(transaction);
         if (Math.abs(transaction.issuanceTimestamp - System.currentTimeMillis()) > Constants.TIMESTAMP_DIFFERENCE_TOLERANCE_IN_MILLIS * 0.9)
             return;
-        transaction.requestHash = transactionsToRequest.isEmpty() ? Trytes.NULL_HASH : transactionsToRequest.poll();
         for (Neighbor nb : node.neighbors)
             if (transactionLog == null || !transactionLog.senders.contains(nb))
                 sendTransactionToNeighbor(nb, transaction);
@@ -87,7 +86,7 @@ public class Sender extends RestartableThread implements SenderInterface {
 
     private void sendTransactionToNeighbor(Neighbor nb, Transaction transaction) {
         try {
-            DatagramPacket packet = transaction.toDatagramPacket();
+            DatagramPacket packet = transaction.toDatagramPacket(transactionsToRequest.isEmpty() ? Trytes.NULL_HASH : transactionsToRequest.poll());
             packet.setSocketAddress(nb.getAddress());
             node.socket.send(packet);
         } catch (Exception e) {

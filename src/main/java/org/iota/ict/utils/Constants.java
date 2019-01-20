@@ -19,9 +19,10 @@ public class Constants {
     public static final String WEB_GUI_PATH = "web/";
 
     public static final int MAX_NEIGHBOR_COUNT = 3;
-    public static final int TRANSACTION_SIZE_TRITS = Transaction.Field.REQUEST_HASH.tritOffset + Transaction.Field.REQUEST_HASH.tritLength;
+    public static final int TRANSACTION_SIZE_TRITS = Transaction.Field.NONCE.tritOffset + Transaction.Field.NONCE.tritLength;
     public static final int TRANSACTION_SIZE_TRYTES = TRANSACTION_SIZE_TRITS / 3;
     public static final int TRANSACTION_SIZE_BYTES = TRANSACTION_SIZE_TRITS / 9 * 2;
+    public static final int PACKET_SIZE_BYTES = TRANSACTION_SIZE_BYTES + Transaction.Field.BRANCH_HASH.byteLength;
     public static final int CURL_ROUNDS_TRANSACTION_HASH = 27;
     public static final int CURL_ROUNDS_BUNDLE_HASH = 27;
     public static final long TIMESTAMP_DIFFERENCE_TOLERANCE_IN_MILLIS = 20000;

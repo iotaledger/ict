@@ -76,8 +76,8 @@ public class Tangle implements PropertiesUser {
         transaction.trunk = null;
         TransactionLog log = transactionsByHash.remove(transaction.hash);
         if (log != null) {
-            log.removeFromSetMap(transactionsByTag, transaction.tag);
-            log.removeFromSetMap(transactionsByAddress, transaction.address);
+            log.removeFromSetMap(transactionsByTag, transaction.tag());
+            log.removeFromSetMap(transactionsByAddress, transaction.address());
         }
     }
 
@@ -97,13 +97,13 @@ public class Tangle implements PropertiesUser {
 
     private void buildEdgesToReferencedTransactions(Transaction referrer) {
 
-        referrer.branch = findTransactionByHash(referrer.branchHash);
+        referrer.branch = findTransactionByHash(referrer.branchHash());
         if (referrer.branch == null)
-            addReferrerTransactionToWaitingList(referrer, referrer.branchHash);
+            addReferrerTransactionToWaitingList(referrer, referrer.branchHash());
 
-        referrer.trunk = findTransactionByHash(referrer.trunkHash);
+        referrer.trunk = findTransactionByHash(referrer.trunkHash());
         if (referrer.trunk == null)
-            addReferrerTransactionToWaitingList(referrer, referrer.trunkHash);
+            addReferrerTransactionToWaitingList(referrer, referrer.trunkHash());
     }
 
     private void addReferrerTransactionToWaitingList(Transaction referrer, String transactionToWaitFor) {
@@ -124,17 +124,17 @@ public class Tangle implements PropertiesUser {
         public final Set<Neighbor> senders = new HashSet<>();
         public boolean wasSent;
 
-        private TransactionLog(Transaction transaction) {
+        protected TransactionLog(Transaction transaction) {
             this.transaction = transaction;
             transactionsByHash.put(transaction.hash, this);
-            insertIntoSetMap(transactionsByAddress, transaction.address);
-            insertIntoSetMap(transactionsByTag, transaction.tag);
+            insertIntoSetMap(transactionsByAddress, transaction.address());
+            insertIntoSetMap(transactionsByTag, transaction.tag());
 
             // buildEdges() must be called after transactionsByHash.put() because first tx (NULL tx) is referencing itself
             buildEdges(transaction);
         }
 
-        private <K> void insertIntoSetMap(Map<K, List<TransactionLog>> map, K key) {
+        protected <K> void insertIntoSetMap(Map<K, List<TransactionLog>> map, K key) {
             if (!map.containsKey(key)) {
                 map.put(key, new CopyOnWriteArrayList<TransactionLog>());
             }

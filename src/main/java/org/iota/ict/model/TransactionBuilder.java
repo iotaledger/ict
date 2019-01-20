@@ -21,7 +21,6 @@ public class TransactionBuilder {
     public String tag = generateNullTrytes(Transaction.Field.TAG);
     public long attachmentTimestamp = System.currentTimeMillis(), attachmentTimestampLowerBound = 0, attachmentTimestampUpperBound = 0;
     String nonce = Trytes.randomSequenceOfLength(Transaction.Field.NONCE.tryteLength);
-    public String requestHash = generateNullTrytes(Transaction.Field.REQUEST_HASH);
     public boolean isBundleHead = true;
     public boolean isBundleTail = true;
 
