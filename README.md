@@ -21,7 +21,7 @@ This method is recommended for beginners.
 
 #### Method B: Build the .jar Yourself
 
-This method is recommended for advanced users. You have to install **Git**, **Gradle** amd **NPM**.
+This method is recommended for advanced users. You have to install **Git**, **Gradle** and **NPM**.
 
 ```shell
 # 1) clone the source code (you will need Git)

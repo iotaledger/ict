@@ -46,6 +46,10 @@ public class Node extends RestartableThread implements PropertiesUser {
     public void log() {
         int queueSize = sender.queueSize();
         LOGGER.debug("forwarding queue size: " + queueSize);
+        if(queueSize > 200) {
+            LOGGER.warn("There is a backlog of " + queueSize + " transactions to be forwarded. This might cause memory issues. You can monitor this metric via `--debug`.");
+            IssueCollector.log();
+        }
     }
 
     @Override

@@ -75,4 +75,9 @@ public class EditableProperties extends Properties {
         this.name = name;
         return this;
     }
+
+    public EditableProperties maxHeapSize(double maxHeapSize) {
+        this.maxHeapSize = maxHeapSize;
+        return this;
+    }
 }

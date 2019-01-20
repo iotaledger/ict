@@ -26,6 +26,7 @@ public class Properties implements Cloneable {
     protected long antiSpamAbs = 1000;
     protected boolean guiEnabled = true;
     protected long tangleCapacity = 10000;
+    protected double maxHeapSize = 0.7;
     protected long minForwardDelay = 0;
     protected long maxForwardDelay = 200;
     protected String name = "ict";
@@ -69,6 +70,7 @@ public class Properties implements Cloneable {
     }
 
     Properties(java.util.Properties propObject) {
+        maxHeapSize = readDoublePorperty(propObject, Property.max_heap_size, 0.01, 1.0, DEFAULT_PROPERTIES.maxHeapSize);
         tangleCapacity = readLongProperty(propObject, Property.tangle_capacity, 10, Long.MAX_VALUE, DEFAULT_PROPERTIES.tangleCapacity);
         antiSpamAbs = readLongProperty(propObject, Property.anti_spam_abs, 1, Long.MAX_VALUE, DEFAULT_PROPERTIES.antiSpamAbs);
         minForwardDelay = readLongProperty(propObject, Property.min_forward_delay, 0, 10000, DEFAULT_PROPERTIES.minForwardDelay);
@@ -200,6 +202,7 @@ public class Properties implements Cloneable {
 
     public java.util.Properties toPropObject() {
         java.util.Properties propObject = new java.util.Properties();
+        propObject.setProperty(Property.max_heap_size.name(), maxHeapSize + "");
         propObject.setProperty(Property.tangle_capacity.name(), tangleCapacity + "");
         propObject.setProperty(Property.anti_spam_abs.name(), antiSpamAbs + "");
         propObject.setProperty(Property.min_forward_delay.name(), minForwardDelay + "");
@@ -217,6 +220,7 @@ public class Properties implements Cloneable {
 
     public JSONObject toJSON() {
         JSONObject json = new JSONObject();
+        json.put(Property.max_heap_size.name(), maxHeapSize);
         json.put(Property.tangle_capacity.name(), tangleCapacity);
         json.put(Property.anti_spam_abs.name(), antiSpamAbs);
         json.put(Property.min_forward_delay.name(), minForwardDelay);
@@ -289,7 +293,12 @@ public class Properties implements Cloneable {
         return name;
     }
 
+    public double maxHeapSize() {
+        return maxHeapSize;
+    }
+
     public enum Property {
+        max_heap_size,
         name,
         anti_spam_abs,
         tangle_capacity,

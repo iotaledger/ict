@@ -7,6 +7,7 @@ import org.iota.ict.api.GithubGateway;
 import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.iota.ict.utils.Constants;
+import org.iota.ict.utils.IssueCollector;
 import org.iota.ict.utils.properties.Properties;
 import org.iota.ict.utils.VersionComparator;
 
@@ -32,6 +33,7 @@ public class Main {
             @Override
             public void uncaughtException(Thread thread, Throwable throwable) {
                 System.err.println("Uncaught exeption in thread " + thread);
+                IssueCollector.collect(throwable);
                 throwable.printStackTrace();
             }
         });
