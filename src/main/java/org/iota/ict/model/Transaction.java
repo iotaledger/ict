@@ -1,6 +1,7 @@
 package org.iota.ict.model;
 
 import com.iota.curl.IotaCurlHash;
+import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.Trytes;
 
@@ -76,7 +77,7 @@ public class Transaction {
         branch = this;
         trunk = this;
 
-        assert trytes().equals(Trytes.padRight("", Constants.TRANSACTION_SIZE_TRYTES));
+        assert trytes().equals(Trytes.padRight("", Constants.TRANSACTION_SIZE_TRYTES+81));
     }
 
     private static String generateNullTrytes(Transaction.Field field) {
@@ -162,7 +163,7 @@ public class Transaction {
      * @return Trytes of this transaction (length = {@link Constants#TRANSACTION_SIZE_TRYTES}).
      */
     private String trytes() {
-        char[] trytes = new char[Constants.TRANSACTION_SIZE_TRYTES];
+        char[] trytes = new char[Constants.TRANSACTION_SIZE_TRYTES+81];
         putField(trytes, Field.SIGNATURE_FRAGMENTS, signatureFragments);
         putField(trytes, Field.EXTRA_DATA_DIGEST, extraDataDigest);
         putField(trytes, Field.ADDRESS, address);
@@ -178,6 +179,7 @@ public class Transaction {
         putField(trytes, Field.ATTACHMENT_TIMESTAMP_LOWER_BOUND, attachmentTimestampLowerBound);
         putField(trytes, Field.ATTACHMENT_TIMESTAMP_UPPER_BOUND, attachmentTimestampUpperBound);
         putField(trytes, Field.NONCE, nonce);
+        System.arraycopy(Trytes.NULL_HASH.toCharArray(), 0, trytes, Constants.TRANSACTION_SIZE_TRYTES, 81); // TODO remove this constant part. it's just kept for now to keep it compatible with 0.4
         return new String(trytes);
     }
 
@@ -186,7 +188,7 @@ public class Transaction {
     }
 
     private static String curlHash(byte[] bytes) {
-        String trytes = Trytes.fromBytes(bytes, 0, Constants.TRANSACTION_SIZE_BYTES);
+        String trytes = Trytes.fromBytes(bytes, 0, Constants.TRANSACTION_SIZE_BYTES)+Trytes.NULL_HASH;
         return curlHash(trytes);
     }
 
@@ -194,7 +196,7 @@ public class Transaction {
      * @return Calculated hash of this transaction.
      */
     private static String curlHash(String trytes) {
-        return IotaCurlHash.iotaCurlHash(trytes, Constants.TRANSACTION_SIZE_TRYTES, Constants.TESTING ? 9 : Constants.CURL_ROUNDS_TRANSACTION_HASH);
+        return IotaCurlHash.iotaCurlHash(trytes, Constants.TRANSACTION_SIZE_TRYTES+81, Constants.TESTING ? 9 : Constants.CURL_ROUNDS_TRANSACTION_HASH);
     }
 
     private static void putField(char[] target, Field field, long value) {
