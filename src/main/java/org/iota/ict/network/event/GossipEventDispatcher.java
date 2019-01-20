@@ -26,6 +26,7 @@ public class GossipEventDispatcher extends RestartableThread {
                 GossipEvent event = eventQueue.take();
                 for (GossipListener listener : listeners)
                     listener.onGossipEvent(event);
+                event.getTransaction().compress(); // TODO compress only if nobody is using this transaction anymore
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }

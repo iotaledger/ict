@@ -282,6 +282,19 @@ public class Transaction {
         return Trytes.fromBytes(bytes, 0, Constants.TRANSACTION_SIZE_BYTES);
     }
 
+    public void compress() {
+        signatureFragments = null;
+        extraDataDigest = null;
+        address = null;
+        bundleNonce = null;
+        trunkHash = null;
+        branchHash = null;
+        tag = null;
+        nonce = null;
+        decodedSignatureFragments = null;
+        essence = null;
+    }
+
     public String address() { return address == null ? address = decodeTryteField(Field.ADDRESS) : address; }
     public String tag() { return tag == null ? tag = decodeTryteField(Field.TAG) : tag; }
     public String signatureFragments() { return signatureFragments == null ? signatureFragments = decodeTryteField(Field.SIGNATURE_FRAGMENTS) : signatureFragments; }
