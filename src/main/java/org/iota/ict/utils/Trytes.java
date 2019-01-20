@@ -117,7 +117,7 @@ public final class Trytes {
         char[] ascii = new char[trytes.length() / 3 * 2];
         for (int i = 0; i < trytes.length() / 3; i++) {
             String tryteTriplet = trytes.substring(3 * i, 3 * i + 3);
-            int intVal = toNumber(tryteTriplet).intValue() + MAX_TRYTE_TRIPLET_ABS;
+            int intVal = (int)toLong(tryteTriplet) + MAX_TRYTE_TRIPLET_ABS;
             ascii[2 * i + 0] = (char) (intVal / 127);
             ascii[2 * i + 1] = (char) (intVal % 127);
         }

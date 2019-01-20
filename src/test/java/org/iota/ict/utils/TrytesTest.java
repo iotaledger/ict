@@ -27,10 +27,13 @@ public class TrytesTest {
 
     @Test
     public void testAsciiEncoding() {
+        Trytes.fromAscii("");
+        long a = System.currentTimeMillis();
         for (int i = 0; i < 1000; i++) {
             String tryteTriplet = Trytes.randomSequenceOfLength(3);
             Assert.assertEquals(tryteTriplet.equals("999") ? "" : tryteTriplet, Trytes.fromAscii(Trytes.toAscii(tryteTriplet)));
         }
+        System.out.println(System.currentTimeMillis() - a);
     }
 
     @Test

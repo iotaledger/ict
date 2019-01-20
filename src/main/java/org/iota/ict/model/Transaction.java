@@ -20,6 +20,7 @@ import java.net.DatagramPacket;
  */
 public class Transaction {
 
+    protected static int amountOfInstances = 0;
     public static final Transaction NULL_TRANSACTION = new Transaction();
 
     private String signatureFragments;
@@ -50,6 +51,7 @@ public class Transaction {
      * all trit flags are set to 0 thus making this transaction actually invalid.
      */
     private Transaction() {
+        amountOfInstances++;
         bytes = new byte[Constants.PACKET_SIZE_BYTES];
         signatureFragments = generateNullTrytes(Field.SIGNATURE_FRAGMENTS);
         extraDataDigest = generateNullTrytes(Field.EXTRA_DATA_DIGEST);
@@ -83,6 +85,7 @@ public class Transaction {
     }
 
     Transaction(TransactionBuilder builder) {
+        amountOfInstances++;
         bytes = new byte[Constants.PACKET_SIZE_BYTES];
         signatureFragments = builder.signatureFragments;
         extraDataDigest = builder.extraDataDigest;
@@ -137,6 +140,7 @@ public class Transaction {
     }
 
     public Transaction(byte[] bytes) {
+        amountOfInstances++;
         assert bytes.length == Constants.PACKET_SIZE_BYTES;
         this.bytes = bytes;
 
@@ -155,6 +159,16 @@ public class Transaction {
         isBundleHead = isFlagSet(hashTrits, Constants.HashFlags.BUNDLE_HEAD_FLAG);
         isBundleTail = isFlagSet(hashTrits, Constants.HashFlags.BUNDLE_TAIL_FLAG);
         assertMinWeightMagnitude(hashTrits);
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        amountOfInstances--;
+    }
+
+    public static int getAmountOfInstances() {
+        return amountOfInstances;
     }
 
     /**
@@ -305,5 +319,6 @@ public class Transaction {
     public String nonce() { return nonce == null ? nonce = decodeTryteField(Field.NONCE) : nonce; }
     public String essence() { return essence == null ? essence = decodeTryteField(Field.ESSENCE) : essence; }
 
-    public String decodedSignatureFragments() { return decodedSignatureFragments == null ? decodedSignatureFragments = Trytes.toAscii(signatureFragments()) : decodedSignatureFragments; }
+    public String decodedSignatureFragments() {
+        return decodedSignatureFragments == null ? decodedSignatureFragments = Trytes.toAscii(signatureFragments()) : decodedSignatureFragments; }
 }
