@@ -73,9 +73,10 @@ public class Ict extends RestartableThread implements IctInterface {
             }
             if (roundStart + properties.roundDuration() < System.currentTimeMillis()) {
                 Neighbor.newRound(this, round);
+                LOGGER.debug("memory: "+Runtime.getRuntime().totalMemory()/1024/1024+"MB / "+Runtime.getRuntime().maxMemory()/1024/1024+"MB (total/max)");
+                LOGGER.debug("tangle size: " + tangle.size());
                 node.log();
                 eventDispatcher.log();
-                LOGGER.debug("tangle size: " + tangle.size());
                 round++;
                 roundStart = System.currentTimeMillis();
             }

@@ -1,11 +1,9 @@
 package org.iota.ict.model;
 
 import com.iota.curl.IotaCurlHash;
-import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.Trytes;
 
-import java.io.Serializable;
 import java.math.BigInteger;
 import java.net.DatagramPacket;
 
