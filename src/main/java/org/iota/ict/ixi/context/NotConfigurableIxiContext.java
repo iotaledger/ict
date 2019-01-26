@@ -7,7 +7,7 @@ public class NotConfigurableIxiContext implements IxiContext {
     public static final NotConfigurableIxiContext INSTANCE = new NotConfigurableIxiContext();
 
     @Override
-    public void onUpdateConfiguration(JSONObject newConfiguration) {
+    public void tryToUpdateConfiguration(JSONObject newConfiguration) {
         throw new IllegalArgumentException("This IXI module cannot be configured.");
     }
 

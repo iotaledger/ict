@@ -301,7 +301,8 @@ class RouteUpdateModule extends RouteImpl {
  * @apiGroup Modules
  * @apiVersion 0.4.0
  * @apiSuccess {Array} modules Array of all installed IXI modules. For each module, contains the `path` (identifier) and meta data.
- * The field `update` contains the version of an available update, if set.).
+ * The field `update` contains the version of an available update, if set.). If `configurable` is set to `true`, the
+ * module can be configured. Please see [GetModuleConfig](#api-Modules-GetModuleConfig).
  * @apiSuccessExample {json} Success-Response:
  *     {
  *         "modules": [
@@ -310,7 +311,8 @@ class RouteUpdateModule extends RouteImpl {
  *                 "name": "CHAT.ixi",
  *                 "description": "...",
  *                 ...
- *                 "update": "1.3"
+ *                 "update": "1.3",
+ *                 "configurable": true
 *              },
  *             ...
  *         ],
@@ -327,6 +329,62 @@ class RouteGetModules extends RouteImpl {
         return jsonIct.getModules();
     }
 }
+
+/**
+ * @api {post} /getModuleConfig/ getModuleConfig
+ * @apiParam {String} path Relative path of the module in the modules/ directory. Use the value of the `path` field returned by [GetModules](#api-Modules-GetModules).
+ * @apiDescription Returns the current and the default configuration of this IXI module. Unset if the module is not configurable.
+ * @apiName GetModuleConfig
+ * @apiGroup Modules
+ * @apiVersion 0.5.0
+ * @apiSuccess {Object} config The current configuration of the IXI module.
+ * @apiSuccess {Object} default_config The default configuration. Intended for resetting the configuration.
+ * @apiSuccessExample {json} Success-Response:
+ *     {
+ *         "config": { "color": "red", ... },
+ *         "default_config": { "color": "blue", ... },
+ *         "success": true
+ *     }
+ * @apiErrorExample {json} ModuleNotFound Error
+ *     {"success": false, "error": "No module 'chat.ixi.jar'." }
+ * */
+class RouteGetModuleConfig extends RouteImpl {
+
+    protected RouteGetModuleConfig(JsonIct jsonIct) { super(jsonIct, "/getModuleConfig"); }
+
+    public JSONObject execute(Request request) {
+        String path = request.queryParams("path");
+        return jsonIct.getModuleConfig(path);
+    }
+}
+
+/**
+ * @api {post} /setModuleConfig/ setModuleConfig
+ * @apiParam {String} path Relative path of the module in the modules/ directory. Use the value of the `path` field returned by [GetModules](#api-Modules-GetModules).
+ * @apiParam {Object} config The new configuration object, usually a modified version what was returned by [GetModuleConfig](#api-Modules-GetModuleConfig).
+ * @apiDescription Changes the configuration of the module. The new configuration will be stored in the respective module's cfg file.
+ * @apiName SetModuleConfig
+ * @apiGroup Modules
+ * @apiVersion 0.5.0
+ * @apiSuccess {Object} success `true` if the action was successful, `false` if there was an error.
+ * @apiSuccessExample {json} Success-Response:
+ *     {"success": true }
+ * @apiErrorExample {json} ModuleNotFound Error
+ *     {"success": false, "error": "No module 'chat.ixi.jar'." }
+ * @apiErrorExample {json} ModuleNotFound Error
+ *     {"success": false, "error": "Property 'color' cannot be assigned to value 'helicopter'." }
+ * */
+class RouteSetModuleConfig extends RouteImpl {
+
+    protected RouteSetModuleConfig(JsonIct jsonIct) { super(jsonIct, "/setModuleConfig"); }
+
+    public JSONObject execute(Request request) {
+        String path = request.queryParams("path");
+        JSONObject newConfig = new JSONObject(request.queryParams("config"));
+        return jsonIct.setModuleConfig(path, newConfig);
+    }
+}
+
 /**
  * @api {post} /getLog/ GetLog
  * @apiDescription Returns messages in the node's log. If no messages are available, will block until next message.

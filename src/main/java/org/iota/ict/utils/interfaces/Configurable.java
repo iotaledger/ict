@@ -9,7 +9,7 @@ public interface Configurable {
      * the internal configuration or throw an Exception with a meaningful message to inform the caller about why the changes
      * cannot be applied (invalid format, invalid length, illegal characters, illegal combination of flags, etc.).
      */
-    void onUpdateConfiguration(JSONObject newConfiguration);
+    void tryToUpdateConfiguration(JSONObject newConfiguration);
 
     /**
      * @return The current internal configuration of the IXI module.

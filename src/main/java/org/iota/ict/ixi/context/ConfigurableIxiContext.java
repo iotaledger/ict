@@ -13,7 +13,7 @@ public abstract class ConfigurableIxiContext implements IxiContext {
     }
 
     @Override
-    public void onUpdateConfiguration(JSONObject newConfiguration) {
+    public void tryToUpdateConfiguration(JSONObject newConfiguration) {
         validateConfiguration(newConfiguration);
         this.configuration = newConfiguration;
         applyConfiguration();

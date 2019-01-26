@@ -23,7 +23,7 @@ public class IxiConfigurationTest {
     }
 
     /**
-     * Tests that a valid configuration passed to {@link IxiContext#onUpdateConfiguration(JSONObject)} will be applied.
+     * Tests that a valid configuration passed to {@link IxiContext#tryToUpdateConfiguration(JSONObject)} will be applied.
      * */
     @Test
     public void testApplyConfiguration() {
@@ -33,7 +33,7 @@ public class IxiConfigurationTest {
         int oldAge = configuration.getInt(ConfigurableModule.MyContext.FIELD_AGE);
 
         // when
-        contextUnderTest.onUpdateConfiguration(configuration.put(ConfigurableModule.MyContext.FIELD_NAME, newName));
+        contextUnderTest.tryToUpdateConfiguration(configuration.put(ConfigurableModule.MyContext.FIELD_NAME, newName));
 
         // then
         Assert.assertEquals("New configuration was not applied on attribute 'age'.", oldAge, module.age);
@@ -42,7 +42,7 @@ public class IxiConfigurationTest {
 
 
     /**
-     * Tests that an <b>invalid</b> configuration passed to {@link IxiContext#onUpdateConfiguration(JSONObject)} will <b>NOT</b> be applied.
+     * Tests that an <b>invalid</b> configuration passed to {@link IxiContext#tryToUpdateConfiguration(JSONObject)} will <b>NOT</b> be applied.
      * */
     @Test
     public void testRejectInvalidConfiguration() {
@@ -53,7 +53,7 @@ public class IxiConfigurationTest {
 
         // when
         try {
-            contextUnderTest.onUpdateConfiguration(configuration.put(ConfigurableModule.MyContext.FIELD_AGE, invalidAge));
+            contextUnderTest.tryToUpdateConfiguration(configuration.put(ConfigurableModule.MyContext.FIELD_AGE, invalidAge));
             Assert.fail("No throwable was thrown when invalid configuration was passed to module.");
         } catch (IllegalArgumentException t) {}
 
@@ -63,7 +63,7 @@ public class IxiConfigurationTest {
 
     /**
      * Tests that direct modifications of the configuration returned by {@link IxiContext#getConfiguration()} are not
-     * applied but require a call of {@link IxiContext#onUpdateConfiguration(JSONObject)}.
+     * applied but require a call of {@link IxiContext#tryToUpdateConfiguration(JSONObject)}.
      * */
     @Test
     public void testCannotModifyConfigurationFromGetter() {

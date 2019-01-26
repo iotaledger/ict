@@ -106,13 +106,37 @@ public class JsonIct {
     }
 
     protected JSONArray getModules() {
-        JSONArray ixis = new JSONArray();
+        JSONArray modules = new JSONArray();
         IxiModuleHolder holder = ict.getModuleHolder();
         for (IxiModule module : holder.getModules()) {
             IxiModuleInfo info = holder.getInfo(module);
-            ixis.put(info.toJSON());
+            JSONObject moduleJSON = info.toJSON();
+            moduleJSON.put("configurable", module.getContext().getConfiguration() != null);
+            modules.put(moduleJSON);
         }
-        return ixis;
+        return modules;
+    }
+
+    protected JSONObject getModuleConfig(String path) {
+        IxiModule module = ict.getModuleHolder().getModule(path);
+        if(module == null)
+            throw new RuntimeException("No module '"+path+"'.");
+
+        return new JSONObject()
+                .put("default_config", module.getContext().getDefaultConfiguration())
+                .put("config", module.getContext().getConfiguration());
+    }
+
+    protected JSONObject setModuleConfig(String path, JSONObject config) {
+        IxiModule module = ict.getModuleHolder().getModule(path);
+        if(module == null)
+            throw new RuntimeException("No module '"+path+"'.");
+
+        module.getContext().tryToUpdateConfiguration(config);
+
+        // TODO store
+
+        return success();
     }
 
     protected JSONObject addModule(String repository) throws Throwable {

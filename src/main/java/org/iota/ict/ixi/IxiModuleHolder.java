@@ -164,6 +164,10 @@ public class IxiModuleHolder extends RestartableThread {
         return new HashSet<>(modulesWithInfo.keySet());
     }
 
+    public IxiModule getModule(String path) {
+        return modulesByPath.get(path);
+    }
+
     public IxiModuleInfo getInfo(IxiModule module) {
         return modulesWithInfo.get(module);
     }
