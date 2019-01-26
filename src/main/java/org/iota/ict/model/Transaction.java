@@ -77,7 +77,7 @@ public class Transaction {
         branch = this;
         trunk = this;
 
-        assert trytes().equals(Trytes.padRight("", Constants.TRANSACTION_SIZE_TRYTES+81));
+        assert trytes().equals(Trytes.padRight("", Constants.TRANSACTION_SIZE_TRYTES + 81));
     }
 
     private static String generateNullTrytes(Transaction.Field field) {
@@ -104,7 +104,7 @@ public class Transaction {
         nonce = builder.nonce;
 
         String trytes = trytes();
-        if(!Trytes.isTrytes(trytes))
+        if (!Trytes.isTrytes(trytes))
             throw new IllegalArgumentException("Transaction contains non-tryte characters.");
 
         hash = curlHash(trytes);
@@ -133,9 +133,9 @@ public class Transaction {
     }
 
     private static void assertMinWeightMagnitude(byte[] hashTrits) {
-        if(!Constants.TESTING)
-            for(int i = 0; i < Constants.MIN_WEIGHT_MAGNITUDE; i++)
-                if(hashTrits[hashTrits.length-1-i] != 0)
+        if (!Constants.TESTING)
+            for (int i = 0; i < Constants.MIN_WEIGHT_MAGNITUDE; i++)
+                if (hashTrits[hashTrits.length - 1 - i] != 0)
                     throw new InvalidWeightException();
     }
 
@@ -175,7 +175,7 @@ public class Transaction {
      * @return Trytes of this transaction (length = {@link Constants#TRANSACTION_SIZE_TRYTES}).
      */
     private String trytes() {
-        char[] trytes = new char[Constants.TRANSACTION_SIZE_TRYTES+81];
+        char[] trytes = new char[Constants.TRANSACTION_SIZE_TRYTES + 81];
         putField(trytes, Field.SIGNATURE_FRAGMENTS, signatureFragments);
         putField(trytes, Field.EXTRA_DATA_DIGEST, extraDataDigest);
         putField(trytes, Field.ADDRESS, address);
@@ -200,7 +200,7 @@ public class Transaction {
     }
 
     private static String curlHash(byte[] bytes) {
-        String trytes = Trytes.fromBytes(bytes, 0, Constants.TRANSACTION_SIZE_BYTES)+Trytes.NULL_HASH;
+        String trytes = Trytes.fromBytes(bytes, 0, Constants.TRANSACTION_SIZE_BYTES) + Trytes.NULL_HASH;
         return curlHash(trytes);
     }
 
@@ -208,7 +208,7 @@ public class Transaction {
      * @return Calculated hash of this transaction.
      */
     private static String curlHash(String trytes) {
-        return IotaCurlHash.iotaCurlHash(trytes, Constants.TRANSACTION_SIZE_TRYTES+81, Constants.TESTING ? 9 : Constants.CURL_ROUNDS_TRANSACTION_HASH);
+        return IotaCurlHash.iotaCurlHash(trytes, Constants.TRANSACTION_SIZE_TRYTES + 81, Constants.TESTING ? 9 : Constants.CURL_ROUNDS_TRANSACTION_HASH);
     }
 
     private static void putField(char[] target, Field field, long value) {
@@ -288,7 +288,7 @@ public class Transaction {
 
     static class InvalidWeightException extends RuntimeException {
         InvalidWeightException() {
-            super("Transaction does not satisfy minimum required weight magnitude = "+Constants.MIN_WEIGHT_MAGNITUDE+".");
+            super("Transaction does not satisfy minimum required weight magnitude = " + Constants.MIN_WEIGHT_MAGNITUDE + ".");
         }
     }
 
@@ -309,16 +309,43 @@ public class Transaction {
         essence = null;
     }
 
-    public String address() { return address == null ? address = decodeTryteField(Field.ADDRESS) : address; }
-    public String tag() { return tag == null ? tag = decodeTryteField(Field.TAG) : tag; }
-    public String signatureFragments() { return signatureFragments == null ? signatureFragments = decodeTryteField(Field.SIGNATURE_FRAGMENTS) : signatureFragments; }
-    public String extraDataDigest() { return extraDataDigest == null ? extraDataDigest = decodeTryteField(Field.EXTRA_DATA_DIGEST) : extraDataDigest; }
-    public String bundleNonce() { return bundleNonce == null ? bundleNonce = decodeTryteField(Field.BUNDLE_NONCE) : bundleNonce; }
-    public String trunkHash() { return trunkHash == null ? trunkHash = decodeTryteField(Field.TRUNK_HASH) : trunkHash; }
-    public String branchHash() { return branchHash == null ? branchHash = decodeTryteField(Field.BRANCH_HASH) : branchHash; }
-    public String nonce() { return nonce == null ? nonce = decodeTryteField(Field.NONCE) : nonce; }
-    public String essence() { return essence == null ? essence = decodeTryteField(Field.ESSENCE) : essence; }
+    public String address() {
+        return address == null ? address = decodeTryteField(Field.ADDRESS) : address;
+    }
+
+    public String tag() {
+        return tag == null ? tag = decodeTryteField(Field.TAG) : tag;
+    }
+
+    public String signatureFragments() {
+        return signatureFragments == null ? signatureFragments = decodeTryteField(Field.SIGNATURE_FRAGMENTS) : signatureFragments;
+    }
+
+    public String extraDataDigest() {
+        return extraDataDigest == null ? extraDataDigest = decodeTryteField(Field.EXTRA_DATA_DIGEST) : extraDataDigest;
+    }
+
+    public String bundleNonce() {
+        return bundleNonce == null ? bundleNonce = decodeTryteField(Field.BUNDLE_NONCE) : bundleNonce;
+    }
+
+    public String trunkHash() {
+        return trunkHash == null ? trunkHash = decodeTryteField(Field.TRUNK_HASH) : trunkHash;
+    }
+
+    public String branchHash() {
+        return branchHash == null ? branchHash = decodeTryteField(Field.BRANCH_HASH) : branchHash;
+    }
+
+    public String nonce() {
+        return nonce == null ? nonce = decodeTryteField(Field.NONCE) : nonce;
+    }
+
+    public String essence() {
+        return essence == null ? essence = decodeTryteField(Field.ESSENCE) : essence;
+    }
 
     public String decodedSignatureFragments() {
-        return decodedSignatureFragments == null ? decodedSignatureFragments = Trytes.toAscii(signatureFragments()) : decodedSignatureFragments; }
+        return decodedSignatureFragments == null ? decodedSignatureFragments = Trytes.toAscii(signatureFragments()) : decodedSignatureFragments;
+    }
 }

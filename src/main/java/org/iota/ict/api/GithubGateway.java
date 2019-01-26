@@ -14,13 +14,14 @@ import java.net.URL;
 
 public final class GithubGateway {
 
-    private GithubGateway() {}
+    private GithubGateway() {
+    }
 
     private static Logger LOGGER = LogManager.getLogger("GitHubGW");
     protected static String BASE_URL = "https://api.github.com";
 
     public static JSONObject getRepoInfo(String userSlashRepo) {
-        String response = send_API_POST_Request("/repos/"+userSlashRepo);
+        String response = send_API_POST_Request("/repos/" + userSlashRepo);
         return new JSONObject(response);
     }
 
@@ -30,7 +31,7 @@ public final class GithubGateway {
     }
 
     public static String getContents(String userSlashRepo, String branch, String path) {
-        return send_POST_Request("https://raw.githubusercontent.com/"+userSlashRepo+"/"+branch+"/" + path);
+        return send_POST_Request("https://raw.githubusercontent.com/" + userSlashRepo + "/" + branch + "/" + path);
     }
 
     public static URL getAssetDownloadUrl(String userSlashRepo, String label) {
@@ -40,14 +41,14 @@ public final class GithubGateway {
 
     protected static JSONObject getLatestRelease(String userSlashRepo) {
         JSONArray releases = getReleases(userSlashRepo);
-        if(releases.length() == 0)
+        if (releases.length() == 0)
             throw new RuntimeException("No releases in repository " + userSlashRepo);
         return releases.getJSONObject(0);
     }
 
     protected static URL getAssetDownloadUrlOfRelease(JSONObject release) {
         JSONArray assets = release.getJSONArray("assets");
-        if(assets.length() > 0) {
+        if (assets.length() > 0) {
             JSONObject asset = assets.getJSONObject(0);
             return getDownloadURLOfAsset(asset);
         }
@@ -65,16 +66,16 @@ public final class GithubGateway {
 
     protected static JSONObject getRelease(String userSlashRepo, String label) {
         JSONArray releases = getReleases(userSlashRepo);
-        for(int i = 0; i < releases.length(); i++) {
+        for (int i = 0; i < releases.length(); i++) {
             JSONObject release = releases.getJSONObject(i);
-            if(release.getString("tag_name").equals(label))
+            if (release.getString("tag_name").equals(label))
                 return release;
         }
-        throw new RuntimeException("No release with label '"+label+"' found in '"+userSlashRepo+"'.");
+        throw new RuntimeException("No release with label '" + label + "' found in '" + userSlashRepo + "'.");
     }
 
     protected static JSONArray getReleases(String userSlashRepo) {
-        String response = send_API_POST_Request("/repos/"+userSlashRepo+"/releases");
+        String response = send_API_POST_Request("/repos/" + userSlashRepo + "/releases");
         return new JSONArray(response);
     }
 
@@ -86,11 +87,11 @@ public final class GithubGateway {
         try {
             URL url = new URL(path);
             HttpURLConnection connection = connect(url);
-            if(connection.getResponseCode() != 200)
-                throw new RuntimeException("Failed to connect to "+url+". Bad response code: " + connection.getResponseCode());
+            if (connection.getResponseCode() != 200)
+                throw new RuntimeException("Failed to connect to " + url + ". Bad response code: " + connection.getResponseCode());
             return IOHelper.readInputStream(connection.getInputStream());
         } catch (IOException t) {
-            LOGGER.error("Failed to connect to Github ("+path+").", t);
+            LOGGER.error("Failed to connect to Github (" + path + ").", t);
             throw new RuntimeException(t);
         }
     }

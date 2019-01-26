@@ -64,7 +64,12 @@ public class RingTangleTest extends IctTestTemplate {
         Assert.assertNotNull("The NULL transaction is missing.", tangle.findTransactionLog(Transaction.NULL_TRANSACTION));
         for (Transaction transaction : transactionsToContain)
             Assert.assertNotNull("A transaction is missing.", tangle.findTransactionLog(transaction));
-        Assert.assertEquals("Unexpected amount of transactions.", transactionsToContain.size() + 1, tangle.size());
+        assertIntEqualsWithTolerance("Unexpected amount of transactions.", transactionsToContain.size() + 1, tangle.size(), 1);
+    }
+
+    private static void assertIntEqualsWithTolerance(String message, int expected, int actual, int tolerance) {
+        if(Math.abs(expected-actual) > tolerance)
+            Assert.assertEquals("Unexpected amount of transactions.", expected, actual);
     }
 
     private static List<Transaction> generateTransactionsOrderedByTimestamps(int amount) {

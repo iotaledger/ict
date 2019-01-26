@@ -12,7 +12,7 @@ public final class IssueCollector {
     public static void collect(Throwable t) {
         incidents.add(new Incident(t));
 
-        if(incidents.size() > MAX_AMOUNT_OF_THROWABLES_BEFORE_SHUTDOWN) {
+        if (incidents.size() > MAX_AMOUNT_OF_THROWABLES_BEFORE_SHUTDOWN) {
             log();
             System.exit(0);
         }
@@ -20,16 +20,16 @@ public final class IssueCollector {
 
     public static void log() {
         // use system.err instead of logger in case there is an exception with logging
-        if(incidents.size() > 0) {
+        if (incidents.size() > 0) {
             System.err.println("***** ERROR REPORT *****");
             System.err.println("This is a list of critical incidents which occurred during runtime.");
             System.err.println("Please create an issue on https://github.com/iotaledger/ict or report it in #omega-ict in IOTA Discord.");
 
             int amountPrinted = 0;
-            for(Incident incident : incidents) {
+            for (Incident incident : incidents) {
                 System.err.println();
-                if(amountPrinted++ > MAX_AMOUNT_OF_THROWABLES_TO_PRINT) {
-                    System.err.println("And "+ (incidents.size() - MAX_AMOUNT_OF_THROWABLES_TO_PRINT) +" more incidents ...");
+                if (amountPrinted++ > MAX_AMOUNT_OF_THROWABLES_TO_PRINT) {
+                    System.err.println("And " + (incidents.size() - MAX_AMOUNT_OF_THROWABLES_TO_PRINT) + " more incidents ...");
                     break;
                 }
                 incident.log();

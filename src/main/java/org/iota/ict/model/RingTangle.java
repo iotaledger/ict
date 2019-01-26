@@ -14,7 +14,7 @@ import java.util.concurrent.PriorityBlockingQueue;
  */
 public class RingTangle extends Tangle implements PropertiesUser {
 
-    protected final PriorityBlockingQueue<Transaction> transactionsOrderedByTimestamp ;
+    protected final PriorityBlockingQueue<Transaction> transactionsOrderedByTimestamp;
     protected long capacity;
     protected double maxHeapSize;
 
@@ -25,7 +25,7 @@ public class RingTangle extends Tangle implements PropertiesUser {
         super(ict);
         capacity = ict.getProperties().tangleCapacity();
         maxHeapSize = ict.getProperties().maxHeapSize();
-        transactionsOrderedByTimestamp = new PriorityBlockingQueue<>((int)Math.min(Integer.MAX_VALUE, capacity), TimestampComparator.INSTANCE);
+        transactionsOrderedByTimestamp = new PriorityBlockingQueue<>((int) Math.min(Integer.MAX_VALUE, capacity), TimestampComparator.INSTANCE);
     }
 
     @Override
@@ -54,21 +54,21 @@ public class RingTangle extends Tangle implements PropertiesUser {
     }
 
     protected void adjustTangleCapacityFactor() {
-        if(System.currentTimeMillis() - lastCapacityFactorChangeTimestamp > 60000) {
+        if (System.currentTimeMillis() - lastCapacityFactorChangeTimestamp > 60000) {
             double availableToUsedMemoryRatio = (Runtime.getRuntime().maxMemory() * maxHeapSize) / Runtime.getRuntime().totalMemory();
-            double changeFactor =  Math.max(0.7, Math.min(1.4, availableToUsedMemoryRatio));
+            double changeFactor = Math.max(0.7, Math.min(1.4, availableToUsedMemoryRatio));
             double capacityFactorBefore = capacityFactor;
             capacityFactor = Math.min(1, Math.max(0.01, capacityFactor * changeFactor));
             lastCapacityFactorChangeTimestamp = System.currentTimeMillis();
 
             boolean majorCapacityFactorChange = capacityFactorBefore < 0.8 * capacityFactor || capacityFactorBefore > 1.2 * capacityFactor;
-            if(majorCapacityFactorChange)
-                LOGGER.info("Adjusting effective tangle_capacity to ~"+(int)Math.round(capacity * capacityFactor)+" transactions based on max_heap_size.");
+            if (majorCapacityFactorChange)
+                LOGGER.info("Adjusting effective tangle_capacity to ~" + (int) Math.round(capacity * capacityFactor) + " transactions based on max_heap_size.");
 
-            if(capacityFactor != capacityFactorBefore)
-                LOGGER.debug("Adjusting effective tangle_capacity to ~"+(int)Math.round(capacity * capacityFactor)+" transactions based on max_heap_size.");
+            if (capacityFactor != capacityFactorBefore)
+                LOGGER.debug("Adjusting effective tangle_capacity to ~" + (int) Math.round(capacity * capacityFactor) + " transactions based on max_heap_size.");
 
-            if(changeFactor < 0.9)
+            if (changeFactor < 0.9)
                 System.gc();
         }
     }

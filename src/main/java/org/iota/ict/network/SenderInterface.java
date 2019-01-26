@@ -8,6 +8,8 @@ import org.iota.ict.utils.interfaces.Restartable;
 public interface SenderInterface extends Restartable, PropertiesUser, GossipListener {
 
     void request(String transactionHash);
+
     void queue(Transaction transaction);
+
     int queueSize();
 }

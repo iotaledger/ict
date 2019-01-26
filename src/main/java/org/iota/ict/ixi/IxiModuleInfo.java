@@ -14,7 +14,7 @@ public class IxiModuleInfo {
     public final String name;
     public final String mainClass;
     public final String description;
-    public int guiPort ;
+    public int guiPort;
     private final String path;
     public final JSONArray supportedVersions;
 
@@ -24,8 +24,8 @@ public class IxiModuleInfo {
         name = json.getString("name");
         description = json.getString("description");
         repository = json.getString("repository");
-        if(!repository.matches("^[a-zA-Z0-9\\-_.]+/[a-zA-Z0-9\\-_.]+$"))
-            throw new RuntimeException("Illegal repository declared in module.json: '"+repository+"'. Invalid format or unexpected characters.");
+        if (!repository.matches("^[a-zA-Z0-9\\-_.]+/[a-zA-Z0-9\\-_.]+$"))
+            throw new RuntimeException("Illegal repository declared in module.json: '" + repository + "'. Invalid format or unexpected characters.");
         mainClass = json.getString("main_class");
         guiPort = json.getInt("gui_port");
         this.path = path;
@@ -50,14 +50,14 @@ public class IxiModuleInfo {
             JSONObject versions = new JSONObject(versionsString);
             String latestCompatibleVersion = versions.getString(Constants.ICT_VERSION);
             return VersionComparator.getInstance().compare(latestCompatibleVersion, version) > 0 ? latestCompatibleVersion : null;
-        } catch(Throwable t) {
+        } catch (Throwable t) {
             return null;
         }
     }
 
     boolean supportsCurrentVersion() {
-        for(int i = 0; i < supportedVersions.length(); i++)
-            if(supportedVersions.getString(i).equals(Constants.ICT_VERSION))
+        for (int i = 0; i < supportedVersions.length(); i++)
+            if (supportedVersions.getString(i).equals(Constants.ICT_VERSION))
                 return true;
         return false;
     }

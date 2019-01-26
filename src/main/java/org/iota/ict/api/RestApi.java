@@ -25,7 +25,7 @@ public class RestApi extends RestartableThread implements PropertiesUser {
 
     static {
         try {
-            if(!new File(Constants.WEB_GUI_PATH).exists())
+            if (!new File(Constants.WEB_GUI_PATH).exists())
                 IOHelper.extractDirectoryFromJarFile("web/", Constants.WEB_GUI_PATH);
         } catch (IOException e) {
             LOGGER.error("Failed to extract Web GUI into " + new File(Constants.WEB_GUI_PATH).getAbsolutePath(), e);
@@ -40,7 +40,9 @@ public class RestApi extends RestartableThread implements PropertiesUser {
     }
 
     @Override
-    public void run() { ; }
+    public void run() {
+        ;
+    }
 
     private void initRoutes() {
         routes.add(new RouteGetInfo(jsonIct));
@@ -63,10 +65,10 @@ public class RestApi extends RestartableThread implements PropertiesUser {
 
     @Override
     public void onStart() {
-        if(!properties.guiEnabled())
+        if (!properties.guiEnabled())
             return;
 
-        if(!initialized)
+        if (!initialized)
             initRoutes();
 
         service = Service.ignite();
@@ -74,7 +76,7 @@ public class RestApi extends RestartableThread implements PropertiesUser {
         service.port(guiPort);
 
         service.staticFiles.externalLocation(Constants.WEB_GUI_PATH);
-        for(RouteImpl route : routes)
+        for (RouteImpl route : routes)
             service.post(route.getPath(), route);
 
         service.before(new Filter() {
@@ -96,14 +98,14 @@ public class RestApi extends RestartableThread implements PropertiesUser {
 
         service.init();
         service.awaitInitialization();
-        LOGGER.info("Started Web GUI on port " + guiPort + ". Access it by visiting '{HOST}:"+guiPort+"' from your web browser.");
+        LOGGER.info("Started Web GUI on port " + guiPort + ". Access it by visiting '{HOST}:" + guiPort + "' from your web browser.");
     }
 
     @Override
     public void onTerminate() {
-        if(service == null) // wasn't running
+        if (service == null) // wasn't running
             return;
-        for(RouteImpl route : routes)
+        for (RouteImpl route : routes)
             service.delete(route.getPath(), route);
         service.stop();
         service = null;
@@ -114,11 +116,11 @@ public class RestApi extends RestartableThread implements PropertiesUser {
         Properties oldProp = this.properties;
         this.properties = newProp;
 
-        if(oldProp.guiEnabled() && !newProp.guiEnabled())
+        if (oldProp.guiEnabled() && !newProp.guiEnabled())
             terminate();
-        else if(!oldProp.guiEnabled() && newProp.guiEnabled())
+        else if (!oldProp.guiEnabled() && newProp.guiEnabled())
             start();
-        else if(oldProp.guiEnabled() && newProp.guiEnabled() && oldProp.guiPort() != newProp.guiPort()) {
+        else if (oldProp.guiEnabled() && newProp.guiEnabled() && oldProp.guiPort() != newProp.guiPort()) {
             terminate();
             start();
         }

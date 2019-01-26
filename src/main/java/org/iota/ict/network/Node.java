@@ -39,7 +39,7 @@ public class Node extends RestartableThread implements PropertiesUser {
         subWorkers.add(receiver);
         subWorkers.add(sender);
 
-        for(InetSocketAddress neighbor : properties.neighbors())
+        for (InetSocketAddress neighbor : properties.neighbors())
             neighbor(neighbor);
     }
 
@@ -50,7 +50,7 @@ public class Node extends RestartableThread implements PropertiesUser {
     public void log() {
         int queueSize = sender.queueSize();
         LOGGER.debug("forwarding queue size: " + queueSize);
-        if(queueSize > 200) {
+        if (queueSize > 200) {
             LOGGER.warn("There is a backlog of " + queueSize + " transactions to be forwarded. This might cause memory issues. You can monitor this metric via `--debug`.");
             IssueCollector.log();
         }
@@ -64,13 +64,14 @@ public class Node extends RestartableThread implements PropertiesUser {
 
     @Override
     public void onTerminated() {
-        if(!socket.isClosed())
+        if (!socket.isClosed())
             socket.close();
         socket = null;
     }
 
     @Override
-    public void run() { }
+    public void run() {
+    }
 
     @Override
     public void updateProperties(FinalProperties newProperties) {
@@ -78,7 +79,7 @@ public class Node extends RestartableThread implements PropertiesUser {
         this.properties = newProperties;
         updateNeighborsBecausePropertiesChanged(oldProperties, newProperties);
 
-        if(address.getPort() != newProperties.port() || !address.getHostName().equals(newProperties.host()))
+        if (address.getPort() != newProperties.port() || !address.getHostName().equals(newProperties.host()))
             updateHostAndPort(newProperties.host(), newProperties.port());
 
         sender.updateProperties(newProperties);
@@ -126,18 +127,18 @@ public class Node extends RestartableThread implements PropertiesUser {
     private void updateNeighborsBecausePropertiesChanged(Properties oldProp, Properties newProp) {
         // remove neighbors who are no longer neighbors
         List<Neighbor> toRemove = new LinkedList<>();
-        for(Neighbor nb : neighbors)
-            if(!newProp.neighbors().contains(nb.getAddress()))
+        for (Neighbor nb : neighbors)
+            if (!newProp.neighbors().contains(nb.getAddress()))
                 toRemove.add(nb);
         neighbors.removeAll(toRemove);
 
         // add neighbors who are new
         List<InetSocketAddress> newNeighbors = new LinkedList<>();
-        for(InetSocketAddress inetAddress : newProp.neighbors()) {
-            if(oldProp == null  || !oldProp.neighbors().contains(inetAddress))
+        for (InetSocketAddress inetAddress : newProp.neighbors()) {
+            if (oldProp == null || !oldProp.neighbors().contains(inetAddress))
                 newNeighbors.add(inetAddress);
         }
-        for(InetSocketAddress toAdd : newNeighbors)
+        for (InetSocketAddress toAdd : newNeighbors)
             neighbor(toAdd);
 
         assert neighbors.size() == newProp.neighbors().size();

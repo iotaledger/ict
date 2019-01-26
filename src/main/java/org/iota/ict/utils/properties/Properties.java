@@ -15,7 +15,7 @@ import java.util.*;
  * With instances of this class, the Ict and its sub-components can be easily configured. The properties can be read from files or defined during runtime. Some
  * properties might not be changeable yet after passing them to the Ict.
  *
- * @see org.iota.ict.Ict#Ict(FinalProperties) 
+ * @see org.iota.ict.Ict#Ict(FinalProperties)
  */
 public class Properties implements Cloneable {
 
@@ -53,11 +53,11 @@ public class Properties implements Cloneable {
 
     public static Properties fromJSON(JSONObject json) {
         java.util.Properties propObject = new java.util.Properties();
-        for(String key : json.keySet()) {
+        for (String key : json.keySet()) {
             Object value = json.get(key);
-            if(value == null)
+            if (value == null)
                 value = "";
-            if(value instanceof JSONArray) {
+            if (value instanceof JSONArray) {
                 value = value.toString().replace("[", "").replace("]", "").replace("\"", "");
             }
             propObject.put(key, value.toString());
@@ -121,7 +121,7 @@ public class Properties implements Cloneable {
         java.util.Properties systemProperties = new java.util.Properties();
         for (Property property : Property.values()) {
             String valueOrNull = System.getProperty(property.name());
-            if(valueOrNull != null){
+            if (valueOrNull != null) {
                 systemProperties.put(property.name(), valueOrNull);
             }
         }
@@ -134,7 +134,7 @@ public class Properties implements Cloneable {
         for (Property property : Property.values()) {
             String upperCaseName = property.name();
             String valueOrNull = envMap.get(upperCaseName);
-            if(valueOrNull != null){
+            if (valueOrNull != null) {
                 environmentProperties.put(property.name(), valueOrNull);
             }
         }
@@ -235,6 +235,7 @@ public class Properties implements Cloneable {
         json.put(Property.gui_password.name(), guiPassword);
         return json;
     }
+
     public EditableProperties toEditable() {
         return new EditableProperties(toPropObject());
     }

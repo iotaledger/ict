@@ -35,7 +35,7 @@ public class GossipEventDispatcher extends RestartableThread {
 
     public void log() {
         LOGGER.debug("gossip listeners: " + listeners.size() + " / event queue size: " + eventQueue.size());
-        if(eventQueue.size() > 1000)
+        if (eventQueue.size() > 1000)
             LOGGER.warn("There is a backlog of " + eventQueue.size() + " events to be dispatched. This can cause memory and communication issues. Possible causes are (1) An IXI modules is taking too long to process events, (2) you are running too many IXI modules or (3) there are too many transactions in the network.");
     }
 

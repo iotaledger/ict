@@ -22,8 +22,8 @@ public final class Updater {
 
     public static void update(String version) throws IOException {
         URL url = GithubGateway.getAssetDownloadUrl(Constants.ICT_REPOSITORY, version);
-        Path target = Constants.WORKING_DIRECTORY.resolve("ict-"+version+".jar");
-        LOGGER.info("Ict Update: downloading precompiled .jar file from " + url + " into "+target+" ...");
+        Path target = Constants.WORKING_DIRECTORY.resolve("ict-" + version + ".jar");
+        LOGGER.info("Ict Update: downloading precompiled .jar file from " + url + " into " + target + " ...");
         try (InputStream in = url.openStream()) {
             Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
         }

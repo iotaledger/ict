@@ -11,7 +11,8 @@ import java.nio.file.Path;
  */
 public class Constants {
 
-    public static final Path WORKING_DIRECTORY = (new File("./")).toPath();;
+    public static final Path WORKING_DIRECTORY = (new File("./")).toPath();
+    ;
 
     public static final String ICT_VERSION = "0.5-SNAPSHOT";
     public static final String ICT_REPOSITORY = "iotaledger/ict";

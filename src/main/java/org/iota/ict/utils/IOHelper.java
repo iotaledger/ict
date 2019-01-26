@@ -26,13 +26,13 @@ public class IOHelper {
     }
 
     public static boolean deleteRecursively(File file) {
-        if(!file.exists())
+        if (!file.exists())
             return true;
         boolean success = true;
         LOGGER.info("Deleting " + file + " ...");
         try {
-            if(file.isDirectory())
-                for(String subPath : file.list())
+            if (file.isDirectory())
+                for (String subPath : file.list())
                     success = success && deleteRecursively(new File(file.getPath(), subPath));
             success = success && file.delete();
         } catch (Throwable t) {
@@ -46,10 +46,10 @@ public class IOHelper {
         JarFile jarFile = new java.util.jar.JarFile(CODE_SOURCE);
         try {
             java.util.Enumeration enumEntries = jarFile.entries();
-            LOGGER.info("extracting "+relativePath+" in .jar file to " + target + " ...");
+            LOGGER.info("extracting " + relativePath + " in .jar file to " + target + " ...");
             while (enumEntries.hasMoreElements()) {
                 java.util.jar.JarEntry source = (java.util.jar.JarEntry) enumEntries.nextElement();
-                if(source.getName().startsWith(relativePath)) {
+                if (source.getName().startsWith(relativePath)) {
                     java.io.File destination = new java.io.File(target + java.io.File.separator + source.getName().substring(relativePath.length()));
                     extractFile(jarFile, source, destination);
                 }

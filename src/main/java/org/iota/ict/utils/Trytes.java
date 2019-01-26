@@ -35,7 +35,7 @@ public final class Trytes {
         BigInteger number = BigInteger.ZERO;
         for (int i = trytes.length() - 1; i >= 0; i--) {
             char c = trytes.charAt(i);
-            int tryteIndex = c == '9' ? 0 : c-'A'+1;
+            int tryteIndex = c == '9' ? 0 : c - 'A' + 1;
             byte[] trits = TRITS_BY_TRYTE[tryteIndex];
             number = number.multiply(BI27).add(BigInteger.valueOf(trits[2] * 9 + trits[1] * 3 + trits[0]));
         }
@@ -46,7 +46,7 @@ public final class Trytes {
         long number = 0;
         for (int i = trytes.length() - 1; i >= 0; i--) {
             char c = trytes.charAt(i);
-            int tryteIndex = c == '9' ? 0 : c-'A'+1;
+            int tryteIndex = c == '9' ? 0 : c - 'A' + 1;
             byte[] trits = TRITS_BY_TRYTE[tryteIndex];
             number = number * 27 + trits[2] * 9 + trits[1] * 3 + trits[0];
         }
@@ -57,9 +57,9 @@ public final class Trytes {
         byte[] trits = new byte[trytes.length() * 3];
         for (int i = 0; i < trytes.length(); i++) {
             byte[] tritTriplet = toTrits(trytes.charAt(i));
-            trits[3*i+0] = tritTriplet[0];
-            trits[3*i+1] = tritTriplet[1];
-            trits[3*i+2] = tritTriplet[2];
+            trits[3 * i + 0] = tritTriplet[0];
+            trits[3 * i + 1] = tritTriplet[1];
+            trits[3 * i + 2] = tritTriplet[2];
             //System.arraycopy(tritTriplet, 0, trits, 3 * i, 3);
         }
         return trits;
@@ -117,7 +117,7 @@ public final class Trytes {
         char[] ascii = new char[trytes.length() / 3 * 2];
         for (int i = 0; i < trytes.length() / 3; i++) {
             String tryteTriplet = trytes.substring(3 * i, 3 * i + 3);
-            int intVal = (int)toLong(tryteTriplet) + MAX_TRYTE_TRIPLET_ABS;
+            int intVal = (int) toLong(tryteTriplet) + MAX_TRYTE_TRIPLET_ABS;
             ascii[2 * i + 0] = (char) (intVal / 127);
             ascii[2 * i + 1] = (char) (intVal % 127);
         }
@@ -158,14 +158,14 @@ public final class Trytes {
         byte[] bytes = new byte[trytes.length() / 3 * 2];
         byte[] tryteArray = trytes.getBytes();
         for (int i = 0; i < trytes.length() / 3; i++) {
-            byte t0 = tryteArray[3*i];
-            byte t1 = tryteArray[3*i+1];
-            byte t2 = tryteArray[3*i+2];
-            int i0 = t0 == '9' ? 0 : t0-'A'+1;
-            int i1 = t1 == '9' ? 0 : t1-'A'+1;
-            int i2 = t2 == '9' ? 0 : t2-'A'+1;
-            bytes[2*i] = (byte) (i0*8 + i2%8);
-            bytes[2*i+1] = (byte) (i1*8 + i2/8);
+            byte t0 = tryteArray[3 * i];
+            byte t1 = tryteArray[3 * i + 1];
+            byte t2 = tryteArray[3 * i + 2];
+            int i0 = t0 == '9' ? 0 : t0 - 'A' + 1;
+            int i1 = t1 == '9' ? 0 : t1 - 'A' + 1;
+            int i2 = t2 == '9' ? 0 : t2 - 'A' + 1;
+            bytes[2 * i] = (byte) (i0 * 8 + i2 % 8);
+            bytes[2 * i + 1] = (byte) (i1 * 8 + i2 / 8);
         }
         return bytes;
     }
@@ -174,12 +174,12 @@ public final class Trytes {
         assert bytesLength % 2 == 0;
         char[] trytes = new char[bytesLength / 2 * 3];
         for (int i = 0; i < trytes.length / 3; i++) {
-            int bytesPos = bytesOffset + 2*i;
+            int bytesPos = bytesOffset + 2 * i;
             int b0 = bytes[bytesPos] < 0 ? bytes[bytesPos] + 256 : bytes[bytesPos];
-            int b1 = bytes[bytesPos+1] < 0 ? bytes[bytesPos+1] + 256 : bytes[bytesPos+1];
-            trytes[3*i] = TRYTE_CHARS[b0/8];
-            trytes[3*i+1] = TRYTE_CHARS[b1/8];
-            trytes[3*i+2] = TRYTE_CHARS[b0%8+8*(b1%8)];
+            int b1 = bytes[bytesPos + 1] < 0 ? bytes[bytesPos + 1] + 256 : bytes[bytesPos + 1];
+            trytes[3 * i] = TRYTE_CHARS[b0 / 8];
+            trytes[3 * i + 1] = TRYTE_CHARS[b1 / 8];
+            trytes[3 * i + 2] = TRYTE_CHARS[b0 % 8 + 8 * (b1 % 8)];
         }
         return new String(trytes);
     }

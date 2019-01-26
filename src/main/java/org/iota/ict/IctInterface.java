@@ -14,8 +14,11 @@ import java.util.List;
 public interface IctInterface extends Ixi, GossipListener, PropertiesUser, Restartable {
 
     List<Neighbor> getNeighbors();
+
     IxiModuleHolder getModuleHolder();
+
     Tangle getTangle();
+
     FinalProperties getProperties();
 
     void request(String transactionHash);

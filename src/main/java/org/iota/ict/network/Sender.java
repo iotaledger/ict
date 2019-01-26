@@ -103,7 +103,7 @@ public class Sender extends RestartableThread implements SenderInterface {
     }
 
     public void queue(Transaction transaction) {
-        long forwardDelay = properties.minForwardDelay()+ ThreadLocalRandom.current().nextLong(properties.maxForwardDelay() - properties.minForwardDelay());
+        long forwardDelay = properties.minForwardDelay() + ThreadLocalRandom.current().nextLong(properties.maxForwardDelay() - properties.minForwardDelay());
         queue.add(new SendingTask(System.currentTimeMillis() + forwardDelay, transaction));
         synchronized (queue) {
             queue.notify();

@@ -30,7 +30,7 @@ public class IxiModuleHolder extends RestartableThread {
     protected Map<IxiModule, IxiModuleInfo> modulesWithInfo = new HashMap<>();
 
     static {
-        if(!DEFAULT_MODULE_DIRECTORY.exists())
+        if (!DEFAULT_MODULE_DIRECTORY.exists())
             DEFAULT_MODULE_DIRECTORY.mkdirs();
     }
 
@@ -40,15 +40,16 @@ public class IxiModuleHolder extends RestartableThread {
     }
 
     @Override
-    public void run() { }
+    public void run() {
+    }
 
     public boolean uninstall(String path) {
 
         IxiModule module = modulesByPath.get(path);
         LOGGER.info("Uninstalling module " + path + " ...");
 
-        if(module == null)
-            throw new RuntimeException("No module '"+path+"' installed.");
+        if (module == null)
+            throw new RuntimeException("No module '" + path + "' installed.");
 
         IxiModuleInfo info = modulesWithInfo.get(module);
 
@@ -57,14 +58,14 @@ public class IxiModuleHolder extends RestartableThread {
         module.terminate();
 
         File jar = new File(DEFAULT_MODULE_DIRECTORY, path);
-        File guiDirectory = new File(Constants.WEB_GUI_PATH, "modules/" + info.name+"/");
+        File guiDirectory = new File(Constants.WEB_GUI_PATH, "modules/" + info.name + "/");
 
-        if(!jar.exists())
-            throw new RuntimeException("Could not find file '"+path+"'.");
-        if(jar.isDirectory())
-            throw new RuntimeException("'"+path+"' is a directory.");
-        if(!path.endsWith(".jar"))
-            throw new RuntimeException("'"+path+"' is not a .jar file.");
+        if (!jar.exists())
+            throw new RuntimeException("Could not find file '" + path + "'.");
+        if (jar.isDirectory())
+            throw new RuntimeException("'" + path + "' is a directory.");
+        if (!path.endsWith(".jar"))
+            throw new RuntimeException("'" + path + "' is not a .jar file.");
 
         boolean jarDeletedSuccess = IOHelper.deleteRecursively(jar);
         boolean guiDirectoryDeletedSuccess = IOHelper.deleteRecursively(guiDirectory);
@@ -74,8 +75,8 @@ public class IxiModuleHolder extends RestartableThread {
     public IxiModule install(URL url) throws Throwable {
 
         String split[] = url.getFile().split("/");
-        String fileName = split[split.length-1];
-        Path target = Paths.get("./modules/"+fileName);
+        String fileName = split[split.length - 1];
+        Path target = Paths.get("./modules/" + fileName);
 
         LOGGER.info("Downloading " + target.toString() + " ...");
         try (InputStream in = url.openStream()) {
@@ -88,23 +89,25 @@ public class IxiModuleHolder extends RestartableThread {
     public void initAllModules() {
         File[] files = DEFAULT_MODULE_DIRECTORY.listFiles();
         try {
-            if(files == null)
+            if (files == null)
                 throw new NullPointerException("failed listing files in directory " + DEFAULT_MODULE_DIRECTORY.getAbsolutePath());
-        } catch (NullPointerException e) { return;  }
+        } catch (NullPointerException e) {
+            return;
+        }
         modulesWithInfo = new HashMap<>();
         initModulesFromFiles(files);
     }
 
     public void startAllModules() {
-        for(IxiModule module : modulesWithInfo.keySet())
-            if(!module.isRunning())
+        for (IxiModule module : modulesWithInfo.keySet())
+            if (!module.isRunning())
                 module.start();
     }
 
     private void initModulesFromFiles(File[] files) {
-        for(File file : files) {
+        for (File file : files) {
             Path jar = Paths.get(file.toURI());
-            if(!jar.toString().endsWith(".jar"))
+            if (!jar.toString().endsWith(".jar"))
                 continue;
             try {
                 initModule(jar);
@@ -115,12 +118,12 @@ public class IxiModuleHolder extends RestartableThread {
     }
 
     private IxiModule initModule(Path jar) throws Exception {
-        LOGGER.info("loading IXI module "+jar.getFileName()+"...");
+        LOGGER.info("loading IXI module " + jar.getFileName() + "...");
         String path = DEFAULT_MODULE_DIRECTORY.toURI().relativize(jar.toUri()).toString();
-        URLClassLoader classLoader = new URLClassLoader (new URL[] {jar.toFile().toURI().toURL()}, Main.class.getClassLoader());
+        URLClassLoader classLoader = new URLClassLoader(new URL[]{jar.toFile().toURI().toURL()}, Main.class.getClassLoader());
         IxiModuleInfo info = readModuleInfoFromJar(classLoader, path);
-        if(!info.supportsCurrentVersion())
-            LOGGER.warn("IXI module '"+info.name+"' does not specify your Ict's version '"+Constants.ICT_VERSION+"' as supported in module.json.");
+        if (!info.supportsCurrentVersion())
+            LOGGER.warn("IXI module '" + info.name + "' does not specify your Ict's version '" + Constants.ICT_VERSION + "' as supported in module.json.");
         IxiModule module = createInstance(classLoader, info.mainClass);
         modulesWithInfo.put(module, info);
         modulesByPath.put(path, module);
@@ -138,14 +141,14 @@ public class IxiModuleHolder extends RestartableThread {
         try {
             return Class.forName(mainClassName, true, classLoader);
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Invalid IXI module: Could not find class '"+mainClassName+"'.");
+            throw new RuntimeException("Invalid IXI module: Could not find class '" + mainClassName + "'.");
         }
     }
 
     private static IxiModuleInfo readModuleInfoFromJar(URLClassLoader classLoader, String path) {
         try {
             InputStream is = classLoader.getResourceAsStream("module.json");
-            if(is == null)
+            if (is == null)
                 throw new RuntimeException("Could not find 'module.json'");
             String str = IOHelper.readInputStream(is);
             JSONObject json = new JSONObject(str);

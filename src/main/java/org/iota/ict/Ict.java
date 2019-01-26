@@ -69,12 +69,13 @@ public class Ict extends RestartableThread implements IctInterface {
             synchronized (notifySyncObject) {
                 try {
                     notifySyncObject.wait(Math.max(1, Math.min(roundStart + properties.roundDuration() - System.currentTimeMillis(), 30000)));
-                } catch (InterruptedException e) {}
+                } catch (InterruptedException e) {
+                }
             }
             if (roundStart + properties.roundDuration() < System.currentTimeMillis()) {
                 Neighbor.newRound(this, round);
-                LOGGER.debug("memory: "+Runtime.getRuntime().totalMemory()/1024/1024+"MB / "+Runtime.getRuntime().maxMemory()/1024/1024+"MB (total/max)");
-                LOGGER.debug("tangle size: " + tangle.size() + " (" +Transaction.getAmountOfInstances()+ " transaction instances alive)");
+                LOGGER.debug("memory: " + Runtime.getRuntime().totalMemory() / 1024 / 1024 + "MB / " + Runtime.getRuntime().maxMemory() / 1024 / 1024 + "MB (total/max)");
+                LOGGER.debug("tangle size: " + tangle.size() + " (" + Transaction.getAmountOfInstances() + " transaction instances alive)");
                 node.log();
                 eventDispatcher.log();
                 round++;
@@ -85,7 +86,9 @@ public class Ict extends RestartableThread implements IctInterface {
 
     @Override
     public void onTerminate() {
-        synchronized (notifySyncObject) { notifySyncObject.notify(); /* stop run() */  }
+        synchronized (notifySyncObject) {
+            notifySyncObject.notify(); /* stop run() */
+        }
     }
 
     /**
@@ -126,7 +129,9 @@ public class Ict extends RestartableThread implements IctInterface {
         restApi.updateProperties(this.properties);
         tangle.updateProperties(this.properties);
         node.updateProperties(this.properties);
-        synchronized (notifySyncObject) { notifySyncObject.notify(); /* apply new round duration */  }
+        synchronized (notifySyncObject) {
+            notifySyncObject.notify(); /* apply new round duration */
+        }
     }
 
     /**
@@ -158,7 +163,7 @@ public class Ict extends RestartableThread implements IctInterface {
 
     @Override
     public Set<Transaction> findTransactionsByTag(String tag) {
-         return tangle.findTransactionsByTag(tag);
+        return tangle.findTransactionsByTag(tag);
     }
 
     @Override

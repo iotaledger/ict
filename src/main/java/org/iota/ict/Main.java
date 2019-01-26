@@ -412,7 +412,7 @@ public class Main {
 
         try {
             String latestReleaseVersion = GithubGateway.getLatestReleaseLabel(Constants.ICT_REPOSITORY);
-            if(VersionComparator.getInstance().compare(Constants.ICT_VERSION, latestReleaseVersion) < 0)
+            if (VersionComparator.getInstance().compare(Constants.ICT_VERSION, latestReleaseVersion) < 0)
                 logger.warn(">>>>> A new release of Ict is available. Please update to " + latestReleaseVersion + "! <<<<<");
             else
                 logger.info("You are already up-to-date!");

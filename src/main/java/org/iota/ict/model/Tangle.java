@@ -31,12 +31,13 @@ public class Tangle implements PropertiesUser {
     protected final Map<String, List<Transaction>> waitingReferrersTransactionsByHash = new ConcurrentHashMap<>();
 
     public Tangle(IctInterface ict) {
-        this.ict = Objects.requireNonNull(ict,"'ict' must not null");
+        this.ict = Objects.requireNonNull(ict, "'ict' must not null");
         createTransactionLogIfAbsent(Transaction.NULL_TRANSACTION);
     }
 
     @Override
-    public void updateProperties(FinalProperties properties) { }
+    public void updateProperties(FinalProperties properties) {
+    }
 
     public TransactionLog createTransactionLogIfAbsent(Transaction transaction) {
         TransactionLog log = findTransactionLog(transaction);

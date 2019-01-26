@@ -46,7 +46,7 @@ public class JsonIct {
         EditableProperties newConfig = Properties.fromJSON(configJson).toEditable();
         FinalProperties currentConfig = ict.getProperties();
         newConfig.neighbors(currentConfig.neighbors());
-        if(newConfig.guiPassword().length() == 0)
+        if (newConfig.guiPassword().length() == 0)
             newConfig.guiPassword(currentConfig.guiPassword());
         ict.updateProperties(newConfig.toFinal());
         newConfig.store(Constants.DEFAULT_PROPERTY_FILE_PATH);
@@ -54,12 +54,12 @@ public class JsonIct {
     }
 
     public JSONObject getConfig() {
-        return ict.getProperties().toJSON().put("gui_password","");
+        return ict.getProperties().toJSON().put("gui_password", "");
     }
 
     public JSONArray getNeighbors() {
         JSONArray nbs = new JSONArray();
-        for(Neighbor neighbor : ict.getNeighbors()) {
+        for (Neighbor neighbor : ict.getNeighbors()) {
             JSONObject nb = new JSONObject();
             nb.put("address", neighbor.getAddress());
             nb.put("all", neighbor.stats.prevReceivedAll);
@@ -73,7 +73,7 @@ public class JsonIct {
     }
 
     public JSONObject addNeighbor(String address) {
-        if(!address.matches("^[a-zA-Z0-9\\-.]+:[0-9]{1,5}$"))
+        if (!address.matches("^[a-zA-Z0-9\\-.]+:[0-9]{1,5}$"))
             throw new IllegalArgumentException("Address does not match required format 'host:port'.");
         String host = address.split(":")[0];
         int port = Integer.parseInt(address.split(":")[1]);
@@ -92,8 +92,8 @@ public class JsonIct {
     public JSONObject removeNeighbor(String address) {
         EditableProperties properties = ict.getProperties().toEditable();
         List<InetSocketAddress> neighbors = properties.neighbors();
-        for(InetSocketAddress nb : neighbors) {
-            if(nb.toString().equals(address)) {
+        for (InetSocketAddress nb : neighbors) {
+            if (nb.toString().equals(address)) {
                 neighbors.remove(nb);
                 properties.neighbors(neighbors);
                 ict.updateProperties(properties.toFinal());
@@ -102,13 +102,13 @@ public class JsonIct {
                 return success();
             }
         }
-        throw new IllegalArgumentException("No neighbor with address '"+address+"'.");
+        throw new IllegalArgumentException("No neighbor with address '" + address + "'.");
     }
 
     protected JSONArray getModules() {
         JSONArray ixis = new JSONArray();
         IxiModuleHolder holder = ict.getModuleHolder();
-        for(IxiModule module : holder.getModules()) {
+        for (IxiModule module : holder.getModules()) {
             IxiModuleInfo info = holder.getInfo(module);
             ixis.put(info.toJSON());
         }
@@ -116,8 +116,8 @@ public class JsonIct {
     }
 
     protected JSONObject addModule(String repository) throws Throwable {
-        if(nmoduleBeingCurrentlyInstalled != null)
-            throw new RuntimeException("Please wait for the installation of '"+nmoduleBeingCurrentlyInstalled+"' to complete.");
+        if (nmoduleBeingCurrentlyInstalled != null)
+            throw new RuntimeException("Please wait for the installation of '" + nmoduleBeingCurrentlyInstalled + "' to complete.");
 
         try {
             nmoduleBeingCurrentlyInstalled = repository;
@@ -128,7 +128,7 @@ public class JsonIct {
             return success();
         } catch (Throwable t) {
             nmoduleBeingCurrentlyInstalled = null;
-            throw new RuntimeException("Installation of module '"+repository+"' failed: " + t.getMessage(), t);
+            throw new RuntimeException("Installation of module '" + repository + "' failed: " + t.getMessage(), t);
         } finally {
             nmoduleBeingCurrentlyInstalled = null;
         }
@@ -140,9 +140,10 @@ public class JsonIct {
             String versionsString = GithubGateway.getContents(repository, "master", "versions.json");
             JSONObject versions = new JSONObject(versionsString);
             String label = versions.getString(Constants.ICT_VERSION);
-            if(label != null)
+            if (label != null)
                 return label;
-        } catch (Throwable t) {  }
+        } catch (Throwable t) {
+        }
         return GithubGateway.getLatestReleaseLabel(repository);
     }
 
