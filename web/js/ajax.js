@@ -116,6 +116,12 @@ var Ajax = /** @class */ (function () {
             ModuleViewer.load();
         }, logError);
     };
+    Ajax.prototype.get_module_config = function (path, success) {
+        this.submit("/getModuleConfig", { "path": path }, success, logError);
+    };
+    Ajax.prototype.set_module_config = function (path, config) {
+        this.submit("/setModuleConfig", { "path": path, "config": config }, function () { logSuccess("changes have been applied"); }, logError);
+    };
     Ajax.INSTANCE = new Ajax(window.location.protocol + "//" + window.location.host);
     return Ajax;
 }());

@@ -4,17 +4,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 public class IOHelper {
 
     protected static final Logger LOGGER = LogManager.getLogger("IOHelper");
-    protected static final File CODE_SOURCE;
-
-    static {
-        CODE_SOURCE = new File(IOHelper.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-    }
 
     public static String readInputStream(InputStream in) throws IOException {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
@@ -42,9 +38,20 @@ public class IOHelper {
         return success;
     }
 
-    public static void extractDirectoryFromJarFile(String relativePath, String target) throws IOException {
-        JarFile jarFile = new java.util.jar.JarFile(CODE_SOURCE);
-        try {
+    public static String readFile(File file) throws IOException {
+        return new String(Files.readAllBytes(file.toPath()));
+    }
+
+    public static void writeToFile(File file, String data) throws IOException {
+        file.getParentFile().mkdirs();
+        file.createNewFile();
+        try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)))) {
+            writer.write(data);
+        }
+    }
+
+    public static void extractDirectoryFromJarFile(Class classInJar, String relativePath, String target) throws IOException {
+        try (JarFile jarFile = new java.util.jar.JarFile(new File(classInJar.getProtectionDomain().getCodeSource().getLocation().getPath()))) {
             java.util.Enumeration enumEntries = jarFile.entries();
             LOGGER.info("extracting " + relativePath + " in .jar file to " + target + " ...");
             while (enumEntries.hasMoreElements()) {
@@ -54,8 +61,6 @@ public class IOHelper {
                     extractFile(jarFile, source, destination);
                 }
             }
-        } finally {
-            jarFile.close();
         }
     }
 
@@ -66,17 +71,9 @@ public class IOHelper {
             return;
         }
         destination.createNewFile();
-        java.io.InputStream is = jarFile.getInputStream(source);
-        try {
-            java.io.FileOutputStream fos = new java.io.FileOutputStream(destination);
-            try {
-                while (is.available() > 0)
-                    fos.write(is.read());
-            } finally {
-                fos.close();
-            }
-        } finally {
-            is.close();
+        try (java.io.InputStream is = jarFile.getInputStream(source); java.io.FileOutputStream fos = new java.io.FileOutputStream(destination)) {
+            while (is.available() > 0)
+                fos.write(is.read());
         }
     }
 }

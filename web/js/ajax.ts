@@ -132,4 +132,12 @@ class Ajax {
             ModuleViewer.load();
         }, logError);
     }
+
+    public get_module_config(path : string, success : (config : Object) => void) : void {
+        this.submit("/getModuleConfig", {"path": path}, success, logError);
+    }
+
+    public set_module_config(path : string, config : Object) : void {
+        this.submit("/setModuleConfig", {"path": path, "config": config}, () => {logSuccess("changes have been applied");}, logError);
+    }
 }

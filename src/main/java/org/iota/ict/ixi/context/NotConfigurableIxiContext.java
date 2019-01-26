@@ -8,7 +8,7 @@ public class NotConfigurableIxiContext implements IxiContext {
 
     @Override
     public void tryToUpdateConfiguration(JSONObject newConfiguration) {
-        throw new IllegalArgumentException("This IXI module cannot be configured.");
+        // do what you are good for, nothing
     }
 
     @Override

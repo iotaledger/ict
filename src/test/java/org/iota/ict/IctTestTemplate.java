@@ -1,6 +1,5 @@
 package org.iota.ict;
 
-import org.iota.ict.network.Neighbor;
 import org.iota.ict.utils.properties.EditableProperties;
 import org.junit.After;
 

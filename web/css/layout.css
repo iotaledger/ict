@@ -1,3 +1,7 @@
+.swal-content__textarea {
+  white-space: nowrap;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;

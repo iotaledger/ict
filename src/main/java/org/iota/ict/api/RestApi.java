@@ -26,7 +26,7 @@ public class RestApi extends RestartableThread implements PropertiesUser {
     static {
         try {
             if (!new File(Constants.WEB_GUI_PATH).exists())
-                IOHelper.extractDirectoryFromJarFile("web/", Constants.WEB_GUI_PATH);
+                IOHelper.extractDirectoryFromJarFile(RestApi.class, "web/", Constants.WEB_GUI_PATH);
         } catch (IOException e) {
             LOGGER.error("Failed to extract Web GUI into " + new File(Constants.WEB_GUI_PATH).getAbsolutePath(), e);
             throw new RuntimeException(e);

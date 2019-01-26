@@ -119,20 +119,23 @@ var ModuleViewer = /** @class */ (function () {
         E.$MODULES.html("");
         var _loop_2 = function (i) {
             var module = modules[i];
+            var path = module['path'];
             var $module = $("<div>").addClass("ixi")
-                .append($("<div>").addClass("name").text(module['name'] ? module['name'] : module['path']));
+                .append($("<div>").addClass("name").text(module['name'] ? module['name'] : path));
             if (module['gui_port'] >= 0) {
                 var gui_href = module['gui_port'] == 0
                     ? window.location.protocol + "//" + window.location.host + "/modules/" + module['name'] + "/"
                     : window.location.protocol + "//" + window.location.hostname + ":" + module['gui_port'] + "/";
                 $module.append($("<a>").attr("href", gui_href).attr("target", "_blank").append($("<button>").text("open")));
             }
+            if (module['configurable'])
+                $module.append($("<button>").text("configure").click(function () { ModuleViewer.on_config_button_clicked(path); }));
             if (module['repository'])
                 $module.append($("<a>").attr("href", "https://github.com/" + module['repository']).attr("target", "_blank").append($("<button>").text("repository")));
             $module
                 //   .append($("<button>").text("config"))
                 .append($("<button>").text("uninstall").click(function () {
-                Ajax.INSTANCE.uninstall_module(module['path']);
+                Ajax.INSTANCE.uninstall_module(path);
             }));
             E.$MODULES.append($module);
         };
@@ -140,6 +143,34 @@ var ModuleViewer = /** @class */ (function () {
             _loop_2(i);
         }
         ;
+    };
+    ModuleViewer.on_config_button_clicked = function (path) {
+        Ajax.INSTANCE.get_module_config(path, function (config) { ModuleViewer.configure_module(path, config['config']); });
+    };
+    ModuleViewer.configure_module = function (path, config) {
+        var textarea = document.createElement('textarea');
+        textarea.style.fontSize = "10px";
+        textarea.spellcheck = false;
+        textarea.contentEditable = "true";
+        textarea.style.height = "400px";
+        textarea.value = JSON.stringify(config, null, '    ');
+        textarea.className = 'swal-content__textarea';
+        swal({
+            title: 'module configuration',
+            text: 'You are configuring `' + path + "`",
+            content: textarea,
+            buttons: {
+                cancel: {
+                    text: 'Cancel',
+                    visible: true
+                },
+                confirm: {
+                    text: 'Apply',
+                    closeModal: false
+                }
+            }
+        }).then(function (value) { if (value)
+            Ajax.INSTANCE.set_module_config(path, textarea.value); });
     };
     ModuleViewer.open_install_module_dialog = function () {
         swal("Enter Github Repository", "Do not install modules from untrusted sources!\n\nFormat: `username/repository` or Github URL\n\nExample: `iotaledger/chat.ixi`", {
