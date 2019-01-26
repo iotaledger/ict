@@ -22,12 +22,12 @@ public class GossipEventDispatcherTest extends IctTestTemplate {
             public void onGossipEvent(GossipEvent e) {
                 eventReceived = true;
                 // try to block for a few second
-                sleep(5000);
+                saveSleep(5000);
             }
         });
 
         ict.submit(new TransactionBuilder().build());
-        sleep(100);
+        saveSleep(100);
         Assert.assertEquals("event not delivered to gossip listener", true, eventReceived);
 
         long duration = System.currentTimeMillis() - start;

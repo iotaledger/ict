@@ -36,7 +36,7 @@ public abstract class IctTestTemplate {
         runningIcts = new HashSet<>();
     }
 
-    protected static void sleep(long ms) {
+    protected static void saveSleep(long ms) {
         try {
             Thread.sleep(ms);
         } catch (InterruptedException e) {
@@ -56,28 +56,21 @@ public abstract class IctTestTemplate {
         ict.updateProperties(properties.toFinal());
     }
 
+    private boolean anyIctStillCommunicating() {
+        for (Ict ict : runningIcts)
+            if(ict.node.getSenderQueueSize() > 0)
+                return true;
+        return false;
+    }
+
     protected void waitUntilCommunicationEnds(long maxWaitTime) {
-        int lastReceived;
-        int newReceived = sumNeighborStatsReceivedTransaction(runningIcts);
+
+        long waitingSince = System.currentTimeMillis();
+
         do {
-            lastReceived = newReceived;
-            sleep(30);
-            maxWaitTime -= 30;
-            newReceived = sumNeighborStatsReceivedTransaction(runningIcts);
-        } while (lastReceived != newReceived && maxWaitTime > 0);
-    }
+            saveSleep(10);
+        } while (anyIctStillCommunicating() && System.currentTimeMillis() - waitingSince < maxWaitTime);
 
-    private static int sumNeighborStatsReceivedTransaction(Iterable<Ict> network) {
-        int sum = 0;
-        for (Ict ict : network)
-            sum += sumNeighborStatsReceivedTransaction(ict);
-        return sum;
-    }
-
-    private static int sumNeighborStatsReceivedTransaction(Ict ict) {
-        int sum = 0;
-        for (Neighbor nb : ict.getNeighbors())
-            sum += nb.stats.receivedAll;
-        return sum;
+        saveSleep(10);
     }
 }

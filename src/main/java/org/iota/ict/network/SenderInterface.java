@@ -3,7 +3,7 @@ package org.iota.ict.network;
 import org.iota.ict.model.Transaction;
 import org.iota.ict.network.event.GossipListener;
 import org.iota.ict.utils.properties.PropertiesUser;
-import org.iota.ict.utils.Restartable;
+import org.iota.ict.utils.interfaces.Restartable;
 
 public interface SenderInterface extends Restartable, PropertiesUser, GossipListener {
 

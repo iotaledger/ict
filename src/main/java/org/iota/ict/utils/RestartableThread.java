@@ -1,6 +1,7 @@
 package org.iota.ict.utils;
 
 import org.apache.logging.log4j.Logger;
+import org.iota.ict.utils.interfaces.Restartable;
 
 import java.util.LinkedList;
 import java.util.List;

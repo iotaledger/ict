@@ -11,29 +11,22 @@ import org.junit.*;
 
 import java.util.Set;
 
-public class IxiTest extends IctTestTemplate {
+public class IxiGossipEventTest extends IctTestTemplate {
 
     @Test
-    public void testIxi() {
+    public void testIxiReceivesGossipEvent() {
 
         // given
         Ict ict = createIct();
         TestIxiModule module = new TestIxiModule(ict);
         module.start();
-        safeSleep(100);
+        saveSleep(100);
 
         // then
         Assert.assertNotNull("IXI module did not receive event.", module.gossipEvent);
         Assert.assertEquals("Event received by IXI module contains wrong transaction", module.transaction, module.gossipEvent.getTransaction());
         Assert.assertNotNull("Ict did not store transaction submitted by IXI module.", ict.getTangle().findTransactionByHash(module.transaction.hash));
         Assert.assertTrue("IXI module can't query transaction from tangle.", module.findTransactionsByAddress(module.transaction.address()).contains(module.transaction));
-    }
-
-    private static void safeSleep(long ms) {
-        try {
-            Thread.sleep(ms);
-        } catch (InterruptedException e) {
-        }
     }
 }
 

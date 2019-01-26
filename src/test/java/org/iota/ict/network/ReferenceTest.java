@@ -88,7 +88,7 @@ public class ReferenceTest extends GossipTest {
         Ict a = createIct();
         String hashOfReallyOld = submitTransactionAndReturnHash(a);
         String justABitTooOld = sendReferrer(a, hashOfReallyOld, hashOfReallyOld);
-        sleep(100); // sleep just a bit so a does not accidentally send to b
+        saveSleep(100); // sleep just a bit so a does not accidentally send to b
 
         Ict b = createIct();
         connect(a, b);

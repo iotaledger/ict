@@ -43,6 +43,10 @@ public class Node extends RestartableThread implements PropertiesUser {
             neighbor(neighbor);
     }
 
+    public int getSenderQueueSize() {
+        return sender.queueSize();
+    }
+
     public void log() {
         int queueSize = sender.queueSize();
         LOGGER.debug("forwarding queue size: " + queueSize);
