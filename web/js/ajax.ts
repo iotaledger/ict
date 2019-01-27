@@ -140,4 +140,10 @@ class Ajax {
     public set_module_config(path : string, config : Object) : void {
         this.submit("/setModuleConfig", {"path": path, "config": config}, () => {logSuccess("changes have been applied");}, logError);
     }
+
+    /* === LOGS === */
+
+    public get_logs(min : Number = 0, block : boolean = false, success : (modules : Object) => void = function (data) {}) : void {
+        this.submit("/getLogs", {"min": min, "block": block}, success);
+    }
 }

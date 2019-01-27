@@ -178,5 +178,19 @@ form,
   border-style: solid;
   border-image: linear-gradient(to top, #0bd, #0db) 1 100%;
 }
+form .log.WARN,
+.ixi .log.WARN,
+.neighbor .log.WARN,
+#log .log.WARN {
+  color: #FF0;
+  font-weight: bold;
+}
+form .log.ERROR,
+.ixi .log.ERROR,
+.neighbor .log.ERROR,
+#log .log.ERROR {
+  color: #F00;
+  font-weight: bold;
+}
 
 /*# sourceMappingURL=theme.css.map */

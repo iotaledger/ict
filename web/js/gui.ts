@@ -6,6 +6,7 @@ class E {
     public static $PAGE_LIST = $('#page_list');
     public static $NEIGHBORS = $('#neighbors');
     public static $MODULES = $('#ixis');
+    public static $LOG = $('#log');
 }
 
 class Page {
@@ -16,7 +17,7 @@ class Page {
 
     public static NEIGHBORS : Page = new Page("Neighbors");
     public static CONFIG : Page = new Page("Config");
-    //public static LOG : Page = new Page("Log");
+    public static LOG : Page = new Page("Log");
     public static IXIS : Page = new Page("IXI Modules");
 
     private static current_page : Page = Page.NEIGHBORS;
@@ -35,7 +36,7 @@ class Page {
         E.$PAGE_LIST.html("");
         this.NEIGHBORS.init();
         this.CONFIG.init();
-        //this.LOG.init();
+        this.LOG.init();
         this.IXIS.init();
     }
 
@@ -158,7 +159,7 @@ class ModuleViewer {
                     Ajax.INSTANCE.uninstall_module(path);
                 }));
             E.$MODULES.append($module);
-        };
+        }
     }
 
     private static on_config_button_clicked(path : string) {
@@ -207,6 +208,44 @@ class ModuleViewer {
             Ajax.INSTANCE.install_module(value);
         });
     }
+}
+
+class LogViewer {
+
+    private static last_index : number = -1;
+
+    public static load() : void {
+        E.$LOG.html("");
+        if(LogViewer.last_index == -1) // not yet initialized
+            LogViewer.fetch_logs();
+    }
+
+    private static fetch_logs() : void {
+        Ajax.INSTANCE.get_logs(LogViewer.last_index+1, true, function (result : Object) {
+            LogViewer.last_index = result['max'];
+            LogViewer.print_logs(result['logs']);
+            LogViewer.fetch_logs();
+        });
+    }
+
+    private static print_logs(logs : Array<Object>) : void {
+
+        logs.forEach(function (log: Object) {
+            const $log = $("<div>").addClass("log").addClass(log['level'])
+                .append($("<div>").addClass("time").text(LogViewer.format_timestamp(log['timestamp'])))
+                .append($("<div>").addClass("level").text(log['level'].padEnd(5)))
+                .append($("<div>").addClass("message").text(log['message']));
+            E.$LOG.append($log);
+        });
+    }
+
+    private static format_timestamp(timestamp : number) : string {
+        const date : Date = new Date(timestamp);
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const pad2 = (n : number) => {return n < 10 ? "0"+n : n};
+        return months[date.getMonth()] + "/" + pad2(date.getDate()) + " " + pad2(date.getHours()) + ":" + pad2(date.getMinutes()) + ":" + pad2(date.getSeconds());
+    }
+
 }
 
 function logError(message : string, title : string = "Whoops") {

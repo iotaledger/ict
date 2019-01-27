@@ -1,5 +1,7 @@
 package org.iota.ict.api;
 
+import org.apache.logging.log4j.core.LogEvent;
+import org.iota.ict.utils.LogAppender;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import spark.Request;
@@ -49,11 +51,13 @@ public abstract class RouteImpl implements Route {
  * @apiName GetInfo
  * @apiGroup General
  * @apiVersion 0.4.0
+ * @apiSuccess {String} version Currently installed Ict version.
  * @apiSuccess {String} update Version of available update, unset if no update available.
  * @apiSuccess {Object} default_config Default Ict configuration. **Not the custom configuration of the node.**
  * @apiSuccessExample {json} Success-Response:
  *     {
- *         "update": "0.5.0",
+ *         "version": "0.5.0"
+ *         "update": "0.6.0",
  *         "default_config": {
  *            "name": "ict",
  *            "round_duration": 60000,
@@ -240,7 +244,7 @@ class RouteAddModule extends RouteImpl {
 
     protected RouteAddModule(JsonIct jsonIct) { super(jsonIct, "/addModule"); }
 
-    public JSONObject execute(Request request) throws Throwable {
+    public JSONObject execute(Request request) {
         String repository = request.queryParams("user_slash_repo");
         return jsonIct.addModule(repository);
     }
@@ -287,7 +291,7 @@ class RouteUpdateModule extends RouteImpl {
 
     protected RouteUpdateModule(JsonIct jsonIct) { super(jsonIct, "/updateModule"); }
 
-    public JSONObject execute(Request request) {
+    public JSONObject execute(Request request) throws Throwable {
         String path = request.queryParams("path");
         String version = request.queryParams("version");
         return jsonIct.updateModule(path, version);
@@ -386,28 +390,56 @@ class RouteSetModuleConfig extends RouteImpl {
 }
 
 /**
- * @api {post} /getLog/ GetLog
- * @apiDescription Returns messages in the node's log. If no messages are available, will block until next message.
- * @apiParam {Number} start_timestamp Unix timestamp from where to start fetching logs.
- * @apiName GetLog
+ * @api {post} /getLogs/ GetLogs
+ * @apiDescription Returns all log messages of the node within a specified index interval. Will not return the entire interval if it is too large.
+ * @apiParam {Number} [min] Index of first message to include in response.
+ * @apiParam {Number} [max] Index of last message to include in response.
+ * @apiSuccess {Boolean} [block} If true, will wait until the at least the log message with the index matching the `min` parameter is available before responding.
+ * @apiName GetLogs
  * @apiGroup Log
- * @apiVersion 0.4.0
- * @apiSuccess {Array} logs Array (limited length) of logs ordered by timestamp (ascending).
+ * @apiVersion 0.5.0
+ * @apiSuccess {Array} logs Array (limited length) of logs ordered by index (ascending).
+ * @apiSuccess {Number} min Index of first available log message to fetch.
+ * @apiSuccess {Number} max Index of last available log message to fetch.
  * @apiSuccessExample {json} Success-Response:
  *     {
  *         "logs": [
- *             {"type": "info", "timestamp": 1547437313, "message": "Sender/Neighbor]   102  |90   |0    |0    |0       localhost/127.0.0.1:14265"},
- *             {"type": "warn", "timestamp": 1547439294, "message": "[Receiver/Ict]   Received invalid transaction from neighbor: localhost/127.0.0.1:14265 (issuance timestamp not in tolerated interval)"},
+ *             {"level": "info", "timestamp": 1547437313, "message": "Sender/Neighbor]   102  |90   |0    |0    |0       localhost/127.0.0.1:14265"},
+ *             {"level": "warn", "timestamp": 1547439294, "message": "[Receiver/Ict]   Received invalid transaction from neighbor: localhost/127.0.0.1:14265 (issuance timestamp not in tolerated interval)"},
  *             ...
  *         ],
+ *         "min": 0,
+ *         "max": 112,
  *         "success": true
  *     }
  * */
-class RouteGetLog extends RouteImpl {
+class RouteGetLogs extends RouteImpl {
 
-    protected RouteGetLog(JsonIct jsonIct) { super(jsonIct, "/getLog"); }
+    protected RouteGetLogs(JsonIct jsonIct) { super(jsonIct, "/getLogs"); }
 
-    public JSONArray execute(Request request) {
-        throw new IllegalStateException("Feature not implemented yet.");
+    public JSONObject execute(Request request) throws InterruptedException {
+        int min = Integer.parseInt(request.queryParamOrDefault("min", ""+LogAppender.getIndexMin()));
+        boolean block = Boolean.parseBoolean(request.queryParamOrDefault("block", "false"));
+
+        synchronized (LogAppender.NOTIFY_SYNCHRONIZER) {
+            while (block && min > LogAppender.getIndexMax()) {
+                LogAppender.NOTIFY_SYNCHRONIZER.wait();
+            }
+        }
+
+        int max = Math.min(Integer.parseInt(request.queryParamOrDefault("max", ""+LogAppender.getIndexMax())), min+1000);
+
+        JSONArray logs = new JSONArray();
+        for(int i = min; i <= max; i++) {
+            LogEvent event = LogAppender.getLogEvent(i);
+            if(event != null)
+                logs.put(logEventToJSON(i, event));
+        }
+
+        return new JSONObject().put("logs", logs).put("min", LogAppender.getIndexMin()).put("max", LogAppender.getIndexMax());
+    }
+
+    protected static JSONObject logEventToJSON(int index, LogEvent event) {
+        return new JSONObject().put("index", index).put("message", event.getMessage().getFormattedMessage()).put("timestamp", event.getTimeMillis()).put("level", event.getLevel());
     }
 }

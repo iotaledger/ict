@@ -7,6 +7,7 @@ var E = /** @class */ (function () {
     E.$PAGE_LIST = $('#page_list');
     E.$NEIGHBORS = $('#neighbors');
     E.$MODULES = $('#ixis');
+    E.$LOG = $('#log');
     return E;
 }());
 var Page = /** @class */ (function () {
@@ -23,7 +24,7 @@ var Page = /** @class */ (function () {
         E.$PAGE_LIST.html("");
         this.NEIGHBORS.init();
         this.CONFIG.init();
-        //this.LOG.init();
+        this.LOG.init();
         this.IXIS.init();
     };
     Page.prototype.init = function () {
@@ -39,7 +40,7 @@ var Page = /** @class */ (function () {
     };
     Page.NEIGHBORS = new Page("Neighbors");
     Page.CONFIG = new Page("Config");
-    //public static LOG : Page = new Page("Log");
+    Page.LOG = new Page("Log");
     Page.IXIS = new Page("IXI Modules");
     Page.current_page = Page.NEIGHBORS;
     return Page;
@@ -142,7 +143,6 @@ var ModuleViewer = /** @class */ (function () {
         for (var i = 0; i < modules.length; i++) {
             _loop_2(i);
         }
-        ;
     };
     ModuleViewer.on_config_button_clicked = function (path) {
         Ajax.INSTANCE.get_module_config(path, function (config) { ModuleViewer.configure_module(path, config['config']); });
@@ -187,6 +187,39 @@ var ModuleViewer = /** @class */ (function () {
         });
     };
     return ModuleViewer;
+}());
+var LogViewer = /** @class */ (function () {
+    function LogViewer() {
+    }
+    LogViewer.load = function () {
+        E.$LOG.html("");
+        if (LogViewer.last_index == -1) // not yet initialized
+            LogViewer.fetch_logs();
+    };
+    LogViewer.fetch_logs = function () {
+        Ajax.INSTANCE.get_logs(LogViewer.last_index + 1, true, function (result) {
+            LogViewer.last_index = result['max'];
+            LogViewer.print_logs(result['logs']);
+            LogViewer.fetch_logs();
+        });
+    };
+    LogViewer.print_logs = function (logs) {
+        logs.forEach(function (log) {
+            var $log = $("<div>").addClass("log").addClass(log['level'])
+                .append($("<div>").addClass("time").text(LogViewer.format_timestamp(log['timestamp'])))
+                .append($("<div>").addClass("level").text(log['level'].padEnd(5)))
+                .append($("<div>").addClass("message").text(log['message']));
+            E.$LOG.append($log);
+        });
+    };
+    LogViewer.format_timestamp = function (timestamp) {
+        var date = new Date(timestamp);
+        var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        var pad2 = function (n) { return n < 10 ? "0" + n : n; };
+        return months[date.getMonth()] + "/" + pad2(date.getDate()) + " " + pad2(date.getHours()) + ":" + pad2(date.getMinutes()) + ":" + pad2(date.getSeconds());
+    };
+    LogViewer.last_index = -1;
+    return LogViewer;
 }());
 function logError(message, title) {
     if (title === void 0) { title = "Whoops"; }

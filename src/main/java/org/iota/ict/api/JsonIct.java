@@ -31,7 +31,8 @@ public class JsonIct {
 
     public JSONObject getInfo() {
         JSONObject info = new JSONObject();
-        // info.put("update", Updater.getLabelOfAvailableUpdate()); TODO check rarely
+        String availableUpdate;  if((availableUpdate = Updater.getAvailableUpdate()) != null) info.put("update", availableUpdate);
+        info.put("version", Constants.ICT_VERSION);
         info.put("default_config", (new Properties()).toJSON());
         return info;
     }
@@ -133,13 +134,12 @@ public class JsonIct {
             throw new RuntimeException("No module '"+path+"'.");
 
         module.getContext().tryToUpdateConfiguration(config);
-
-        // TODO store
+        ict.getModuleHolder().storeModuleConfiguration(path);
 
         return success();
     }
 
-    protected JSONObject addModule(String repository) throws Throwable {
+    protected JSONObject addModule(String repository) {
         if (nmoduleBeingCurrentlyInstalled != null)
             throw new RuntimeException("Please wait for the installation of '" + nmoduleBeingCurrentlyInstalled + "' to complete.");
 
@@ -176,8 +176,9 @@ public class JsonIct {
         return success();
     }
 
-    protected JSONObject updateModule(String path, String version) {
-        throw new IllegalStateException("Feature not implemented yet.");
+    protected JSONObject updateModule(String path, String version) throws Throwable {
+        ict.getModuleHolder().update(path, version);
+        return success();
     }
 
     protected static JSONObject success() {

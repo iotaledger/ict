@@ -16,7 +16,7 @@
       %div.page
         %header
           %h1 Hmmmm …
-        %div{:class => "page_content"}
+        %div.page_content
           %p Looks like something is not working.
           %ul
             %li If you did not use the precompiled .jar file but built Ict yourself, did you already run <code>npm install</code> in the <b>web/</b> directory?
@@ -27,7 +27,7 @@
             %li Ask for help in #omega-ict on IOTA Discord.
 
       %div#page_config.page.hidden
-        %div{:class => "page_content"}
+        %div.page_content
 
           %form
 
@@ -129,14 +129,13 @@
           %button{:onclick => "Form.save_config(); return false;"} save
           %button{:onclick => "Form.put_config(default_config); return false;"} reset
       %div#page_neighbors.page.hidden
-        %div{:class => "page_content"}
+        %div.page_content
           %div#neighbors
           %button{:onclick => "NeighborViewer.open_add_neighbor_dialog(); return false;"} add neighbor
       %div#page_log.page.hidden
-        %div{:class => "page_content"}
+        %div.page_content
           %div#log
-            nobody has implemented me yet :(
       %div#page_ixi_modules.page.hidden
-        %div{:class => "page_content"}
+        %div.page_content
           %div#ixis
           %button{:onclick => "ModuleViewer.open_install_module_dialog(); return false;"} install module

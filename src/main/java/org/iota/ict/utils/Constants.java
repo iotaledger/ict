@@ -31,6 +31,8 @@ public class Constants {
     public static boolean TESTING = true;
     public static final int MIN_WEIGHT_MAGNITUDE = 3;
 
+    public static final long CHECK_FOR_UPDATES_INTERVAL_MS = 6 *  3600 * 1000;
+
     /**
      * Specifies through which trit of the transaction hash each flag is defined.
      */

@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.IctInterface;
 import org.iota.ict.Main;
+import org.iota.ict.api.GithubGateway;
 import org.iota.ict.ixi.context.IxiContext;
 import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.IOHelper;
@@ -42,7 +43,14 @@ public class IxiModuleHolder extends RestartableThread {
     }
 
     @Override
-    public void run() {
+    public void run() { ; }
+
+
+    public void update(String path, String version) throws Throwable {
+        IxiModule module = modulesByPath.get(path);
+        IxiModuleInfo info = modulesWithInfo.get(module);
+        uninstall(path);
+        install(GithubGateway.getAssetDownloadUrl(info.repository, version));
     }
 
     public boolean uninstall(String path) {
@@ -137,10 +145,14 @@ public class IxiModuleHolder extends RestartableThread {
         modulesByPath.put(path, module);
         subWorkers.add(module);
 
-        File configFile = new File(MODULE_DIRECTORY, path+".cfg");
-        if(configFile.exists()) {
-            JSONObject config = new JSONObject(IOHelper.readFile(configFile));
-            module.getContext().tryToUpdateConfiguration(config);
+        try {
+            File configFile = new File(MODULE_DIRECTORY, path+".cfg");
+            if(configFile.exists()) {
+                JSONObject config = new JSONObject(IOHelper.readFile(configFile));
+                module.getContext().tryToUpdateConfiguration(config);
+            }
+        } catch (Throwable t) {
+            LOGGER.warn("Failed to read configuration of module '"+path+"'.");
         }
 
         return module;
@@ -177,23 +189,21 @@ public class IxiModuleHolder extends RestartableThread {
 
     @Override
     public void onTerminate() {
-
-        Map<IxiModule, String> pathesByModule = new HashMap<>();
-        for(Map.Entry<String, IxiModule> entry : modulesByPath.entrySet()) {
-            pathesByModule.put(entry.getValue(), entry.getKey());
+        for(String path : modulesByPath.keySet()) {
+            storeModuleConfiguration(path);
         }
+    }
 
-        for(IxiModule module : modulesWithInfo.keySet()) {
-            IxiContext context = module.getContext();
-            JSONObject configuration = context.getConfiguration();
-            String path = pathesByModule.get(module);
-            if(configuration != null)
-                try {
-                    IOHelper.writeToFile(new File(MODULE_DIRECTORY, path+".cfg"), configuration.toString());
-                } catch (IOException e) {
-                    LOGGER.warn("Failed to store configuration of module '"+path+"'.", e);
-                }
-        }
+    public void storeModuleConfiguration(String path) {
+        IxiModule module = modulesByPath.get(path);
+        IxiContext context = module.getContext();
+        JSONObject configuration = context.getConfiguration();
+        if(configuration != null)
+            try {
+                IOHelper.writeToFile(new File(MODULE_DIRECTORY, path+".cfg"), configuration.toString());
+            } catch (IOException e) {
+                LOGGER.warn("Failed to store configuration of module '"+path+"'.", e);
+            }
     }
 
     public Set<IxiModule> getModules() {

@@ -122,6 +122,13 @@ var Ajax = /** @class */ (function () {
     Ajax.prototype.set_module_config = function (path, config) {
         this.submit("/setModuleConfig", { "path": path, "config": config }, function () { logSuccess("changes have been applied"); }, logError);
     };
+    /* === LOGS === */
+    Ajax.prototype.get_logs = function (min, block, success) {
+        if (min === void 0) { min = 0; }
+        if (block === void 0) { block = false; }
+        if (success === void 0) { success = function (data) { }; }
+        this.submit("/getLogs", { "min": min, "block": block }, success);
+    };
     Ajax.INSTANCE = new Ajax(window.location.protocol + "//" + window.location.host);
     return Ajax;
 }());

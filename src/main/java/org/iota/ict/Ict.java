@@ -12,6 +12,8 @@ import org.iota.ict.network.event.GossipEvent;
 import org.iota.ict.network.event.GossipEventDispatcher;
 import org.iota.ict.network.event.GossipListener;
 import org.iota.ict.model.Transaction;
+import org.iota.ict.utils.Constants;
+import org.iota.ict.utils.Updater;
 import org.iota.ict.utils.properties.FinalProperties;
 import org.iota.ict.utils.RestartableThread;
 
@@ -41,6 +43,7 @@ public class Ict extends RestartableThread implements IctInterface {
     public final static Logger LOGGER = LogManager.getLogger("Ict");
     protected int round;
     protected long roundStart = System.currentTimeMillis();
+    protected static long lastCheckedForUpdate = System.currentTimeMillis();
 
     protected Object notifySyncObject = new Object();
 
@@ -81,6 +84,7 @@ public class Ict extends RestartableThread implements IctInterface {
                 round++;
                 roundStart = System.currentTimeMillis();
             }
+            Updater.checkForUpdatesIfYouHaveNotDoneSoInALongTime();
         }
     }
 

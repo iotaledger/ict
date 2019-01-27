@@ -46,7 +46,7 @@ public class RestApi extends RestartableThread implements PropertiesUser {
 
     private void initRoutes() {
         routes.add(new RouteGetInfo(jsonIct));
-        routes.add(new RouteGetLog(jsonIct));
+        routes.add(new RouteGetLogs(jsonIct));
         routes.add(new RouteUpdate(jsonIct));
 
         routes.add(new RouteSetConfig(jsonIct));

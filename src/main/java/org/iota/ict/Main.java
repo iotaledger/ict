@@ -3,13 +3,12 @@ package org.iota.ict;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.iota.ict.api.GithubGateway;
 import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.IssueCollector;
+import org.iota.ict.utils.Updater;
 import org.iota.ict.utils.properties.Properties;
-import org.iota.ict.utils.VersionComparator;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,6 +26,8 @@ import java.util.Objects;
  * from this class.
  */
 public class Main {
+
+    public static String[] args = new String[0];
 
     static {
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
@@ -331,8 +332,13 @@ public class Main {
 
     public static void main(String[] args) {
 
+        Main.args = args;
+
         Constants.TESTING = false;
-        checkForUpdates();
+
+        System.out.println();
+        Updater.checkForUpdatesIfYouHaveNotDoneSoInALongTime();
+        System.out.println();
 
         Properties ictProperties = processCmdLineArgs(args);
 
@@ -404,21 +410,5 @@ public class Main {
         }
 
         return ictProperties;
-    }
-
-    private static void checkForUpdates() {
-        System.out.println();
-        logger.info("Checking for updates ...");
-
-        try {
-            String latestReleaseVersion = GithubGateway.getLatestReleaseLabel(Constants.ICT_REPOSITORY);
-            if (VersionComparator.getInstance().compare(Constants.ICT_VERSION, latestReleaseVersion) < 0)
-                logger.warn(">>>>> A new release of Ict is available. Please update to " + latestReleaseVersion + "! <<<<<");
-            else
-                logger.info("You are already up-to-date!");
-        } catch (Throwable t) {
-            logger.error("Failed checking for updates", t);
-        }
-        System.out.println();
     }
 }
