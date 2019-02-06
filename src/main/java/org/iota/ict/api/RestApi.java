@@ -86,9 +86,12 @@ public class RestApi extends RestartableThread implements PropertiesUser {
         service.before(new Filter() {
             @Override
             public void handle(Request request, Response response) {
+                if(request.requestMethod().equals("GET") && !request.pathInfo().matches("^[/]?$")) {
+                    response.redirect("/");
+                }
                 String queryPassword = request.queryParams("password");
                 if (!queryPassword.equals(properties.guiPassword()))
-                    spark.Spark.halt(401, "Access denied: password incorrect.");
+                    service.halt(401, "Access denied: password incorrect.");
             }
         });
 
