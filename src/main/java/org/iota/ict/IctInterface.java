@@ -4,6 +4,7 @@ import org.iota.ict.ixi.Ixi;
 import org.iota.ict.ixi.IxiModuleHolder;
 import org.iota.ict.model.Tangle;
 import org.iota.ict.network.Neighbor;
+import org.iota.ict.network.Node;
 import org.iota.ict.network.event.GossipListener;
 import org.iota.ict.utils.properties.FinalProperties;
 import org.iota.ict.utils.properties.PropertiesUser;
@@ -20,6 +21,8 @@ public interface IctInterface extends Ixi, GossipListener, PropertiesUser, Resta
     Tangle getTangle();
 
     FinalProperties getProperties();
+
+    List<Node.Round> getRounds();
 
     void request(String transactionHash);
 }

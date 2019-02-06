@@ -7,6 +7,7 @@ import org.iota.ict.ixi.IxiModule;
 import org.iota.ict.ixi.IxiModuleHolder;
 import org.iota.ict.ixi.IxiModuleInfo;
 import org.iota.ict.network.Neighbor;
+import org.iota.ict.network.Node;
 import org.iota.ict.utils.*;
 import org.iota.ict.utils.properties.EditableProperties;
 import org.iota.ict.utils.properties.FinalProperties;
@@ -17,9 +18,14 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class JsonIct {
+
+    protected int statsRound = -1;
+    protected Map<Neighbor, JSONArray> statsByNeighbor = new HashMap<>();
 
     protected static final Logger LOGGER = Ict.LOGGER;
     protected final IctInterface ict;
@@ -62,15 +68,42 @@ public class JsonIct {
         JSONArray nbs = new JSONArray();
         for (Neighbor neighbor : ict.getNeighbors()) {
             JSONObject nb = new JSONObject();
+
+            List<Node.Round> rounds = ict.getRounds();
+            if(!statsByNeighbor.containsKey(neighbor))
+                statsByNeighbor.put(neighbor, new JSONArray());
+            JSONArray stats = statsByNeighbor.get(neighbor);
+
+            if(rounds.size() == 0) {
+
+            }
+            updateStatsForNeighbor(neighbor, stats, rounds);
             nb.put("address", neighbor.getAddress());
-            nb.put("all", neighbor.stats.prevReceivedAll);
-            nb.put("new", neighbor.stats.prevReceivedNew);
-            nb.put("requested", neighbor.stats.prevRequested);
-            nb.put("invalid", neighbor.stats.prevReceivedInvalid);
-            nb.put("ignored", neighbor.stats.prevIgnored);
+            nb.put("stats", stats);
             nbs.put(nb);
         }
         return nbs;
+    }
+
+    private void updateStatsForNeighbor(Neighbor neighbor, JSONArray stats, List<Node.Round> rounds) {
+        // remove all rounds from json which are no longer stored
+        if(stats.length() > 0 && rounds.size() > 0)
+        while (stats.getJSONObject(0).getLong("timestamp") < rounds.get(0).timestamp)
+            stats.remove(0);
+
+        // add all rounds to json which are new
+        int firstNewRoundIndex;
+        if(stats.length() > 0) {
+            long lastSyncedTimestamp = stats.getJSONObject(stats.length()-1).getLong("timestamp");
+            for(firstNewRoundIndex = rounds.size()-1; rounds.get(firstNewRoundIndex).timestamp > lastSyncedTimestamp && firstNewRoundIndex > 0; firstNewRoundIndex--);
+        } else {
+            firstNewRoundIndex = 0;
+        }
+        for(int i = firstNewRoundIndex; i < rounds.size(); i++) {
+            JSONObject json = rounds.get(i).toJSON(neighbor);
+            if(json != null)
+                stats.put(json);
+        }
     }
 
     public JSONObject addNeighbor(String address) {

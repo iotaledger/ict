@@ -2,16 +2,19 @@ package org.iota.ict.network;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.iota.ict.Ict;
 import org.iota.ict.IctInterface;
 import org.iota.ict.model.Transaction;
 import org.iota.ict.utils.*;
 import org.iota.ict.utils.properties.FinalProperties;
 import org.iota.ict.utils.properties.Properties;
 import org.iota.ict.utils.properties.PropertiesUser;
+import org.json.JSONObject;
 
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -27,6 +30,9 @@ public class Node extends RestartableThread implements PropertiesUser {
 
     protected InetSocketAddress address;
     protected DatagramSocket socket;
+
+    protected List<Round> rounds = new ArrayList<>();
+    protected int round;
 
     public Node(IctInterface ict) {
         super(LOGGER);
@@ -150,5 +156,80 @@ public class Node extends RestartableThread implements PropertiesUser {
         } catch (SocketException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static void logHeader() {
+        StringBuilder report = new StringBuilder();
+        report.append(pad("ALL")).append('|');
+        report.append(pad("NEW")).append('|');
+        report.append(pad("REQ")).append('|');
+        report.append(pad("INV")).append('|');
+        report.append(pad("IGN"));
+        report.append("   ").append("ADDRESS");
+        LOGGER.info(report);
+    }
+
+    private static String pad(String str) {
+        return String.format("%1$-5s", str);
+    }
+
+    public void newRound() {
+        round++;
+        rounds.add(new Round());
+        if (rounds.size() > Constants.MAX_AMOUNT_OF_ROUNDS_STORED)
+            rounds.remove(0);
+
+        if (round % 10 == 0)
+            logHeader();
+        // two separate FOR-loops to prevent delays between newRound() calls
+        for (Neighbor neighbor : ict.getNeighbors()) {
+            long tolerance = ict.getProperties().antiSpamAbs();
+            neighbor.newRound(tolerance);
+        }
+        for (Neighbor neighbor : ict.getNeighbors())
+            neighbor.resolveHost();
+    }
+
+    public class Round {
+        public final int round = Node.this.round;
+        public final long timestamp = System.currentTimeMillis();
+        public final Stats[] stats;
+
+        Round() {
+            stats = new Stats[neighbors.size()];
+            for(int i = 0; i < neighbors.size(); i++)
+                stats[i] = new Stats(neighbors.get(i));
+        }
+
+        public JSONObject toJSON(Neighbor neighbor) {
+            for(Stats s : stats)
+                if(s.neighbor == neighbor)
+                    return new JSONObject()
+                        .put("timestamp", timestamp)
+                            .put("requested", s.requestedTxs)
+                            .put("ignored", s.ignoredTxs)
+                            .put("invalid", s.invalidTxs)
+                            .put("new", s.newTxs)
+                            .put("all", s.allTxs);
+            return null;
+        }
+
+        public class Stats {
+            final Neighbor neighbor;
+            final long ignoredTxs, newTxs, allTxs, invalidTxs, requestedTxs;
+
+            Stats(Neighbor neighbor) {
+                this.neighbor = neighbor;
+                ignoredTxs = neighbor.stats.ignored;
+                newTxs = neighbor.stats.receivedNew;
+                allTxs = neighbor.stats.receivedAll;
+                invalidTxs = neighbor.stats.receivedInvalid;
+                requestedTxs = neighbor.stats.requested;
+            }
+        }
+    }
+
+    public List<Round> getRounds() {
+        return rounds;
     }
 }

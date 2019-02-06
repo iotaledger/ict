@@ -27,6 +27,7 @@ public class Constants {
     public static final int CURL_ROUNDS_TRANSACTION_HASH = 27;
     public static final int CURL_ROUNDS_BUNDLE_HASH = 27;
     public static final long TIMESTAMP_DIFFERENCE_TOLERANCE_IN_MILLIS = 20000;
+    public static final long MAX_AMOUNT_OF_ROUNDS_STORED = 45000; // 60sec/round --> 1 month
 
     public static boolean TESTING = true;
     public static final int MIN_WEIGHT_MAGNITUDE = 3;

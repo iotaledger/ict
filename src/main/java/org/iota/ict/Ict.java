@@ -41,7 +41,6 @@ public class Ict extends RestartableThread implements IctInterface {
     // inner state
     protected FinalProperties properties;
     public final static Logger LOGGER = LogManager.getLogger("Ict");
-    protected int round;
     protected long roundStart = System.currentTimeMillis();
     protected static long lastCheckedForUpdate = System.currentTimeMillis();
 
@@ -76,12 +75,11 @@ public class Ict extends RestartableThread implements IctInterface {
                 }
             }
             if (roundStart + properties.roundDuration() < System.currentTimeMillis()) {
-                Neighbor.newRound(this, round);
+                node.newRound();
                 LOGGER.debug("memory: " + Runtime.getRuntime().totalMemory() / 1024 / 1024 + "MB / " + Runtime.getRuntime().maxMemory() / 1024 / 1024 + "MB (total/max)");
                 LOGGER.debug("tangle size: " + tangle.size() + " (" + Transaction.getAmountOfInstances() + " transaction instances alive)");
                 node.log();
                 eventDispatcher.log();
-                round++;
                 roundStart = System.currentTimeMillis();
             }
             Updater.checkForUpdatesIfYouHaveNotDoneSoInALongTime();
@@ -183,5 +181,10 @@ public class Ict extends RestartableThread implements IctInterface {
     @Override
     public void onGossipEvent(GossipEvent event) {
         eventDispatcher.notifyListeners(event);
+    }
+
+    @Override
+    public List<Node.Round> getRounds() {
+        return node.getRounds();
     }
 }

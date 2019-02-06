@@ -62,31 +62,7 @@ public class Neighbor {
         return address.getAddress().getHostAddress().equals(packet.getAddress().getHostAddress());
     }
 
-    public static void logHeader() {
-        StringBuilder report = new StringBuilder();
-        report.append(pad("ALL")).append('|');
-        report.append(pad("NEW")).append('|');
-        report.append(pad("REQ")).append('|');
-        report.append(pad("INV")).append('|');
-        report.append(pad("IGN"));
-
-        report.append("   ").append("ADDRESS");
-        logger.info(report);
-    }
-
-    public static void newRound(Ict ict, int round) {
-        if (round % 10 == 0)
-            Neighbor.logHeader();
-        // two separate FOR-loops to prevent delays between newRound() calls
-        for (Neighbor neighbor : ict.getNeighbors()) {
-            long tolerance = ict.getProperties().antiSpamAbs();
-            neighbor.newRound(tolerance);
-        }
-        for (Neighbor neighbor : ict.getNeighbors())
-            neighbor.resolveHost();
-    }
-
-    private void newRound(long maxAllowedTransactionsForRound) {
+    public void newRound(long maxAllowedTransactionsForRound) {
         this.maxAllowedTransactionsForRound = maxAllowedTransactionsForRound;
         reportStatsOfRound();
         stats.newRound();
