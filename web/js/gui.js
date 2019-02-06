@@ -76,7 +76,8 @@ var NeighborViewer = /** @class */ (function () {
     NeighborViewer.load = function () {
         Ajax.INSTANCE.get_neighbor_stats(NeighborViewer.printNeighborStats);
     };
-    NeighborViewer.printNeighborStats = function (neighbors) {
+    NeighborViewer.printNeighborStats = function (response) {
+        const neighbors = response['neighbors'];
         E.$NEIGHBORS.html("");
         var _loop_1 = function (i) {
             var neighbor = neighbors[i];
@@ -116,7 +117,8 @@ var ModuleViewer = /** @class */ (function () {
     ModuleViewer.load = function () {
         Ajax.INSTANCE.get_modules(ModuleViewer.print_modules);
     };
-    ModuleViewer.print_modules = function (modules) {
+    ModuleViewer.print_modules = function (response) {
+        const modules = response['modules'];
         E.$MODULES.html("");
         var _loop_2 = function (i) {
             var module = modules[i];

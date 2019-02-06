@@ -94,7 +94,8 @@ class NeighborViewer {
         Ajax.INSTANCE.get_neighbor_stats(NeighborViewer.printNeighborStats);
     }
 
-    private static printNeighborStats(neighbors) : void {
+    private static printNeighborStats(response) : void {
+        const neighbors = response['neighbors'];
         E.$NEIGHBORS.html("");
 
         for (let i = 0; i < neighbors.length; i++){
@@ -133,7 +134,8 @@ class ModuleViewer {
         Ajax.INSTANCE.get_modules(ModuleViewer.print_modules);
     }
 
-    private static print_modules(modules) : void {
+    private static print_modules(response) : void {
+        const modules = response['modules'];
         E.$MODULES.html("");
 
         for (let i = 0; i < modules.length; i++){

@@ -27,21 +27,21 @@ public abstract class RouteImpl implements Route {
     @Override
     public Object handle(Request request, Response response) {
         try {
-            return execute(request);
+            return execute(request).put("success", true);
         } catch (Throwable t) {
             t.printStackTrace();
             return error(t);
         }
     }
 
-    public abstract Object execute(Request request) throws Throwable;
+    public abstract JSONObject execute(Request request) throws Throwable;
 
     protected static JSONObject error(Throwable t) {
         return error(t.getMessage());
     }
 
     protected static JSONObject error(String message) {
-        return new JSONObject().put("error", message);
+        return new JSONObject().put("error", message).put("success", false);
     }
 }
 
@@ -172,8 +172,8 @@ class RouteGetNeighbors extends RouteImpl {
 
     protected RouteGetNeighbors(JsonIct jsonIct) { super(jsonIct, "/getNeighbors"); }
 
-    public JSONArray execute(Request request) {
-        return jsonIct.getNeighbors();
+    public JSONObject execute(Request request) {
+        return new JSONObject().put("neighbors", jsonIct.getNeighbors());
     }
 }
 
@@ -329,8 +329,8 @@ class RouteGetModules extends RouteImpl {
 
     protected RouteGetModules(JsonIct jsonIct) { super(jsonIct, "/getModules"); }
 
-    public JSONArray execute(Request request) {
-        return jsonIct.getModules();
+    public JSONObject execute(Request request) {
+        return new JSONObject().put("modules", jsonIct.getModules());
     }
 }
 
