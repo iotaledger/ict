@@ -177,9 +177,9 @@ public final class Trytes {
             int bytesPos = bytesOffset + 2 * i;
             int b0 = bytes[bytesPos] < 0 ? bytes[bytesPos] + 256 : bytes[bytesPos];
             int b1 = bytes[bytesPos + 1] < 0 ? bytes[bytesPos + 1] + 256 : bytes[bytesPos + 1];
-            trytes[3 * i] = TRYTE_CHARS[b0 / 8];
-            trytes[3 * i + 1] = TRYTE_CHARS[b1 / 8];
-            trytes[3 * i + 2] = TRYTE_CHARS[b0 % 8 + 8 * (b1 % 8)];
+            trytes[3 * i] = TRYTE_CHARS[(b0 / 8)%TRYTE_CHARS.length];
+            trytes[3 * i + 1] = TRYTE_CHARS[(b1 / 8)%TRYTE_CHARS.length];
+            trytes[3 * i + 2] = TRYTE_CHARS[(b0 % 8 + 8 * (b1 % 8))%TRYTE_CHARS.length];
         }
         return new String(trytes);
     }

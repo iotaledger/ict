@@ -24,10 +24,12 @@ public class Constants {
     public static final int TRANSACTION_SIZE_TRYTES = TRANSACTION_SIZE_TRITS / 3;
     public static final int TRANSACTION_SIZE_BYTES = TRANSACTION_SIZE_TRITS / 9 * 2;
     public static final int PACKET_SIZE_BYTES = TRANSACTION_SIZE_BYTES + Transaction.Field.BRANCH_HASH.byteLength;
-    public static final int CURL_ROUNDS_TRANSACTION_HASH = 27;
-    public static final int CURL_ROUNDS_BUNDLE_HASH = 27;
     public static final long TIMESTAMP_DIFFERENCE_TOLERANCE_IN_MILLIS = 20000;
     public static final long MAX_AMOUNT_OF_ROUNDS_STORED = 45000; // 60sec/round --> 1 month
+
+    public static final int CURL_ROUNDS_TRANSACTION_HASH = 27;
+    public static final int CURL_ROUNDS_BUNDLE_HASH = 27;
+    public static final int CURL_ROUNDS_EC_ADDRESS_DERIVATION = 27;
 
     public static boolean TESTING = true;
     public static final int MIN_WEIGHT_MAGNITUDE = 3;

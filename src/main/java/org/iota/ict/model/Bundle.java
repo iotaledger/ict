@@ -42,6 +42,10 @@ public class Bundle {
         build();
     }
 
+    public Transaction getHead() {
+        return transactions.get(0);
+    }
+
     /**
      * Keeps adding transactions to the bundle and re-validates it until it is complete (either because all transactions
      * have been added or because the bundle structure is invalid).

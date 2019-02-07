@@ -82,7 +82,8 @@ public class Ict extends RestartableThread implements IctInterface {
                 eventDispatcher.log();
                 roundStart = System.currentTimeMillis();
             }
-            Updater.checkForUpdatesIfYouHaveNotDoneSoInALongTime();
+            if(!Constants.TESTING)
+                Updater.checkForUpdatesIfYouHaveNotDoneSoInALongTime();
         }
     }
 
