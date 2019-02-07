@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.iota.ict.Ict;
 
 import java.net.*;
+import java.util.Arrays;
 
 /**
  * This class defines a neighbored Ict node. Neighbor nodes usually run remotely on a different device and connection
@@ -59,7 +60,12 @@ public class Neighbor {
     }
 
     public boolean sentPacketFromSameIP(DatagramPacket packet) {
-        return address.getAddress().getHostAddress().equals(packet.getAddress().getHostAddress());
+        try {
+            return address.getAddress().getHostAddress().equals(packet.getAddress().getHostAddress());
+        } catch (NullPointerException e) {
+            // cannot resolve ip
+            return false;
+        }
     }
 
     public void newRound(long maxAllowedTransactionsForRound) {
