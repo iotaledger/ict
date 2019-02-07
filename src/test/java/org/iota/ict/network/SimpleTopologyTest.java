@@ -1,8 +1,6 @@
 package org.iota.ict.network;
 
 import org.iota.ict.Ict;
-import org.iota.ict.network.event.GossipEvent;
-import org.iota.ict.network.event.GossipListener;
 import org.junit.Assert;
 import org.junit.Test;
 

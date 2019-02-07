@@ -1,7 +1,7 @@
 package org.iota.ict.network;
 
 import org.iota.ict.model.Transaction;
-import org.iota.ict.network.event.GossipListener;
+import org.iota.ict.network.gossip.GossipListener;
 import org.iota.ict.utils.properties.PropertiesUser;
 import org.iota.ict.utils.interfaces.Restartable;
 

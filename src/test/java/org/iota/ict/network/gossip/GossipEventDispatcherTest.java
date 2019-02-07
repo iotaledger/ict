@@ -1,4 +1,4 @@
-package org.iota.ict.network.event;
+package org.iota.ict.network.gossip;
 
 import org.iota.ict.Ict;
 import org.iota.ict.IctTestTemplate;
@@ -28,9 +28,9 @@ public class GossipEventDispatcherTest extends IctTestTemplate {
 
         ict.submit(new TransactionBuilder().build());
         saveSleep(100);
-        Assert.assertEquals("event not delivered to gossip listener", true, eventReceived);
+        Assert.assertTrue("gossip not delivered to gossip listener", eventReceived);
 
         long duration = System.currentTimeMillis() - start;
-        Assert.assertEquals("gossip listener blocked main thread", true, duration < 2000);
+        Assert.assertTrue("gossip listener blocked main thread", duration < 2000);
     }
 }

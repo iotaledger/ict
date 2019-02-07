@@ -8,19 +8,18 @@ import org.iota.ict.model.RingTangle;
 import org.iota.ict.model.Tangle;
 import org.iota.ict.network.Neighbor;
 import org.iota.ict.network.Node;
-import org.iota.ict.network.event.GossipEvent;
-import org.iota.ict.network.event.GossipEventDispatcher;
-import org.iota.ict.network.event.GossipListener;
+import org.iota.ict.network.gossip.GossipEvent;
+import org.iota.ict.network.gossip.GossipEventDispatcher;
+import org.iota.ict.network.gossip.GossipListener;
 import org.iota.ict.model.Transaction;
+import org.iota.ict.network.gossip.GossipPreprocessor;
 import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.Updater;
 import org.iota.ict.utils.properties.FinalProperties;
 import org.iota.ict.utils.RestartableThread;
 
 import java.net.InetSocketAddress;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This class is the central component of the project. Each instance is an independent Ict node that can communicate with
@@ -187,5 +186,15 @@ public class Ict extends RestartableThread implements IctInterface {
     @Override
     public List<Node.Round> getRounds() {
         return node.getRounds();
+    }
+
+    @Override
+    public void addGossipPreprocessor(GossipPreprocessor gossipPreprocessor) {
+        eventDispatcher.addGossipPreprocessor(gossipPreprocessor);
+    }
+
+    @Override
+    public void removeGossipPreprocessor(GossipPreprocessor gossipPreprocessor) {
+        eventDispatcher.removeGossipPreprocessor(gossipPreprocessor);
     }
 }

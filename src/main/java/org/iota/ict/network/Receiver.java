@@ -5,7 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.iota.ict.Ict;
 import org.iota.ict.model.Tangle;
 import org.iota.ict.model.Transaction;
-import org.iota.ict.network.event.GossipEvent;
+import org.iota.ict.network.gossip.GossipEvent;
 import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.RestartableThread;
 import org.iota.ict.utils.Trytes;

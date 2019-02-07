@@ -1,4 +1,4 @@
-package org.iota.ict.network.event;
+package org.iota.ict.network.gossip;
 
 import org.iota.ict.model.Transaction;
 

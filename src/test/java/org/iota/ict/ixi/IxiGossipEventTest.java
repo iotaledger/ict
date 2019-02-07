@@ -4,8 +4,8 @@ import org.iota.ict.Ict;
 import org.iota.ict.IctTestTemplate;
 import org.iota.ict.model.Transaction;
 import org.iota.ict.model.TransactionBuilder;
-import org.iota.ict.network.event.GossipEvent;
-import org.iota.ict.network.event.GossipListener;
+import org.iota.ict.network.gossip.GossipEvent;
+import org.iota.ict.network.gossip.GossipListener;
 import org.iota.ict.utils.Trytes;
 import org.junit.*;
 
@@ -23,7 +23,7 @@ public class IxiGossipEventTest extends IctTestTemplate {
         saveSleep(100);
 
         // then
-        Assert.assertNotNull("IXI module did not receive event.", module.gossipEvent);
+        Assert.assertNotNull("IXI module did not receive gossip.", module.gossipEvent);
         Assert.assertEquals("Event received by IXI module contains wrong transaction", module.transaction, module.gossipEvent.getTransaction());
         Assert.assertNotNull("Ict did not store transaction submitted by IXI module.", ict.getTangle().findTransactionByHash(module.transaction.hash));
         Assert.assertTrue("IXI module can't query transaction from tangle.", module.findTransactionsByAddress(module.transaction.address()).contains(module.transaction));
