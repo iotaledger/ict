@@ -2,6 +2,7 @@ package org.iota.ict.model;
 
 import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.Trytes;
+import org.iota.ict.utils.crypto.SignatureScheme;
 
 import java.math.BigInteger;
 import java.util.HashSet;
@@ -80,13 +81,11 @@ public class Transfer {
     }
 
     private boolean signatureFragmentValid(BalanceChange input, int fragmentIndex) {
-        return input.getAmountOfSignatureOrMessageFragments() > fragmentIndex
-                && doesSignatureFragmentSignTrytes(input.getSignatureOrMessageFragment(fragmentIndex), bundleHash.substring(27 * fragmentIndex, 27 * fragmentIndex + 27));
-    }
+        String signatureFragment = input.getSignatureOrMessageFragment(fragmentIndex);
+        String signedBundleHashFragment = bundleHash.substring(27 * (fragmentIndex%3), 27 * (fragmentIndex%3) + 27);
 
-    private boolean doesSignatureFragmentSignTrytes(String signatureFragment, String trytes) {
-        // TODO implement (ask CFB for specification)
-        return true;
+        return input.getAmountOfSignatureOrMessageFragments() > fragmentIndex
+                && SignatureScheme.determineAddressOfSignature(signatureFragment, signedBundleHashFragment).equals(input.address);
     }
 
     static int calcSecurityLevel(String bundleHash) {

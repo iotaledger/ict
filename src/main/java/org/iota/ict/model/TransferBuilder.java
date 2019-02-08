@@ -3,6 +3,7 @@ package org.iota.ict.model;
 import com.iota.curl.IotaCurlHash;
 import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.Trytes;
+import org.iota.ict.utils.crypto.SignatureScheme;
 
 import java.math.BigInteger;
 import java.util.HashSet;
@@ -19,8 +20,7 @@ public final class TransferBuilder {
     private final Set<BalanceChangeBuilder> outputBuilders;
     private final int securityLevel;
 
-    public static Bundle buildBundle(Set<BalanceChange> changes, int securityLevel) {
-        Set<BalanceChangeBuilder> changeBuilders = new HashSet<>();
+    public static Bundle buildBundle(Set<BalanceChangeBuilder> changeBuilders) {
         for (BalanceChange change : changes)
             changeBuilders.add(change.isInput() ? new BalanceChangeBuilder(change.address, change.value, securityLevel) : new BalanceChangeBuilder(change)); // TODO multisig requires more fragments
         return new TransferBuilder(changeBuilders, securityLevel).build();
@@ -60,7 +60,7 @@ public final class TransferBuilder {
 
         String determinedBundleHash = determineBundleHash(orderedChanges);
 
-        createAllSignatures(determinedBundleHash, orderedChanges);
+        createAllSignatures(determinedBundleHash);
 
         for (BalanceChangeBuilder changeBuilder : orderedChanges)
             bundleBuilder.append(changeBuilder.buildersFromTailToHead);
@@ -70,23 +70,20 @@ public final class TransferBuilder {
         return bundleBuilder.build();
     }
 
-    private void createAllSignatures(String bundleHash, List<BalanceChangeBuilder> orderedChanges) {
+    private void createAllSignatures(String bundleHash) {
         for (BalanceChangeBuilder inputBuilder : inputBuilders) {
-            inputBuilder.signatureOrMessage.setLength(0);
-            inputBuilder.signatureOrMessage.append(createSignature(bundleHash));
+            inputBuilder.createSignature(bundleHash);
         }
     }
 
-    private String createSignature(String bundleHash) {
+    private String createSignature(String bundleHash, String privateKey) {
         StringBuilder signature = new StringBuilder();
-        for (int i = 0; i < securityLevel; i++)
-            signature.append(signTrytes(bundleHash.substring(27 * i, 27 * i + 27)));
+        for (int i = 0; i < securityLevel; i++) {
+            String toSign = bundleHash.substring(27 * i, 27 * i + 27);
+            String signatureFragment = SignatureScheme.sign(privateKey, toSign);
+            signature.append(signatureFragment);
+        }
         return signature.toString();
-    }
-
-    private String signTrytes(String bundleHash) {
-        // TODO implement
-        return Trytes.randomSequenceOfLength(Transaction.Field.SIGNATURE_FRAGMENTS.tryteLength);
     }
 
     static String determineBundleHash(List<BalanceChangeBuilder> orderedChanges) {

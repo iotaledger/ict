@@ -3,7 +3,7 @@ package org.iota.ict.ec;
 import org.iota.ict.Ict;
 import org.iota.ict.IctTestTemplate;
 import org.iota.ict.model.Bundle;
-import org.iota.ict.utils.crypto.KeyPairMock;
+import org.iota.ict.utils.Trytes;
 import org.iota.ict.model.Transaction;
 import org.iota.ict.model.TransactionBuilder;
 import org.junit.Assert;
@@ -18,13 +18,13 @@ public class EconomicClusterTest extends IctTestTemplate {
 
         EconomicCluster cluster = new EconomicCluster(ict);
 
-        ControlledEconomicActor ca1 = new ControlledEconomicActor(new KeyPairMock());
-        ControlledEconomicActor ca2 = new ControlledEconomicActor(new KeyPairMock());
-        ControlledEconomicActor ca3 = new ControlledEconomicActor(new KeyPairMock());
+        ControlledEconomicActor ca1 = new ControlledEconomicActor(Trytes.randomSequenceOfLength(81));
+        ControlledEconomicActor ca2 = new ControlledEconomicActor(Trytes.randomSequenceOfLength(81));
+        ControlledEconomicActor ca3 = new ControlledEconomicActor(Trytes.randomSequenceOfLength(81));
 
-        TrustedEconomicActor ta1 = new TrustedEconomicActor(ca1.getPublicKey(), 0.2);
-        TrustedEconomicActor ta2 = new TrustedEconomicActor(ca2.getPublicKey(), 0.3);
-        TrustedEconomicActor ta3 = new TrustedEconomicActor(ca3.getPublicKey(), 0.4);
+        TrustedEconomicActor ta1 = new TrustedEconomicActor(ca1.getAddress(), 0.2);
+        TrustedEconomicActor ta2 = new TrustedEconomicActor(ca2.getAddress(), 0.3);
+        TrustedEconomicActor ta3 = new TrustedEconomicActor(ca3.getAddress(), 0.4);
 
         cluster.addActor(ta1);
         cluster.addActor(ta2);

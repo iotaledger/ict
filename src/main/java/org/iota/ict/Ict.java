@@ -3,6 +3,7 @@ package org.iota.ict;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.api.RestApi;
+import org.iota.ict.ec.EconomicCluster;
 import org.iota.ict.ixi.IxiModuleHolder;
 import org.iota.ict.model.RingTangle;
 import org.iota.ict.model.Tangle;
@@ -32,6 +33,7 @@ public class Ict extends RestartableThread implements IctInterface {
     protected final GossipEventDispatcher eventDispatcher = new GossipEventDispatcher();
     protected final IxiModuleHolder moduleHolder = new IxiModuleHolder(Ict.this);
     protected final RestApi restApi;
+    protected final EconomicCluster cluster;
     protected final Tangle tangle;
 
     // network
@@ -55,6 +57,7 @@ public class Ict extends RestartableThread implements IctInterface {
         this.node = new Node(this);
         this.tangle = new RingTangle(this);
         this.restApi = new RestApi(this);
+        this.cluster = new EconomicCluster(this);
 
         subWorkers.add(eventDispatcher);
         subWorkers.add(node);
@@ -196,5 +199,10 @@ public class Ict extends RestartableThread implements IctInterface {
     @Override
     public void removeGossipPreprocessor(GossipPreprocessor gossipPreprocessor) {
         eventDispatcher.removeGossipPreprocessor(gossipPreprocessor);
+    }
+
+    @Override
+    public double determineApprovalConfidence(Transaction transaction) {
+        return cluster.determineApprovalConfidence(transaction);
     }
 }

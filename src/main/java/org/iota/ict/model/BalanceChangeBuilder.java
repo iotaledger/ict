@@ -1,6 +1,7 @@
 package org.iota.ict.model;
 
 import org.iota.ict.utils.Trytes;
+import org.iota.ict.utils.crypto.SignatureScheme;
 
 import java.math.BigInteger;
 import java.util.LinkedList;
@@ -17,6 +18,7 @@ public class BalanceChangeBuilder {
 
     public String address;
     public BigInteger value;
+    private String privateKey;
     public final StringBuilder signatureOrMessage;
     public final List<TransactionBuilder> buildersFromTailToHead = new LinkedList<>();
 
@@ -24,6 +26,7 @@ public class BalanceChangeBuilder {
         this.address = change.address;
         this.value = change.value;
         this.signatureOrMessage = new StringBuilder(change.signatureOrMessage);
+        this.privateKey = null;
         createTransactionBuildersFromTailToHead();
     }
 
@@ -31,13 +34,17 @@ public class BalanceChangeBuilder {
         this.address = transaction.address();
         this.value = transaction.value;
         this.signatureOrMessage = new StringBuilder(transaction.signatureFragments());
+        this.privateKey = null;
         createTransactionBuildersFromTailToHead();
     }
 
-    public BalanceChangeBuilder(String address, BigInteger value, int amountOfFragments) {
+    public BalanceChangeBuilder(String address, BigInteger value, int amountOfFragments, String privateKey) {
         this.address = address;
         this.value = value;
         this.signatureOrMessage = new StringBuilder(Trytes.fromTrits(new byte[amountOfFragments * SIGNATURE_FRAGMENTS_LENGTH * 3]));
+        if(isInput() && privateKey == null)
+            throw new IllegalStateException("Private key cannot be null in input.");
+        this.privateKey = privateKey;
         createTransactionBuildersFromTailToHead();
     }
 
@@ -58,6 +65,11 @@ public class BalanceChangeBuilder {
             throw new IllegalArgumentException("cannot append transaction from different address");
         value = value.add(transaction.value);
         signatureOrMessage.append(transaction.signatureFragments());
+    }
+
+    public void createSignature(String bundleHash) {
+        signatureOrMessage.setLength(0);
+        signatureOrMessage.append(SignatureScheme.sign(privateKey, bundleHash));
     }
 
     public boolean isInput() {

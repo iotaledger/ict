@@ -2,11 +2,9 @@ package org.iota.ict.ec;
 
 import org.iota.ict.model.Bundle;
 import org.iota.ict.model.Transaction;
-import org.iota.ict.utils.Trytes;
-import org.iota.ict.utils.crypto.PublicKey;
+import org.iota.ict.model.Transfer;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class TrustedEconomicActor extends EconomicActor {
@@ -14,8 +12,8 @@ public class TrustedEconomicActor extends EconomicActor {
     protected double trust;
     protected final Set<String> approved = new HashSet<>();
 
-    public TrustedEconomicActor(PublicKey publicKey, double trust) {
-        super(publicKey);
+    public TrustedEconomicActor(String address, double trust) {
+        super(address);
         setTrust(trust);
     }
 
@@ -56,16 +54,7 @@ public class TrustedEconomicActor extends EconomicActor {
     }
 
     protected boolean isMarkerSignatureValid(Bundle marker) {
-        List<Transaction> transactions = marker.getTransactions();
-
-        StringBuilder signatureTrytes = new StringBuilder();
-        for(Transaction transaction : transactions)
-            signatureTrytes.append(transaction.signatureFragments());
-
-        Transaction tail = transactions.get(transactions.size()-1);
-        byte[] message = messageToSign(tail.trunkHash(), tail.branchHash());
-        byte[] signatureBytes = Trytes.toAscii(signatureTrytes.toString()).getBytes();
-
-        return publicKey.verifySignature(signatureBytes, message);
+        Transfer transfer = new Transfer(marker);
+        return marker.getHead().address().equals(address) && transfer.getInputs().size() == 1 && transfer.getOutputs().size() == 0 && transfer.areSignaturesValid();
     }
 }

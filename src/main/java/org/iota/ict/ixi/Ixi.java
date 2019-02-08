@@ -23,4 +23,6 @@ public interface Ixi {
     void addGossipPreprocessor(GossipPreprocessor gossipPreprocessor);
 
     void removeGossipPreprocessor(GossipPreprocessor gossipPreprocessor);
+
+    double determineApprovalConfidence(Transaction transaction);
 }

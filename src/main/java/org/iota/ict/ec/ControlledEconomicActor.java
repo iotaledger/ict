@@ -2,23 +2,22 @@ package org.iota.ict.ec;
 
 import org.iota.ict.model.*;
 import org.iota.ict.utils.Trytes;
-import org.iota.ict.utils.crypto.KeyPair;
-import org.iota.ict.utils.crypto.PrivateKey;
+import org.iota.ict.utils.crypto.SignatureScheme;
 
 public class ControlledEconomicActor extends EconomicActor {
 
     private final int SIGNATURE_FRAGMENTS_TRYTE_LENGTH = Transaction.Field.SIGNATURE_FRAGMENTS.tryteLength;
 
-    protected final PrivateKey privateKey;
+    protected final String seed;
 
-    public ControlledEconomicActor(KeyPair keyPair) {
-        super(keyPair.getPublicKey());
-        privateKey = keyPair.getPrivateKey();
-        if(privateKey == null)
-            throw new NullPointerException("'privateKey' is null.");
+    public ControlledEconomicActor(String seed) {
+        super(SignatureScheme.determineAddressFromSeed(seed, 0, 1));
+        this.seed = seed;
     }
 
     public Bundle issueMarker(String trunk, String branch) {
+
+
 
         byte[] asciiSignature = privateKey.sign(messageToSign(trunk, branch));
         String signatureTrytes = Trytes.fromAscii(new String(asciiSignature));
