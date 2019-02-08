@@ -229,7 +229,7 @@ public class Properties implements Cloneable {
         json.put(Property.host.name(), host);
         json.put(Property.port.name(), port);
         json.put(Property.round_duration.name(), roundDuration);
-        json.put(Property.neighbors.name(), new JSONArray(neighborsToString().split(",")));
+        json.put(Property.neighbors.name(), !neighbors.isEmpty() ? new JSONArray(neighborsToString().split(",")) : new JSONArray());
         json.put(Property.gui_enabled.name(), guiEnabled);
         json.put(Property.gui_port.name(), guiPort);
         json.put(Property.gui_password.name(), guiPassword);
