@@ -1,8 +1,5 @@
 package org.iota.ict.model;
 
-import org.iota.ict.utils.Trytes;
-import org.iota.ict.utils.crypto.SignatureScheme;
-
 import java.math.BigInteger;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,44 +9,54 @@ import java.util.List;
  * via {@link #append(Transaction)} or as container of {@link TransactionBuilder} (stored in {@link #buildersFromTailToHead})
  * during the creation of a new {@link Transfer}.
  */
-public class BalanceChangeBuilder {
+public class BalanceChangeBuilder implements BalanceChangeBuilderModel {
 
     private static final int SIGNATURE_FRAGMENTS_LENGTH = Transaction.Field.SIGNATURE_FRAGMENTS.tryteLength;
 
-    public String address;
-    public BigInteger value;
-    private String privateKey;
-    public final StringBuilder signatureOrMessage;
-    public final List<TransactionBuilder> buildersFromTailToHead = new LinkedList<>();
-
-    public BalanceChangeBuilder(BalanceChange change) {
-        this.address = change.address;
-        this.value = change.value;
-        this.signatureOrMessage = new StringBuilder(change.signatureOrMessage);
-        this.privateKey = null;
-        createTransactionBuildersFromTailToHead();
-    }
+    private final String address;
+    private BigInteger value;
+    public final StringBuilder signatureOrMessage = new StringBuilder();
+    private final List<TransactionBuilder> buildersFromTailToHead;
 
     public BalanceChangeBuilder(Transaction transaction) {
         this.address = transaction.address();
         this.value = transaction.value;
-        this.signatureOrMessage = new StringBuilder(transaction.signatureFragments());
-        this.privateKey = null;
-        createTransactionBuildersFromTailToHead();
+        signatureOrMessage.append(transaction.signatureFragments());
+        this.buildersFromTailToHead = createTransactionBuildersFromTailToHead();
     }
 
-    public BalanceChangeBuilder(String address, BigInteger value, int amountOfFragments, String privateKey) {
+    @Override
+    public BigInteger getValue() {
+        return value;
+    }
+
+    @Override
+    public String getAddress() {
+        return address;
+    }
+
+    @Override
+    public List<TransactionBuilder> getBuildersFromTailToHead() {
+        return new LinkedList<>(buildersFromTailToHead);
+    }
+
+    @Override
+    public boolean hasSignature() {
+        return false;
+    }
+
+    /**
+     * Constructor for outputs.
+     * */
+    public BalanceChangeBuilder(String address, BigInteger value, String message) {
         this.address = address;
         this.value = value;
-        this.signatureOrMessage = new StringBuilder(Trytes.fromTrits(new byte[amountOfFragments * SIGNATURE_FRAGMENTS_LENGTH * 3]));
-        if(isInput() && privateKey == null)
-            throw new IllegalStateException("Private key cannot be null in input.");
-        this.privateKey = privateKey;
-        createTransactionBuildersFromTailToHead();
+        this.signatureOrMessage.append(message);
+        this.buildersFromTailToHead = createTransactionBuildersFromTailToHead();
     }
 
-    public void createTransactionBuildersFromTailToHead() {
-        assert buildersFromTailToHead.size() == 0;
+    private List<TransactionBuilder> createTransactionBuildersFromTailToHead() {
+        List<TransactionBuilder> buildersFromTailToHead = new LinkedList<>();
         for (int signatureOrMessageOffset = 0; signatureOrMessageOffset < signatureOrMessage.length(); signatureOrMessageOffset += SIGNATURE_FRAGMENTS_LENGTH) {
             boolean isFirstTransaction = signatureOrMessageOffset == 0;
             TransactionBuilder builder = new TransactionBuilder();
@@ -58,6 +65,8 @@ public class BalanceChangeBuilder {
             builder.signatureFragments = signatureOrMessage.substring(signatureOrMessageOffset, signatureOrMessageOffset + SIGNATURE_FRAGMENTS_LENGTH);
             buildersFromTailToHead.add(0, builder);
         }
+        assert buildersFromTailToHead.size() > 0;
+        return buildersFromTailToHead;
     }
 
     public void append(Transaction transaction) {
@@ -65,11 +74,6 @@ public class BalanceChangeBuilder {
             throw new IllegalArgumentException("cannot append transaction from different address");
         value = value.add(transaction.value);
         signatureOrMessage.append(transaction.signatureFragments());
-    }
-
-    public void createSignature(String bundleHash) {
-        signatureOrMessage.setLength(0);
-        signatureOrMessage.append(SignatureScheme.sign(privateKey, bundleHash));
     }
 
     public boolean isInput() {
@@ -81,6 +85,9 @@ public class BalanceChangeBuilder {
     }
 
     public BalanceChange build() {
+        if(buildersFromTailToHead.size() == 0)
+            throw new IllegalStateException("Empty: no transactions.");
+        assert signatureOrMessage.length()%Transaction.Field.SIGNATURE_FRAGMENTS.tryteLength == 0;
         return new BalanceChange(address, value, signatureOrMessage.toString());
     }
 }

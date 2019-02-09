@@ -22,6 +22,8 @@ public class BundleBuilder {
     }
 
     public Bundle build() {
+        if(tailToHead.size() == 0)
+            throw new IllegalStateException("Cannot build: bundle is empty (0 transactions).");
         setFlags();
         Transaction head = buildTrunkLinkedChainAndReturnHead();
         return tailToHead.size() > 0 ? new Bundle(head) : null;
@@ -50,5 +52,9 @@ public class BundleBuilder {
         }
         tailToHead.getFirst().isBundleTail = true;
         tailToHead.getLast().isBundleHead = true;
+    }
+
+    public List<TransactionBuilder> getTailToHead() {
+        return new LinkedList<>(tailToHead);
     }
 }

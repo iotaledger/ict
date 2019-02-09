@@ -46,7 +46,7 @@ public class EconomicClusterTest extends IctTestTemplate {
     }
 
     private void sendMarker(Ict ict, ControlledEconomicActor actor, String referencedHash) {
-        Bundle marker = actor.issueMarker(referencedHash, referencedHash);
+        Bundle marker = actor.issueMarker(referencedHash, referencedHash, 1);
         for(Transaction markerTransaction : marker.getTransactions())
             ict.submit(markerTransaction);
         saveSleep(30);

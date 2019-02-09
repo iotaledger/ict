@@ -12,7 +12,7 @@ public abstract class EconomicActor {
         return address;
     }
 
-    protected byte[] messageToSign(String trunk, String branch) {
-        return (trunk + branch).getBytes();
+    protected String messageToSign(String trunk, String branch) {
+        return trunk + branch;
     }
 }

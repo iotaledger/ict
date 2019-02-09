@@ -40,7 +40,11 @@ public class BalanceChange {
 
     public String getSignatureOrMessageFragment(int index) {
         assert index >= 0 && (index + 1) * SIGNATURE_FRAGMENTS_LENGTH <= signatureOrMessage.length();
-        return signatureOrMessage.substring(index * SIGNATURE_FRAGMENTS_LENGTH + (index + 1) * SIGNATURE_FRAGMENTS_LENGTH);
+        return signatureOrMessage.substring(index * SIGNATURE_FRAGMENTS_LENGTH, (index + 1) * SIGNATURE_FRAGMENTS_LENGTH);
+    }
+
+    public String getSignatureOrMessage() {
+        return signatureOrMessage;
     }
 
     public boolean isInput() {

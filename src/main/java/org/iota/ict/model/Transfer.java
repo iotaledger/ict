@@ -66,26 +66,30 @@ public class Transfer {
     }
 
     private boolean verifyInput(BalanceChange input) {
-        boolean validSoFar = securityLevel != 0;
+        if(securityLevel == 0)
+            return false;
         // security level must equal amount of fragments for level 1 and 2
-        validSoFar = validSoFar && (securityLevel == input.getAmountOfSignatureOrMessageFragments() || securityLevel == 3);
-        validSoFar = validSoFar && signatureFragmentValid(input, 0);
-        if (securityLevel >= 2)
-            validSoFar = validSoFar && signatureFragmentValid(input, 1);
-        if (securityLevel >= 3) {
-            validSoFar = validSoFar && signatureFragmentValid(input, 2);
-            for (int index = 3; index < input.getAmountOfSignatureOrMessageFragments(); index++)
-                validSoFar = validSoFar && signatureFragmentValid(input, index);
-        }
-        return validSoFar;
+        if((securityLevel == 1 || securityLevel == 2) && securityLevel != input.getAmountOfSignatureOrMessageFragments())
+            return false;
+        if((securityLevel == 3) && input.getAmountOfSignatureOrMessageFragments() < 3)
+            return false;
+        return isSignatureValid(input);
     }
 
-    private boolean signatureFragmentValid(BalanceChange input, int fragmentIndex) {
-        String signatureFragment = input.getSignatureOrMessageFragment(fragmentIndex);
-        String signedBundleHashFragment = bundleHash.substring(27 * (fragmentIndex%3), 27 * (fragmentIndex%3) + 27);
-
-        return input.getAmountOfSignatureOrMessageFragments() > fragmentIndex
-                && SignatureScheme.determineAddressOfSignature(signatureFragment, signedBundleHashFragment).equals(input.address);
+    private boolean isSignatureValid(BalanceChange input) {
+        try {
+            for(int i = 0; i < input.getAmountOfSignatureOrMessageFragments(); i++) {
+                String signatureFragment = input.getSignatureOrMessageFragment(i);
+                String bundleHashFragment = bundleHash.substring((i%3)*27, (i%3+1)*27);
+                String signedAddress = SignatureScheme.deriveAddressFromSignature(signatureFragment, bundleHashFragment);
+                if(!signedAddress.equals(input.address))
+                    return false;
+            }
+            return true;
+        } catch (Throwable t) {
+            t.printStackTrace();
+            return false;
+        }
     }
 
     static int calcSecurityLevel(String bundleHash) {
@@ -130,7 +134,7 @@ public class Transfer {
 
             boolean valueNegative = t.value.compareTo(BigInteger.ZERO) < 0;
             boolean valueZero = t.value.compareTo(BigInteger.ZERO) == 0;
-            boolean canAppendToBuilder = currentBuilder != null && valueZero && currentBuilder.address.equals(t.address());
+            boolean canAppendToBuilder = currentBuilder != null && valueZero && currentBuilder.getAddress().equals(t.address());
 
             // transaction is part of current change
             if (canAppendToBuilder)

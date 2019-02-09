@@ -55,6 +55,7 @@ public class TrustedEconomicActor extends EconomicActor {
 
     protected boolean isMarkerSignatureValid(Bundle marker) {
         Transfer transfer = new Transfer(marker);
+        System.err.println(marker.getHead().address().equals(address) + " " + (transfer.getInputs().size() == 1) + " "  + (transfer.getOutputs().size() == 0)  + " " + transfer.areSignaturesValid());
         return marker.getHead().address().equals(address) && transfer.getInputs().size() == 1 && transfer.getOutputs().size() == 0 && transfer.areSignaturesValid();
     }
 }
