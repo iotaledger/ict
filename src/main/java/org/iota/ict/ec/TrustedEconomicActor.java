@@ -67,7 +67,7 @@ public class TrustedEconomicActor extends EconomicActor {
         if(!output.address.equals(address))
             return false;
         String messageToSign = messageToSign(marker.getTail().trunkHash(), marker.getTail().branchHash());
-        String signedAddress = SignatureScheme.deriveAddressFromSignature(output.signatureOrMessage, messageToSign);
-        return address.equals(signedAddress);
+        SignatureScheme.Signature signature = new SignatureScheme.Signature(output.signatureOrMessage, messageToSign);
+        return address.equals(signature.deriveAddress());
    }
 }

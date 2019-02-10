@@ -79,9 +79,10 @@ public class Transfer {
     private boolean isSignatureValid(BalanceChange input) {
         try {
             for(int i = 0; i < input.getAmountOfSignatureOrMessageFragments(); i++) {
-                String signatureFragment = input.getSignatureOrMessageFragment(i);
+                String signatureFragmentTrytes = input.getSignatureOrMessageFragment(i);
                 String bundleHashFragment = bundleHash.substring((i%3)*27, (i%3+1)*27);
-                String signedAddress = SignatureScheme.deriveAddressFromSignature(signatureFragment, bundleHashFragment);
+                SignatureScheme.Signature signatureFragment = new SignatureScheme.Signature(signatureFragmentTrytes, bundleHashFragment);
+                String signedAddress = signatureFragment.deriveAddress();
                 if(!signedAddress.equals(input.address))
                     return false;
             }

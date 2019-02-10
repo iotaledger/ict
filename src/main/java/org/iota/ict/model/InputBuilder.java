@@ -56,13 +56,13 @@ public class InputBuilder implements  BalanceChangeBuilderModel {
     }
 
     public BalanceChange build(String bundleHash) {
-        String signature = privateKey.sign(bundleHash);
-        if(signature.length() != buildersFromTailToHead.length * Transaction.Field.SIGNATURE_FRAGMENTS.tryteLength)
+        SignatureScheme.Signature signature = privateKey.sign(bundleHash);
+        if(signature.fragments() != buildersFromTailToHead.length * Transaction.Field.SIGNATURE_FRAGMENTS.tryteLength)
             throw new IllegalStateException("BalanceChange has reserved " + buildersFromTailToHead.length + " transactions but signature length is " + signature.length() + " trytes.");
         for(int i = 0; i < buildersFromTailToHead.length; i++) {
-            String signatureFragment = signature.substring(i * Transaction.Field.SIGNATURE_FRAGMENTS.tryteLength, (i+1)*Transaction.Field.SIGNATURE_FRAGMENTS.tryteLength);
-            buildersFromTailToHead[i].signatureFragments = signatureFragment;
+            SignatureScheme.Signature signatureFragment = signature.getFragment(i);
+            buildersFromTailToHead[i].signatureFragments = signatureFragment.toString();
         }
-        return new BalanceChange(address, value, signature);
+        return new BalanceChange(address, value, signature.toString());
     }
 }

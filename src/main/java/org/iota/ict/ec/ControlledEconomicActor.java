@@ -24,8 +24,8 @@ public class ControlledEconomicActor extends EconomicActor {
         Set<BalanceChange> outputs = new HashSet<>();
 
         String messageToSign =  messageToSign(trunk, branch);
-        String signature = privateKey.sign(messageToSign);
-        outputs.add(new BalanceChange(address, BigInteger.ZERO, signature));
+        SignatureScheme.Signature signature = privateKey.sign(messageToSign);
+        outputs.add(new BalanceChange(address, BigInteger.ZERO, signature.toString()));
 
         TransferBuilder transferBuilder =  new TransferBuilder(new HashSet<InputBuilder>(), outputs, securityLevel);
         BundleBuilder bundleBuilder = transferBuilder.build();

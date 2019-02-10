@@ -1,6 +1,7 @@
 package org.iota.ict.utils.crypto;
 
 import com.iota.curl.IotaCurlHash;
+import org.iota.ict.model.Transaction;
 import org.iota.ict.utils.Trytes;
 
 import java.math.BigInteger;
@@ -30,23 +31,6 @@ public final class SignatureScheme {
             privateKey.append(lastPrivateKeyFragment = hash(lastPrivateKeyFragment));
         }
         return new PrivateKey(privateKey.toString());
-    }
-
-    public static String deriveAddressFromSignature(String signature, String trytes) {
-        PublicKey publicKey = derivePublicKeyFromSignature(signature, trytes);
-        return publicKey.getAddress();
-    }
-
-    public static PublicKey derivePublicKeyFromSignature(String signatureFragment, String toSign) {
-        assert signatureFragment.length() == toSign.length() * 81;
-        StringBuilder publicKeyFragments = new StringBuilder();
-        for(int i = 0; i < toSign.length(); i++) {
-            char tryte = toSign.charAt(i);
-            int rounds = Trytes.TRYTES.length() - Trytes.TRYTES.indexOf(tryte);
-            String publicKeyFragment = hash(signatureFragment.substring(i * KEY_FRAGMENT_LENGTH, (i+1)*KEY_FRAGMENT_LENGTH), rounds);
-            publicKeyFragments.append(publicKeyFragment);
-        }
-        return new PublicKey(publicKeyFragments.toString());
     }
 
     public static String hash(String data, int rounds) {
@@ -105,7 +89,7 @@ public final class SignatureScheme {
             return publicKey;
         }
 
-        public String sign(String toSign) {
+        public Signature sign(String toSign) {
             if(length() / KEY_FRAGMENT_LENGTH != toSign.length())
                 throw new IllegalArgumentException("private key can only be used to sign exactly " + fragments() + " trytes but " + toSign.length() + " trytes were provided.");
             int privateKeyFragments = length() / KEY_FRAGMENT_LENGTH;
@@ -119,7 +103,12 @@ public final class SignatureScheme {
                 signature.append(signatureFragmentFragment);
             }
             assert signature.length() == toSign.length()*KEY_FRAGMENT_LENGTH;
-            return signature.toString();
+            return new Signature(signature.toString(), toSign);
+        }
+
+        @Override
+        public String toString() {
+            return trytes;
         }
     }
 
@@ -144,6 +133,76 @@ public final class SignatureScheme {
         @Override
         public int hashCode() {
             return address.hashCode();
+        }
+
+        @Override
+        public String toString() {
+            return trytes;
+        }
+    }
+
+    public static class Signature {
+
+        // amount of signature trytes that fit into one transaction
+        public static final int FRAGMENT_LENGTH = Transaction.Field.SIGNATURE_FRAGMENTS.tryteLength;
+
+        // amount of signature trytes required to sign one tryte
+        public static final int FRAGMENT_FRAGMENT_LENGTH = KEY_FRAGMENT_LENGTH;
+
+        // amount of trytes a transaction can sign
+        public static final int SIGNED_TRYTES_PER_FRAGMENT = FRAGMENT_LENGTH / FRAGMENT_FRAGMENT_LENGTH;
+
+        private final String trytes;
+        private final String signed;
+        private PublicKey publicKey;
+
+        public Signature(String trytes, String signed) {
+            this.trytes = trytes;
+            this.signed = signed;
+            assert trytes.length() == signed.length() * KEY_FRAGMENT_LENGTH;
+        }
+
+        public PublicKey derivePublicKey() {
+            if(publicKey == null) {
+                StringBuilder publicKeyFragments = new StringBuilder();
+                for(int i = 0; i < signed.length(); i++) {
+                    char tryte = signed.charAt(i);
+                    int rounds = Trytes.TRYTES.length() - Trytes.TRYTES.indexOf(tryte);
+                    String publicKeyFragment = hash(getFragmentFragment(i), rounds);
+                    publicKeyFragments.append(publicKeyFragment);
+                }
+                publicKey = new PublicKey(publicKeyFragments.toString());
+            }
+            return publicKey;
+        }
+
+        private String getFragmentFragment(int index) {
+            return  trytes.substring(index * KEY_FRAGMENT_LENGTH, (index+1)*KEY_FRAGMENT_LENGTH);
+        }
+
+        public String deriveAddress() {
+            return derivePublicKey().address;
+        }
+
+        public Signature getFragment(int index) {
+            if(index < 0 || index >= fragments())
+                throw new IndexOutOfBoundsException(index + " not in interval [0,"+fragments()+"]");
+            String tryteFragment = trytes.substring(index * FRAGMENT_LENGTH, (index+1)+FRAGMENT_LENGTH);
+            String signedFragment = signed.substring(index * SIGNED_TRYTES_PER_FRAGMENT, (index+1) * SIGNED_TRYTES_PER_FRAGMENT);
+            return new Signature(tryteFragment, signedFragment);
+        }
+
+        public int fragments() {
+            return length() / FRAGMENT_LENGTH;
+        }
+
+        @Override
+        public String toString() {
+            return trytes;
+        }
+
+        public int length() {
+            return trytes.length();
         }
     }
 }

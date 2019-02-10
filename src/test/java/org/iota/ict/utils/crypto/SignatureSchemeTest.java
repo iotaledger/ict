@@ -17,10 +17,8 @@ public class SignatureSchemeTest {
         SignatureScheme.PrivateKey privateKey = SignatureScheme.derivePrivateKeyFromSeed(seed, 0, securityLevel);
         SignatureScheme.PublicKey publicKey = privateKey.derivePublicKey();
 
-        String signature = privateKey.sign(toSign);
-        SignatureScheme.PublicKey publicKeyOfSignature = SignatureScheme.derivePublicKeyFromSignature(signature, toSign);
-
-        Assert.assertEquals("Public key of signature derived incorrectly.", publicKey, publicKeyOfSignature);
+        SignatureScheme.Signature signature = privateKey.sign(toSign);
+        Assert.assertEquals("Public key of signature derived incorrectly.", publicKey, signature.derivePublicKey());
     }
 
 
@@ -34,9 +32,7 @@ public class SignatureSchemeTest {
         String addressOfPrivateKey = privateKey.deriveAddress();
         String toSign = Trytes.randomSequenceOfLength(27 * securityLevel);
 
-        String signature = privateKey.sign(toSign);
-        String addressOfSignature = SignatureScheme.deriveAddressFromSignature(signature, toSign);
-
-        Assert.assertEquals("Address of signature derived incorrectly.", addressOfPrivateKey, addressOfSignature);
+        SignatureScheme.Signature signature = privateKey.sign(toSign);
+        Assert.assertEquals("Address of signature derived incorrectly.", addressOfPrivateKey, signature.deriveAddress());
     }
 }
