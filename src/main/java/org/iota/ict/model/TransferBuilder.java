@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * {@link TransferBuilder} is a tool to create a new {@link Transfer} via {@link #build(Set, int)}.
+ * {@link TransferBuilder} is a tool to create a new {@link Transfer} via {@link #build()}.
  */
 public final class TransferBuilder {
 
@@ -52,7 +52,7 @@ public final class TransferBuilder {
         String determinedBundleHash = determineBundleHash(orderedChanges);
 
         for (InputBuilder inputBuilder : inputBuilders) {
-            inputBuilder.build(determinedBundleHash, securityLevel);
+            inputBuilder.build(determinedBundleHash.substring(0, 27 * securityLevel));
         }
         for (BalanceChangeBuilder outputBuilder : outputBuilders) {
             outputBuilder.build();

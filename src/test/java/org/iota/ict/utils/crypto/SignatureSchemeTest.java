@@ -14,11 +14,11 @@ public class SignatureSchemeTest {
         int securityLevel = (int)(Math.random() * 3)+1;
         String toSign = Trytes.randomSequenceOfLength(27 * securityLevel);
 
-        String privateKey = SignatureScheme.derivePrivateKeyFromSeed(seed, 0, securityLevel);
-        String publicKey = SignatureScheme.derivePublicKeyFromPrivateKey(privateKey);
+        SignatureScheme.PrivateKey privateKey = SignatureScheme.derivePrivateKeyFromSeed(seed, 0, securityLevel);
+        SignatureScheme.PublicKey publicKey = privateKey.derivePublicKey();
 
-        String signature = SignatureScheme.sign(privateKey, toSign);
-        String publicKeyOfSignature = SignatureScheme.derivePublicKeyFromSignature(signature, toSign);
+        String signature = privateKey.sign(toSign);
+        SignatureScheme.PublicKey publicKeyOfSignature = SignatureScheme.derivePublicKeyFromSignature(signature, toSign);
 
         Assert.assertEquals("Public key of signature derived incorrectly.", publicKey, publicKeyOfSignature);
     }
@@ -30,11 +30,11 @@ public class SignatureSchemeTest {
         String seed = Trytes.randomSequenceOfLength(81);
         int securityLevel = (int)(Math.random() * 3)+1;
 
-        String privateKey = SignatureScheme.derivePrivateKeyFromSeed(seed, 0, securityLevel);
-        String addressOfPrivateKey = SignatureScheme.deriveAddressFromPrivateKey(privateKey);
+        SignatureScheme.PrivateKey privateKey = SignatureScheme.derivePrivateKeyFromSeed(seed, 0, securityLevel);
+        String addressOfPrivateKey = privateKey.deriveAddress();
         String toSign = Trytes.randomSequenceOfLength(27 * securityLevel);
 
-        String signature = SignatureScheme.sign(privateKey, toSign);
+        String signature = privateKey.sign(toSign);
         String addressOfSignature = SignatureScheme.deriveAddressFromSignature(signature, toSign);
 
         Assert.assertEquals("Address of signature derived incorrectly.", addressOfPrivateKey, addressOfSignature);

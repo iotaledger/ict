@@ -89,7 +89,7 @@ public class TransferTest {
     private static InputBuilder createRandomInput(int securityLevel) {
         BigInteger value = BigInteger.valueOf((long) (Math.random() * Long.MIN_VALUE)).subtract(BigInteger.ONE);
         String seed = Trytes.randomSequenceOfLength(Transaction.Field.ADDRESS.tryteLength);
-        String privateKey = SignatureScheme.derivePrivateKeyFromSeed(seed, 0, securityLevel);
+        SignatureScheme.PrivateKey privateKey = SignatureScheme.derivePrivateKeyFromSeed(seed, 0, securityLevel);
         return new InputBuilder(privateKey, value, securityLevel);
     }
 

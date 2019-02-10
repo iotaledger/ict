@@ -9,11 +9,11 @@ import java.util.List;
 public class InputBuilder implements  BalanceChangeBuilderModel {
 
     private final BigInteger value;
-    private final String privateKey;
+    private final SignatureScheme.PrivateKey privateKey;
     private final String address;
     private final TransactionBuilder[] buildersFromTailToHead;
 
-    public InputBuilder(String privateKey, BigInteger value, int fragments) {
+    public InputBuilder(SignatureScheme.PrivateKey privateKey, BigInteger value, int fragments) {
         if(privateKey == null)
             throw new NullPointerException("private key");
         if(value == null)
@@ -22,7 +22,7 @@ public class InputBuilder implements  BalanceChangeBuilderModel {
             throw new IllegalArgumentException("fragments must be positive");
         this.privateKey = privateKey;
         this.value = value;
-        this.address = SignatureScheme.deriveAddressFromPrivateKey(privateKey);
+        this.address = privateKey.deriveAddress();
         this.buildersFromTailToHead = createTransactionBuildersFromTailToHead(fragments);
     }
 
@@ -55,8 +55,8 @@ public class InputBuilder implements  BalanceChangeBuilderModel {
         return true;
     }
 
-    public BalanceChange build(String bundleHash, int securityLevel) {
-        String signature = SignatureScheme.sign(privateKey, bundleHash, securityLevel);
+    public BalanceChange build(String bundleHash) {
+        String signature = privateKey.sign(bundleHash);
         if(signature.length() != buildersFromTailToHead.length * Transaction.Field.SIGNATURE_FRAGMENTS.tryteLength)
             throw new IllegalStateException("BalanceChange has reserved " + buildersFromTailToHead.length + " transactions but signature length is " + signature.length() + " trytes.");
         for(int i = 0; i < buildersFromTailToHead.length; i++) {
