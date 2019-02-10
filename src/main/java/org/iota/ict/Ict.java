@@ -14,6 +14,7 @@ import org.iota.ict.network.gossip.GossipEventDispatcher;
 import org.iota.ict.network.gossip.GossipListener;
 import org.iota.ict.model.Transaction;
 import org.iota.ict.network.gossip.GossipPreprocessor;
+import org.iota.ict.std.BundleCollector;
 import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.Updater;
 import org.iota.ict.utils.properties.FinalProperties;
@@ -63,6 +64,7 @@ public class Ict extends RestartableThread implements IctInterface {
         subWorkers.add(node);
         subWorkers.add(moduleHolder);
         subWorkers.add(restApi);
+        subWorkers.add(new BundleCollector(this));
 
         start();
     }
