@@ -1,10 +1,14 @@
 package org.iota.ict.ec;
 
+import org.iota.ict.model.BalanceChange;
 import org.iota.ict.model.Bundle;
 import org.iota.ict.model.Transaction;
 import org.iota.ict.model.Transfer;
+import org.iota.ict.utils.crypto.SignatureScheme;
 
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 public class TrustedEconomicActor extends EconomicActor {
@@ -33,8 +37,8 @@ public class TrustedEconomicActor extends EconomicActor {
 
     public void processMarker(Bundle marker) {
 
-        if(!marker.isStructureValid()) {
-            // incomplete bundle
+        if(!marker.isComplete() || !marker.isStructureValid()) {
+            // incomplete or invalid bundle
             return;
         }
 
@@ -43,11 +47,12 @@ public class TrustedEconomicActor extends EconomicActor {
             return;
         }
 
-        markAsApprovedRcursively(marker.getHead());
+        markAsApprovedRcursively(marker.getTail());
     }
 
     private void markAsApprovedRcursively(Transaction root) {
         if(root != null && approved.add(root.hash)) {
+            // todo approve referenced transactions that are being received later
             markAsApprovedRcursively(root.getTrunk());
             markAsApprovedRcursively(root.getBranch());
         }
@@ -55,7 +60,14 @@ public class TrustedEconomicActor extends EconomicActor {
 
     protected boolean isMarkerSignatureValid(Bundle marker) {
         Transfer transfer = new Transfer(marker);
-        System.err.println(marker.getHead().address().equals(address) + " " + (transfer.getInputs().size() == 1) + " "  + (transfer.getOutputs().size() == 0)  + " " + transfer.areSignaturesValid());
-        return marker.getHead().address().equals(address) && transfer.getInputs().size() == 1 && transfer.getOutputs().size() == 0 && transfer.areSignaturesValid();
-    }
+        List<BalanceChange> listOfSingleOutput = new LinkedList<>(transfer.getOutputs());
+        if(listOfSingleOutput.size() != 1)
+            return false;
+        BalanceChange output = listOfSingleOutput.get(0);
+        if(!output.address.equals(address))
+            return false;
+        String messageToSign = messageToSign(marker.getTail().trunkHash(), marker.getTail().branchHash());
+        String signedAddress = SignatureScheme.deriveAddressFromSignature(output.signatureOrMessage, messageToSign);
+        return address.equals(signedAddress);
+   }
 }

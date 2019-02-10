@@ -14,8 +14,8 @@ public class ControlledEconomicActor extends EconomicActor {
     protected final String privateKey;
 
     public ControlledEconomicActor(String seed) {
-        super(SignatureScheme.deriveAddressFromSeed(seed, 0, 1));
-        privateKey = SignatureScheme.derivePrivateKeyFromSeed(seed, 0, 1);
+        super(SignatureScheme.deriveAddressFromSeed(seed, 0, 3));
+        privateKey = SignatureScheme.derivePrivateKeyFromSeed(seed, 0, 3);
         this.seed = seed;
     }
 
@@ -23,7 +23,8 @@ public class ControlledEconomicActor extends EconomicActor {
 
         Set<BalanceChange> outputs = new HashSet<>();
 
-        String signature = SignatureScheme.sign(privateKey, messageToSign(trunk, branch));
+        String messageToSign =  messageToSign(trunk, branch);
+        String signature = SignatureScheme.sign(privateKey, messageToSign);
         outputs.add(new BalanceChange(address, BigInteger.ZERO, signature));
 
         TransferBuilder transferBuilder =  new TransferBuilder(new HashSet<InputBuilder>(), outputs, securityLevel);

@@ -11,8 +11,8 @@ public class SignatureSchemeTest {
     public void testPublicKey() {
 
         String seed = Trytes.randomSequenceOfLength(81);
-        String toSign = Trytes.randomSequenceOfLength(27);
-        int securityLevel = 1;
+        int securityLevel = (int)(Math.random() * 3)+1;
+        String toSign = Trytes.randomSequenceOfLength(27 * securityLevel);
 
         String privateKey = SignatureScheme.derivePrivateKeyFromSeed(seed, 0, securityLevel);
         String publicKey = SignatureScheme.derivePublicKeyFromPrivateKey(privateKey);
@@ -28,11 +28,11 @@ public class SignatureSchemeTest {
     public void testSignature() {
 
         String seed = Trytes.randomSequenceOfLength(81);
-        int securityLevel = 1;
+        int securityLevel = (int)(Math.random() * 3)+1;
 
         String privateKey = SignatureScheme.derivePrivateKeyFromSeed(seed, 0, securityLevel);
         String addressOfPrivateKey = SignatureScheme.deriveAddressFromPrivateKey(privateKey);
-        String toSign = Trytes.randomSequenceOfLength(27);
+        String toSign = Trytes.randomSequenceOfLength(27 * securityLevel);
 
         String signature = SignatureScheme.sign(privateKey, toSign);
         String addressOfSignature = SignatureScheme.deriveAddressFromSignature(signature, toSign);

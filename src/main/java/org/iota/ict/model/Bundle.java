@@ -46,6 +46,12 @@ public class Bundle {
         return transactions.get(0);
     }
 
+    public Transaction getTail() {
+        if (!complete)
+            throw new IllegalStateException("Bundle has not yet been fetched completely. Cannot return tail.");
+        return transactions.get(transactions.size()-1);
+    }
+
     /**
      * Keeps adding transactions to the bundle and re-validates it until it is complete (either because all transactions
      * have been added or because the bundle structure is invalid).

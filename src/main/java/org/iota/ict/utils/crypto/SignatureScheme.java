@@ -18,15 +18,15 @@ public final class SignatureScheme {
         return deriveAddressFromPublicKey(publicKey);
     }
 
-    public static String derivePrivateKeyFromSeed(String seed, int index, int securityLevel) {
+    public static String derivePrivateKeyFromSeed(String seed, int index, int fragments) {
         String subSeed = hash(seed + Trytes.fromNumber(BigInteger.valueOf(index), 9));
-        return derivePrivateKeyFromSeed(subSeed, securityLevel);
+        return derivePrivateKeyFromSubSeed(subSeed, fragments);
     }
 
-    private static String derivePrivateKeyFromSeed(String subSeed, int securityLevel) {
+    private static String derivePrivateKeyFromSubSeed(String subSeed, int fragments) {
         StringBuilder privateKey = new StringBuilder();
         String lastPrivateKeyFragment = subSeed;
-        while (privateKey.length() < 81 * 27 * securityLevel) {
+        while (privateKey.length() < KEY_FRAGMENT_LENGTH * 27 * fragments) {
             privateKey.append(lastPrivateKeyFragment = hash(lastPrivateKeyFragment));
         }
         return privateKey.toString();
@@ -56,12 +56,11 @@ public final class SignatureScheme {
         return deriveAddressFromPublicKey(publicKey);
     }
 
-    public static String derivePublicKeyFromSignature(String signatureFragment, String trytes) {
-        assert trytes.length() == 27;
-        assert signatureFragment.length() == trytes.length() * 81;
+    public static String derivePublicKeyFromSignature(String signatureFragment, String toSign) {
+        assert signatureFragment.length() == toSign.length() * 81;
         StringBuilder publicKeyFragments = new StringBuilder();
-        for(int i = 0; i < trytes.length(); i++) {
-            char tryte = trytes.charAt(i);
+        for(int i = 0; i < toSign.length(); i++) {
+            char tryte = toSign.charAt(i);
             int rounds = Trytes.TRYTES.length() - Trytes.TRYTES.indexOf(tryte);
             String publicKeyFragment = hash(signatureFragment.substring(i * KEY_FRAGMENT_LENGTH, (i+1)*KEY_FRAGMENT_LENGTH), rounds);
             publicKeyFragments.append(publicKeyFragment);
@@ -79,6 +78,8 @@ public final class SignatureScheme {
     }
 
     public static String sign(String privateKey, String trytes) {
+        if(privateKey.length() / KEY_FRAGMENT_LENGTH != trytes.length())
+            throw new IllegalArgumentException("private key must sign exactly " + (privateKey.length() / KEY_FRAGMENT_LENGTH) + " trytes but " + trytes.length() + " trytes were provided.");
         int privateKeyFragments = privateKey.length() / KEY_FRAGMENT_LENGTH;
         StringBuilder signature = new StringBuilder();
         for(int i = 0; i < trytes.length(); i++) {

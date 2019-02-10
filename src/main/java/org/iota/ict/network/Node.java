@@ -140,10 +140,15 @@ public class Node extends RestartableThread implements PropertiesUser {
 
         // add neighbors who are new
         List<InetSocketAddress> newNeighbors = new LinkedList<>();
-        for (InetSocketAddress inetAddress : newProp.neighbors()) {
-            if (oldProp == null || !oldProp.neighbors().contains(inetAddress))
-                newNeighbors.add(inetAddress);
+        if(oldProp == null) {
+            newNeighbors = newProp.neighbors();
+        } else {
+            for (InetSocketAddress inetAddress : newProp.neighbors()) {
+                if (!oldProp.neighbors().contains(inetAddress))
+                    newNeighbors.add(inetAddress);
+            }
         }
+
         for (InetSocketAddress toAdd : newNeighbors)
             neighbor(toAdd);
 
