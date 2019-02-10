@@ -1,6 +1,6 @@
 package org.iota.ict.ec;
 
-import org.iota.ict.utils.crypto.SignatureScheme;
+import org.iota.ict.utils.crypto.SignatureSchemeImplementation;
 
 public abstract class EconomicActor {
 
@@ -15,6 +15,6 @@ public abstract class EconomicActor {
     }
 
     protected String messageToSign(String trunk, String branch) {
-        return SignatureScheme.hash(trunk + branch);
+        return SignatureSchemeImplementation.hash(trunk + branch);
     }
 }

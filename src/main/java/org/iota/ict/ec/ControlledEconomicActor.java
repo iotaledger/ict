@@ -1,7 +1,7 @@
 package org.iota.ict.ec;
 
 import org.iota.ict.model.*;
-import org.iota.ict.utils.crypto.SignatureScheme;
+import org.iota.ict.utils.crypto.SignatureSchemeImplementation;
 
 import java.math.BigInteger;
 import java.util.HashSet;
@@ -11,11 +11,11 @@ import java.util.Set;
 public class ControlledEconomicActor extends EconomicActor {
 
     protected final String seed;
-    protected final SignatureScheme.PrivateKey privateKey;
+    protected final SignatureSchemeImplementation.PrivateKey privateKey;
 
     public ControlledEconomicActor(String seed) {
-        super(SignatureScheme.deriveAddressFromSeed(seed, 0, 3));
-        privateKey = SignatureScheme.derivePrivateKeyFromSeed(seed, 0, 3);
+        super(SignatureSchemeImplementation.deriveAddressFromSeed(seed, 0, 3));
+        privateKey = SignatureSchemeImplementation.derivePrivateKeyFromSeed(seed, 0, 3);
         this.seed = seed;
     }
 
@@ -24,7 +24,7 @@ public class ControlledEconomicActor extends EconomicActor {
         Set<BalanceChange> outputs = new HashSet<>();
 
         String messageToSign =  messageToSign(trunk, branch);
-        SignatureScheme.Signature signature = privateKey.sign(messageToSign);
+        SignatureSchemeImplementation.Signature signature = privateKey.sign(messageToSign);
         outputs.add(new BalanceChange(address, BigInteger.ZERO, signature.toString()));
 
         TransferBuilder transferBuilder =  new TransferBuilder(new HashSet<InputBuilder>(), outputs, securityLevel);

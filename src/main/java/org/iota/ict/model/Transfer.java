@@ -2,7 +2,7 @@ package org.iota.ict.model;
 
 import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.Trytes;
-import org.iota.ict.utils.crypto.SignatureScheme;
+import org.iota.ict.utils.crypto.SignatureSchemeImplementation;
 
 import java.math.BigInteger;
 import java.util.HashSet;
@@ -81,7 +81,7 @@ public class Transfer {
             for(int i = 0; i < input.getAmountOfSignatureOrMessageFragments(); i++) {
                 String signatureFragmentTrytes = input.getSignatureOrMessageFragment(i);
                 String bundleHashFragment = bundleHash.substring((i%3)*27, (i%3+1)*27);
-                SignatureScheme.Signature signatureFragment = new SignatureScheme.Signature(signatureFragmentTrytes, bundleHashFragment);
+                SignatureSchemeImplementation.Signature signatureFragment = new SignatureSchemeImplementation.Signature(signatureFragmentTrytes, bundleHashFragment);
                 String signedAddress = signatureFragment.deriveAddress();
                 if(!signedAddress.equals(input.address))
                     return false;

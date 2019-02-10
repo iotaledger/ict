@@ -2,7 +2,6 @@ package org.iota.ict.model;
 
 import com.iota.curl.IotaCurlHash;
 import org.iota.ict.utils.Constants;
-import org.iota.ict.utils.crypto.SignatureScheme;
 
 import java.math.BigInteger;
 import java.util.HashSet;

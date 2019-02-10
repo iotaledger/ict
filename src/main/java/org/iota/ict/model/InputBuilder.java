@@ -1,6 +1,6 @@
 package org.iota.ict.model;
 
-import org.iota.ict.utils.crypto.SignatureScheme;
+import org.iota.ict.utils.crypto.SignatureSchemeImplementation;
 
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -9,11 +9,11 @@ import java.util.List;
 public class InputBuilder implements  BalanceChangeBuilderModel {
 
     private final BigInteger value;
-    private final SignatureScheme.PrivateKey privateKey;
+    private final SignatureSchemeImplementation.PrivateKey privateKey;
     private final String address;
     private final TransactionBuilder[] buildersFromTailToHead;
 
-    public InputBuilder(SignatureScheme.PrivateKey privateKey, BigInteger value, int fragments) {
+    public InputBuilder(SignatureSchemeImplementation.PrivateKey privateKey, BigInteger value, int fragments) {
         if(privateKey == null)
             throw new NullPointerException("private key");
         if(value == null)
@@ -56,11 +56,11 @@ public class InputBuilder implements  BalanceChangeBuilderModel {
     }
 
     public BalanceChange build(String bundleHash) {
-        SignatureScheme.Signature signature = privateKey.sign(bundleHash);
-        if(signature.fragments() != buildersFromTailToHead.length * Transaction.Field.SIGNATURE_FRAGMENTS.tryteLength)
+        SignatureSchemeImplementation.Signature signature = privateKey.sign(bundleHash);
+        if(signature.fragments() != buildersFromTailToHead.length)
             throw new IllegalStateException("BalanceChange has reserved " + buildersFromTailToHead.length + " transactions but signature length is " + signature.length() + " trytes.");
         for(int i = 0; i < buildersFromTailToHead.length; i++) {
-            SignatureScheme.Signature signatureFragment = signature.getFragment(i);
+            SignatureSchemeImplementation.Signature signatureFragment = signature.getFragment(i);
             buildersFromTailToHead[i].signatureFragments = signatureFragment.toString();
         }
         return new BalanceChange(address, value, signature.toString());

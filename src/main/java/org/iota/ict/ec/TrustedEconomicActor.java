@@ -4,7 +4,7 @@ import org.iota.ict.model.BalanceChange;
 import org.iota.ict.model.Bundle;
 import org.iota.ict.model.Transaction;
 import org.iota.ict.model.Transfer;
-import org.iota.ict.utils.crypto.SignatureScheme;
+import org.iota.ict.utils.crypto.SignatureSchemeImplementation;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -67,7 +67,7 @@ public class TrustedEconomicActor extends EconomicActor {
         if(!output.address.equals(address))
             return false;
         String messageToSign = messageToSign(marker.getTail().trunkHash(), marker.getTail().branchHash());
-        SignatureScheme.Signature signature = new SignatureScheme.Signature(output.signatureOrMessage, messageToSign);
+        SignatureSchemeImplementation.Signature signature = new SignatureSchemeImplementation.Signature(output.signatureOrMessage, messageToSign);
         return address.equals(signature.deriveAddress());
    }
 }
