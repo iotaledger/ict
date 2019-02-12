@@ -39,12 +39,12 @@ public class BundleTest extends IctTestTemplate {
         Ict b = createIct();
         connect(a, b);
 
-        int postCutPoisition = 2;
+        int postCutPosition = 2;
         int bundleSize = 6;
 
         LinkedList<Transaction> referenceFromTailToHead = buildBundle(bundleSize);
-        List<Transaction> bundleTailIncludingSubPart = referenceFromTailToHead.subList(0, postCutPoisition);
-        List<Transaction> bundleHeadIncludingSubPart = referenceFromTailToHead.subList(postCutPoisition, bundleSize);
+        List<Transaction> bundleTailIncludingSubPart = referenceFromTailToHead.subList(0, postCutPosition);
+        List<Transaction> bundleHeadIncludingSubPart = referenceFromTailToHead.subList(postCutPosition, bundleSize);
 
         submitTransactions(a, bundleHeadIncludingSubPart);
         waitUntilCommunicationEnds(100);

@@ -14,9 +14,9 @@ public class OutputBuilder extends BalanceChangeBuilder {
         super(address, value, (int)Math.ceil(message.length() * 1.0 / Transaction.Field.SIGNATURE_FRAGMENTS.tryteLength));
         if(value.compareTo(BigInteger.ZERO) < 0)
             throw new IllegalArgumentException("Value must be positive or zero in output.");
-        for(int fragmentIndex = 0; (fragmentIndex+1) * Transaction.Field.SIGNATURE_FRAGMENTS.tryteLength < message.length(); fragmentIndex++) {
+        for(int fragmentIndex = 0; (fragmentIndex+1) * Transaction.Field.SIGNATURE_FRAGMENTS.tryteLength <= message.length(); fragmentIndex++) {
             String fragment = message.substring(fragmentIndex * Transaction.Field.SIGNATURE_FRAGMENTS.tryteLength, (fragmentIndex+1)*Transaction.Field.SIGNATURE_FRAGMENTS.tryteLength);
-            buildersFromTailToHead[fragmentIndex].signatureFragments = fragment;
+            buildersFromTailToHead[buildersFromTailToHead.length-1-fragmentIndex].signatureFragments = fragment;
         }
     }
 

@@ -29,6 +29,7 @@ public class ControlledEconomicActor extends EconomicActor {
 
         String messageToSign =  messageToSign(trunk, branch);
         SignatureSchemeImplementation.Signature signature = privateKey.sign(messageToSign);
+        assert signature.deriveAddress().equals(address);
         outputs.add(new OutputBuilder(address, BigInteger.ZERO, signature.toString()));
 
         TransferBuilder transferBuilder =  new TransferBuilder(new HashSet<InputBuilder>(), outputs, securityLevel);
@@ -37,6 +38,7 @@ public class ControlledEconomicActor extends EconomicActor {
         List<TransactionBuilder> tailToHead = bundleBuilder.getTailToHead();
         tailToHead.get(0).branchHash = branch;
         tailToHead.get(0).trunkHash = trunk;
-        return bundleBuilder.build();
+        Bundle bundle = bundleBuilder.build();
+        return bundle;
     }
 }
