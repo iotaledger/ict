@@ -1,7 +1,8 @@
-package org.iota.ict.model;
+package org.iota.ict.model.bundle;
 
 import com.iota.curl.IotaCurlHash;
 import org.iota.ict.Ict;
+import org.iota.ict.model.transaction.Transaction;
 import org.iota.ict.utils.Constants;
 
 import java.math.BigInteger;
@@ -61,9 +62,9 @@ public class Bundle {
             return;
 
         Transaction fetchedLast = transactions.get(transactions.size() - 1);
-        while (fetchedLast.trunk != null && !fetchedLast.isBundleTail && (!fetchedLast.isBundleHead || transactions.size() == 1)) {
-            transactions.add(fetchedLast.trunk);
-            fetchedLast = fetchedLast.trunk;
+        while (fetchedLast.getTrunk() != null && !fetchedLast.isBundleTail && (!fetchedLast.isBundleHead || transactions.size() == 1)) {
+            transactions.add(fetchedLast.getTrunk());
+            fetchedLast = fetchedLast.getTrunk();
         }
 
         if (fetchedLast.isBundleTail)

@@ -1,12 +1,12 @@
-package org.iota.ict.model;
+package org.iota.ict.model.bundle;
 
 import org.iota.ict.Ict;
 import org.iota.ict.IctTestTemplate;
-import org.iota.ict.utils.Trytes;
+import org.iota.ict.model.transaction.Transaction;
+import org.iota.ict.model.transaction.TransactionBuilder;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.math.BigInteger;
 import java.util.*;
 
 public class BundleTest extends IctTestTemplate {

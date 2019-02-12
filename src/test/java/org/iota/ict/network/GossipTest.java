@@ -2,8 +2,8 @@ package org.iota.ict.network;
 
 import org.iota.ict.Ict;
 import org.iota.ict.IctTestTemplate;
-import org.iota.ict.model.Transaction;
-import org.iota.ict.model.TransactionBuilder;
+import org.iota.ict.model.transaction.Transaction;
+import org.iota.ict.model.transaction.TransactionBuilder;
 import org.junit.Assert;
 
 import java.util.*;

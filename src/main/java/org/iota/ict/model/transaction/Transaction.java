@@ -1,6 +1,8 @@
-package org.iota.ict.model;
+package org.iota.ict.model.transaction;
 
 import com.iota.curl.IotaCurlHash;
+import org.iota.ict.model.bundle.Bundle;
+import org.iota.ict.model.tangle.Tangle;
 import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.Trytes;
 
@@ -347,5 +349,17 @@ public class Transaction {
 
     public String decodedSignatureFragments() {
         return decodedSignatureFragments == null ? decodedSignatureFragments = Trytes.toAscii(signatureFragments()) : decodedSignatureFragments;
+    }
+
+    public void setBranch(Transaction branch) {
+        if(branch != null && !branch.hash.equals(branchHash))
+            throw new IllegalArgumentException("incorrect branch");
+        this.branch = branch;
+    }
+
+    public void setTrunk(Transaction trunk) {
+        if(trunk != null && !trunk.hash.equals(trunkHash))
+            throw new IllegalArgumentException("incorrect trunk");
+        this.trunk = trunk;
     }
 }

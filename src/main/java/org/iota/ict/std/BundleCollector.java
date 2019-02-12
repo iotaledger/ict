@@ -3,7 +3,7 @@ package org.iota.ict.std;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.Ict;
-import org.iota.ict.model.Transaction;
+import org.iota.ict.model.transaction.Transaction;
 import org.iota.ict.network.gossip.GossipEvent;
 import org.iota.ict.network.gossip.GossipPreprocessor;
 import org.iota.ict.utils.RestartableThread;

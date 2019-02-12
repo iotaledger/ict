@@ -1,7 +1,7 @@
 package org.iota.ict.utils.crypto;
 
 import com.iota.curl.IotaCurlHash;
-import org.iota.ict.model.Transaction;
+import org.iota.ict.model.transaction.Transaction;
 import org.iota.ict.utils.Trytes;
 
 import java.math.BigInteger;

@@ -1,9 +1,10 @@
-package org.iota.ict.model;
+package org.iota.ict.model.tangle;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.Ict;
 import org.iota.ict.IctInterface;
+import org.iota.ict.model.transaction.Transaction;
 import org.iota.ict.network.Neighbor;
 import org.iota.ict.utils.properties.FinalProperties;
 import org.iota.ict.utils.properties.PropertiesUser;
@@ -73,8 +74,8 @@ public class Tangle implements PropertiesUser {
     }
 
     public void deleteTransaction(Transaction transaction) {
-        transaction.branch = null;
-        transaction.trunk = null;
+        transaction.setTrunk(null);
+        transaction.setBranch(null);
         TransactionLog log = transactionsByHash.remove(transaction.hash);
         if (log != null) {
             log.removeFromSetMap(transactionsByTag, transaction.tag());
@@ -97,14 +98,15 @@ public class Tangle implements PropertiesUser {
     }
 
     private void buildEdgesToReferencedTransactions(Transaction referrer) {
+        referrer.setBranch(findTransactionOrPutOnWaitingList(referrer, referrer.branchHash()));
+        referrer.setTrunk(findTransactionOrPutOnWaitingList(referrer, referrer.trunkHash()));
+    }
 
-        referrer.branch = findTransactionByHash(referrer.branchHash());
-        if (referrer.branch == null)
-            addReferrerTransactionToWaitingList(referrer, referrer.branchHash());
-
-        referrer.trunk = findTransactionByHash(referrer.trunkHash());
-        if (referrer.trunk == null)
-            addReferrerTransactionToWaitingList(referrer, referrer.trunkHash());
+    private Transaction findTransactionOrPutOnWaitingList(Transaction referrer, String branchOrTrunk) {
+        Transaction transaction = findTransactionByHash(branchOrTrunk);
+        if(transaction == null)
+            addReferrerTransactionToWaitingList(referrer, branchOrTrunk);
+        return transaction;
     }
 
     private void addReferrerTransactionToWaitingList(Transaction referrer, String transactionToWaitFor) {

@@ -1,7 +1,5 @@
 package org.iota.ict.utils;
 
-import org.iota.ict.model.Transaction;
-import org.iota.ict.model.TransactionBuilder;
 import org.junit.Assert;
 import org.junit.Test;
 

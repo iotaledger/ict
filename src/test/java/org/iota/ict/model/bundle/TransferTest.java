@@ -1,5 +1,6 @@
-package org.iota.ict.model;
+package org.iota.ict.model.bundle;
 
+import org.iota.ict.model.transaction.Transaction;
 import org.iota.ict.utils.Trytes;
 import org.iota.ict.utils.crypto.SignatureSchemeImplementation;
 import org.junit.Assert;
@@ -43,7 +44,7 @@ public class TransferTest {
     private void assertReferenceInputAreIncludedInTransfer(Iterable<InputBuilder> referenceInputs, Transfer transfer) {
         // inputs must be treated differently than outputs because they now have a signature -> equal() does not work -> containsAll() does not work
 
-        for (BalanceChangeBuilderModel referenceInput : referenceInputs) {
+        for (InputBuilder referenceInput : referenceInputs) {
             boolean foundReference = false;
             for (BalanceChange actualInput : transfer.getInputs())
                 if (referenceInput.getValue().equals(actualInput.value) && referenceInput.getAddress().equals(actualInput.address))

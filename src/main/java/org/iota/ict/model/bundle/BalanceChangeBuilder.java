@@ -1,4 +1,7 @@
-package org.iota.ict.model;
+package org.iota.ict.model.bundle;
+
+import org.iota.ict.model.transaction.Transaction;
+import org.iota.ict.model.transaction.TransactionBuilder;
 
 import java.math.BigInteger;
 import java.util.LinkedList;

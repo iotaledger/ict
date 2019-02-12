@@ -2,10 +2,10 @@ package org.iota.ict.ec;
 
 import org.iota.ict.Ict;
 import org.iota.ict.IctTestTemplate;
-import org.iota.ict.model.Bundle;
+import org.iota.ict.model.bundle.Bundle;
 import org.iota.ict.utils.Trytes;
-import org.iota.ict.model.Transaction;
-import org.iota.ict.model.TransactionBuilder;
+import org.iota.ict.model.transaction.Transaction;
+import org.iota.ict.model.transaction.TransactionBuilder;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -1,9 +1,9 @@
 package org.iota.ict.ec;
 
-import org.iota.ict.model.BalanceChange;
-import org.iota.ict.model.Bundle;
-import org.iota.ict.model.Transaction;
-import org.iota.ict.model.Transfer;
+import org.iota.ict.model.bundle.BalanceChange;
+import org.iota.ict.model.bundle.Bundle;
+import org.iota.ict.model.transaction.Transaction;
+import org.iota.ict.model.bundle.Transfer;
 import org.iota.ict.utils.crypto.SignatureSchemeImplementation;
 
 import java.util.HashSet;

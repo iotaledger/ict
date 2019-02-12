@@ -2,13 +2,12 @@ package org.iota.ict.std;
 
 import org.iota.ict.Ict;
 import org.iota.ict.IctTestTemplate;
-import org.iota.ict.model.Bundle;
-import org.iota.ict.model.BundleBuilder;
-import org.iota.ict.model.Transaction;
-import org.iota.ict.model.TransactionBuilder;
+import org.iota.ict.model.bundle.Bundle;
+import org.iota.ict.model.bundle.BundleBuilder;
+import org.iota.ict.model.transaction.Transaction;
+import org.iota.ict.model.transaction.TransactionBuilder;
 import org.iota.ict.network.gossip.GossipEvent;
 import org.iota.ict.network.gossip.GossipListener;
-import org.iota.ict.utils.properties.EditableProperties;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -1,8 +1,8 @@
 package org.iota.ict.ec;
 
 import org.iota.ict.Ict;
-import org.iota.ict.model.Bundle;
-import org.iota.ict.model.Transaction;
+import org.iota.ict.model.bundle.Bundle;
+import org.iota.ict.model.transaction.Transaction;
 import org.iota.ict.network.gossip.GossipEvent;
 import org.iota.ict.network.gossip.GossipFilter;
 import org.iota.ict.network.gossip.GossipListener;

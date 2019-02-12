@@ -1,7 +1,7 @@
 package org.iota.ict.network;
 
 import org.iota.ict.Ict;
-import org.iota.ict.model.TransactionBuilder;
+import org.iota.ict.model.transaction.TransactionBuilder;
 import org.iota.ict.utils.Constants;
 import org.junit.Assert;
 import org.junit.Test;

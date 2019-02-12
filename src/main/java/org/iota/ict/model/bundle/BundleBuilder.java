@@ -1,4 +1,7 @@
-package org.iota.ict.model;
+package org.iota.ict.model.bundle;
+
+import org.iota.ict.model.transaction.Transaction;
+import org.iota.ict.model.transaction.TransactionBuilder;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -38,7 +41,7 @@ public class BundleBuilder {
             if (!isFirst)
                 unfinished.trunkHash = lastTransaction.hash;
             Transaction currentTransaction = unfinished.build();
-            currentTransaction.trunk = lastTransaction;
+            currentTransaction.setTrunk(lastTransaction);
             lastTransaction = currentTransaction;
         }
 

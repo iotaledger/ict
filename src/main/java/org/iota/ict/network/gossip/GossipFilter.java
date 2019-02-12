@@ -1,6 +1,6 @@
 package org.iota.ict.network.gossip;
 
-import org.iota.ict.model.Transaction;
+import org.iota.ict.model.transaction.Transaction;
 
 import java.io.Serializable;
 import java.util.HashSet;

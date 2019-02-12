@@ -2,9 +2,8 @@ package org.iota.ict.network;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.iota.ict.Ict;
 import org.iota.ict.IctInterface;
-import org.iota.ict.model.Transaction;
+import org.iota.ict.model.transaction.Transaction;
 import org.iota.ict.utils.*;
 import org.iota.ict.utils.properties.FinalProperties;
 import org.iota.ict.utils.properties.Properties;

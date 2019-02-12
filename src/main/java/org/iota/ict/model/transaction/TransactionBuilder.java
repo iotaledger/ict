@@ -1,4 +1,4 @@
-package org.iota.ict.model;
+package org.iota.ict.model.transaction;
 
 import org.iota.ict.utils.Trytes;
 

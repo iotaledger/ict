@@ -1,6 +1,6 @@
 package org.iota.ict.utils;
 
-import org.iota.ict.model.Transaction;
+import org.iota.ict.model.transaction.Transaction;
 
 import java.io.File;
 import java.nio.file.Path;

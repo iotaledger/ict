@@ -1,6 +1,7 @@
-package org.iota.ict.model;
+package org.iota.ict.model.bundle;
 
 import com.iota.curl.IotaCurlHash;
+import org.iota.ict.model.transaction.TransactionBuilder;
 import org.iota.ict.utils.Constants;
 
 import java.math.BigInteger;

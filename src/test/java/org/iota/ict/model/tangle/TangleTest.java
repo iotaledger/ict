@@ -1,6 +1,8 @@
-package org.iota.ict.model;
+package org.iota.ict.model.tangle;
 
 import org.iota.ict.Ict;
+import org.iota.ict.model.transaction.Transaction;
+import org.iota.ict.model.transaction.TransactionBuilder;
 import org.iota.ict.utils.Trytes;
 import org.junit.Assert;
 import org.junit.Ignore;

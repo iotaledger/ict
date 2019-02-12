@@ -1,6 +1,7 @@
-package org.iota.ict.model;
+package org.iota.ict.model.tangle;
 
 import org.iota.ict.IctInterface;
+import org.iota.ict.model.transaction.Transaction;
 import org.iota.ict.utils.properties.FinalProperties;
 import org.iota.ict.utils.properties.PropertiesUser;
 

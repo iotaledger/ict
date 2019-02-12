@@ -1,6 +1,6 @@
 package org.iota.ict.ixi;
 
-import org.iota.ict.model.Transaction;
+import org.iota.ict.model.transaction.Transaction;
 import org.iota.ict.network.gossip.GossipListener;
 import org.iota.ict.network.gossip.GossipPreprocessor;
 

@@ -1,5 +1,6 @@
-package org.iota.ict.model;
+package org.iota.ict.model.bundle;
 
+import org.iota.ict.model.transaction.TransactionBuilder;
 import org.iota.ict.utils.crypto.SignatureSchemeImplementation;
 
 import java.math.BigInteger;

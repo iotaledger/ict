@@ -2,8 +2,8 @@ package org.iota.ict.ixi;
 
 import org.iota.ict.Ict;
 import org.iota.ict.IctTestTemplate;
-import org.iota.ict.model.Transaction;
-import org.iota.ict.model.TransactionBuilder;
+import org.iota.ict.model.transaction.Transaction;
+import org.iota.ict.model.transaction.TransactionBuilder;
 import org.iota.ict.network.gossip.GossipEvent;
 import org.iota.ict.network.gossip.GossipListener;
 import org.iota.ict.utils.Trytes;

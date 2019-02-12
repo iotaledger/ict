@@ -2,7 +2,7 @@ package org.iota.ict;
 
 import org.iota.ict.ixi.Ixi;
 import org.iota.ict.ixi.IxiModuleHolder;
-import org.iota.ict.model.Tangle;
+import org.iota.ict.model.tangle.Tangle;
 import org.iota.ict.network.Neighbor;
 import org.iota.ict.network.Node;
 import org.iota.ict.network.gossip.GossipListener;
