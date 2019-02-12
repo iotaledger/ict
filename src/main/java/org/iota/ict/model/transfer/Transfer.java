@@ -1,5 +1,7 @@
-package org.iota.ict.model.bundle;
+package org.iota.ict.model.transfer;
 
+import org.iota.ict.model.bundle.Bundle;
+import org.iota.ict.model.bc.BalanceChange;
 import org.iota.ict.model.transaction.Transaction;
 import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.Trytes;
@@ -123,7 +125,7 @@ public class Transfer {
 
         private final Set<BalanceChange> inputs = new HashSet<>();
         private final Set<BalanceChange> outputs = new HashSet<>();
-        private BalanceChangeBuilder currentBuilder;
+        private org.iota.ict.model.bc.BalanceChangeCollector currentBuilder;
         private State state = null;
 
         private BalanceChangeCollector(Bundle bundle) {
@@ -148,7 +150,7 @@ public class Transfer {
 
             if (currentBuilder == null) {
                 // transaction opens new change
-                currentBuilder = new BalanceChangeBuilder(t);
+                currentBuilder = new org.iota.ict.model.bc.BalanceChangeCollector(t);
                 state = valueNegative ? State.BUILDING_INPUT : State.BUILDING_OUTPUT;
             }
         }

@@ -1,5 +1,13 @@
-package org.iota.ict.model.bundle;
+package org.iota.ict.model.transfer;
 
+import org.iota.ict.model.bc.BalanceChange;
+import org.iota.ict.model.bc.BalanceChangeInterface;
+import org.iota.ict.model.bundle.Bundle;
+import org.iota.ict.model.bundle.BundleBuilder;
+import org.iota.ict.model.transfer.InputBuilder;
+import org.iota.ict.model.transfer.OutputBuilder;
+import org.iota.ict.model.transfer.Transfer;
+import org.iota.ict.model.transfer.TransferBuilder;
 import org.iota.ict.model.transaction.Transaction;
 import org.iota.ict.utils.Trytes;
 import org.iota.ict.utils.crypto.SignatureSchemeImplementation;
@@ -29,7 +37,7 @@ public class TransferTest {
     public void testCollectInputsAndOutputs() {
         Set<InputBuilder> inputs = createRandomInputs(3, 1);
         BigInteger inputBalance = calcAvailableFunds(inputs);
-        Set<BalanceChange> outputs = createRandomOutputs(inputBalance, 4);
+        Set<OutputBuilder> outputs = createRandomOutputs(inputBalance, 4);
 
         Bundle bundle = buildBundle(inputs, outputs);
         Transfer transfer = new Transfer(bundle);
@@ -54,15 +62,15 @@ public class TransferTest {
         }
     }
 
-    private Bundle buildBundle(Set<InputBuilder> inputs, Set<BalanceChange> outputs) {
+    private Bundle buildBundle(Set<InputBuilder> inputs, Set<OutputBuilder> outputs) {
         TransferBuilder transferBuilder = new TransferBuilder(inputs, outputs, 1);
         BundleBuilder bundleBuilder = transferBuilder.build();
         return bundleBuilder.build();
     }
 
-    private <T extends BalanceChangeBuilderModel> BigInteger calcAvailableFunds(Set<T> changes) {
+    private <T extends BalanceChangeInterface> BigInteger calcAvailableFunds(Set<T> changes) {
         BigInteger availableFunds = BigInteger.ZERO;
-        for (BalanceChangeBuilderModel change : changes)
+        for (BalanceChangeInterface change : changes)
             availableFunds = availableFunds.subtract(change.getValue());
         return availableFunds;
     }
@@ -75,9 +83,9 @@ public class TransferTest {
         return inputs;
     }
 
-    private Set<BalanceChange> createRandomOutputs(BigInteger availableFunds, int amount) {
+    private Set<OutputBuilder> createRandomOutputs(BigInteger availableFunds, int amount) {
         assert amount > 0;
-        Set<BalanceChange> outputs = new HashSet<>();
+        Set<OutputBuilder> outputs = new HashSet<>();
         for (int i = 0; i < amount - 1; i++) {
             BigInteger value = availableFunds.multiply(BigInteger.valueOf((long) (Math.random() * 10000))).divide(BigInteger.valueOf(10000));
             outputs.add(createRandomOutput(value));
@@ -91,13 +99,13 @@ public class TransferTest {
         BigInteger value = BigInteger.valueOf((long) (Math.random() * Long.MIN_VALUE)).subtract(BigInteger.ONE);
         String seed = Trytes.randomSequenceOfLength(Transaction.Field.ADDRESS.tryteLength);
         SignatureSchemeImplementation.PrivateKey privateKey = SignatureSchemeImplementation.derivePrivateKeyFromSeed(seed, 0, securityLevel);
-        return new InputBuilder(privateKey, value, securityLevel);
+        return new InputBuilder(privateKey, value);
     }
 
-    private static BalanceChange createRandomOutput(BigInteger value) {
+    private static OutputBuilder createRandomOutput(BigInteger value) {
         assert value.compareTo(BigInteger.ZERO) >= 0;
         String address = Trytes.randomSequenceOfLength(Transaction.Field.ADDRESS.tryteLength);
         String message = Trytes.randomSequenceOfLength((int)(Math.random() * 3+1) * Transaction.Field.SIGNATURE_FRAGMENTS.tryteLength);
-        return new BalanceChange(address, value, message);
+        return new OutputBuilder(address, value, message);
     }
 }

@@ -1,6 +1,9 @@
 package org.iota.ict.ec;
 
 import org.iota.ict.model.bundle.*;
+import org.iota.ict.model.transfer.InputBuilder;
+import org.iota.ict.model.transfer.OutputBuilder;
+import org.iota.ict.model.transfer.TransferBuilder;
 import org.iota.ict.model.transaction.TransactionBuilder;
 import org.iota.ict.utils.crypto.SignatureSchemeImplementation;
 
@@ -22,11 +25,11 @@ public class ControlledEconomicActor extends EconomicActor {
 
     public Bundle issueMarker(String trunk, String branch, int securityLevel) {
 
-        Set<BalanceChange> outputs = new HashSet<>();
+        Set<OutputBuilder> outputs = new HashSet<>();
 
         String messageToSign =  messageToSign(trunk, branch);
         SignatureSchemeImplementation.Signature signature = privateKey.sign(messageToSign);
-        outputs.add(new BalanceChange(address, BigInteger.ZERO, signature.toString()));
+        outputs.add(new OutputBuilder(address, BigInteger.ZERO, signature.toString()));
 
         TransferBuilder transferBuilder =  new TransferBuilder(new HashSet<InputBuilder>(), outputs, securityLevel);
         BundleBuilder bundleBuilder = transferBuilder.build();

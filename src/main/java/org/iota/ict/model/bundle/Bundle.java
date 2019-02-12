@@ -2,6 +2,8 @@ package org.iota.ict.model.bundle;
 
 import com.iota.curl.IotaCurlHash;
 import org.iota.ict.Ict;
+import org.iota.ict.model.bc.BalanceChange;
+import org.iota.ict.model.transfer.Transfer;
 import org.iota.ict.model.transaction.Transaction;
 import org.iota.ict.utils.Constants;
 

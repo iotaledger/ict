@@ -1,5 +1,6 @@
-package org.iota.ict.model.bundle;
+package org.iota.ict.model.bc;
 
+import org.iota.ict.model.transfer.Transfer;
 import org.iota.ict.model.transaction.Transaction;
 
 import java.math.BigInteger;
@@ -18,9 +19,9 @@ import java.math.BigInteger;
  * of {@link #signatureOrMessage}.
  *
  * @see Transfer as structure consisting of multiple {@link BalanceChange} instances.
- * @see BalanceChangeBuilder as builder for this class.
+ * @see BalanceChangeCollector as builder for this class.
  */
-public class BalanceChange {
+public class BalanceChange implements BalanceChangeInterface {
 
     private static final int SIGNATURE_FRAGMENTS_LENGTH = Transaction.Field.SIGNATURE_FRAGMENTS.tryteLength;
 
@@ -34,6 +35,16 @@ public class BalanceChange {
         this.address = address;
         this.value = value;
         this.signatureOrMessage = signatureOrMessage;
+    }
+
+    @Override
+    public BigInteger getValue() {
+        return value;
+    }
+
+    @Override
+    public String getAddress() {
+        return address;
     }
 
     public int getAmountOfSignatureOrMessageFragments() {
