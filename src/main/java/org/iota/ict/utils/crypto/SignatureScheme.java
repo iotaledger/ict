@@ -1,5 +1,9 @@
 package org.iota.ict.utils.crypto;
 
+/**
+ * Abstract description of a signature scheme. For increased modularity and to decouple the signature scheme implementation
+ * from the Ict code base as much as possible so that it can be easily replaced.
+ * */
 public abstract class SignatureScheme {
 
     public interface PrivateKey<T extends SignatureScheme> {

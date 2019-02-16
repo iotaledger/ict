@@ -11,6 +11,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Monitors an economic actor by following its markers. The passively-reading counter-part to {@link ControlledEconomicActor}.
+ * */
 public class TrustedEconomicActor extends EconomicActor {
 
     protected double trust;

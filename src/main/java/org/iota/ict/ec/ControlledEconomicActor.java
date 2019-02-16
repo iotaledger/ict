@@ -12,6 +12,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Allows to run an economic actor by issuing markers. The actively-writing counter-part to {@link TrustedEconomicActor}.
+ * The actor can be followed by other nodes as reference for their economic cluster.
+ * */
 public class ControlledEconomicActor extends EconomicActor {
 
     protected final String seed;

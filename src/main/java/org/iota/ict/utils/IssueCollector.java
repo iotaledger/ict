@@ -3,6 +3,9 @@ package org.iota.ict.utils;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Collects unexpected exceptions and errors thrown during runtime. Makes it simpler to diagnose any issues.
+ * */
 public final class IssueCollector {
 
     private static final int MAX_AMOUNT_OF_THROWABLES_TO_PRINT = 10;

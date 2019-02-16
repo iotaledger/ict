@@ -6,6 +6,9 @@ import org.iota.ict.utils.interfaces.Restartable;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Framework for a thread that can be restarted. Allows to register sub-threads that will be automatically started and terminated.
+ * */
 public abstract class RestartableThread implements Restartable, Runnable {
 
     protected Logger logger;
