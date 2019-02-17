@@ -8,7 +8,7 @@ import java.math.BigInteger;
 
 public final class SignatureSchemeImplementation extends SignatureScheme {
 
-    private static final int HASH_LENGTH = 81;
+    public static final int HASH_LENGTH = 81;
     private static final int KEY_FRAGMENT_LENGTH = HASH_LENGTH;
 
     private SignatureSchemeImplementation() { }
