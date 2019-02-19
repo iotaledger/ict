@@ -87,7 +87,7 @@ public class Sender extends RestartableThread implements SenderInterface {
     private void sendTransactionToNeighbor(Neighbor nb, Transaction transaction) {
         try {
             DatagramPacket packet = transaction.toDatagramPacket(transactionsToRequest.isEmpty() ? Trytes.NULL_HASH : transactionsToRequest.poll());
-            packet.setSocketAddress(nb.getAddress());
+            packet.setSocketAddress(nb.getSocketAddress());
             node.socket.send(packet);
         } catch (Exception e) {
             if (isRunning())

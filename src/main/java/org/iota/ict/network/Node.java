@@ -45,9 +45,7 @@ public class Node extends RestartableThread implements PropertiesUser {
         subWorkers.add(sender);
 
         for (String neighbor : properties.neighbors()) {
-            String host = neighbor.split(":")[0];
-            int port = Integer.parseInt(neighbor.split(":")[1]);
-            neighbor(new InetSocketAddress(host, port));
+            neighbor(neighbor);
         }
     }
 
@@ -121,31 +119,34 @@ public class Node extends RestartableThread implements PropertiesUser {
     }
 
     private void neighbor(String neighbor) {
-        String host = neighbor.split(":")[0];
-        int port = Integer.parseInt(neighbor.split(":")[1]);
-        neighbor(new InetSocketAddress(host, port));
-    }
-
-    /**
-     * Opens a new connection to a neighbor. Both nodes will directly gossip transactions.
-     *
-     * @param neighborAddress Address of neighbor to connect to.
-     * @throws IllegalStateException If already has {@link Constants#MAX_NEIGHBOR_COUNT} neighbors.
-     */
-    public void neighbor(InetSocketAddress neighborAddress) {
         if (neighbors.size() >= Constants.MAX_NEIGHBOR_COUNT)
             throw new IllegalStateException("Already reached maximum amount of neighbors.");
-        neighbors.add(new Neighbor(neighborAddress, properties.antiSpamAbs()));
+        neighbors.add(new Neighbor(neighbor, properties.antiSpamAbs()));
     }
 
     private void updateNeighborsBecausePropertiesChanged(Properties oldProp, Properties newProp) {
         // remove neighbors who are no longer neighbors
-        List<Neighbor> toRemove = new LinkedList<>();
-        for (Neighbor nb : neighbors)
-            if (!newProp.neighbors().contains(nb.getAddress()))
-                toRemove.add(nb);
-        neighbors.removeAll(toRemove);
+        removeNeighborsWhoAreNoLongerNeighbors(oldProp, newProp);
+        addNeighborsWhoAreNew(oldProp, newProp);
 
+        assert neighbors.size() == newProp.neighbors().size();
+    }
+
+    private void removeNeighborsWhoAreNoLongerNeighbors(Properties oldProp, Properties newProp) {
+        List<String> toRemove = new LinkedList<>();
+        for (String nb : oldProp.neighbors())
+            if (!newProp.neighbors().contains(nb))
+                toRemove.add(nb);
+
+        List<Neighbor> toRemoveNeighbors = new LinkedList<>();
+        for(Neighbor nb : neighbors) {
+            if(toRemove.contains(nb.getAddress()))
+                toRemoveNeighbors.add(nb);
+        }
+        neighbors.removeAll(toRemoveNeighbors);
+    }
+
+    private void addNeighborsWhoAreNew(Properties oldProp, Properties newProp) {
         // add neighbors who are new
         List<String> newNeighbors = new LinkedList<>();
         if(oldProp == null) {
@@ -159,8 +160,6 @@ public class Node extends RestartableThread implements PropertiesUser {
 
         for (String toAdd : newNeighbors)
             neighbor(toAdd);
-
-        assert neighbors.size() == newProp.neighbors().size();
     }
 
     private static DatagramSocket createDatagramSocket(InetSocketAddress address) {
