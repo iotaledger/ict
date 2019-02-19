@@ -44,8 +44,11 @@ public class Node extends RestartableThread implements PropertiesUser {
         subWorkers.add(receiver);
         subWorkers.add(sender);
 
-        for (InetSocketAddress neighbor : properties.neighbors())
-            neighbor(neighbor);
+        for (String neighbor : properties.neighbors()) {
+            String host = neighbor.split(":")[0];
+            int port = Integer.parseInt(neighbor.split(":")[1]);
+            neighbor(new InetSocketAddress(host, port));
+        }
     }
 
     public int getSenderQueueSize() {
@@ -117,6 +120,12 @@ public class Node extends RestartableThread implements PropertiesUser {
         return new LinkedList<>(neighbors);
     }
 
+    private void neighbor(String neighbor) {
+        String host = neighbor.split(":")[0];
+        int port = Integer.parseInt(neighbor.split(":")[1]);
+        neighbor(new InetSocketAddress(host, port));
+    }
+
     /**
      * Opens a new connection to a neighbor. Both nodes will directly gossip transactions.
      *
@@ -138,17 +147,17 @@ public class Node extends RestartableThread implements PropertiesUser {
         neighbors.removeAll(toRemove);
 
         // add neighbors who are new
-        List<InetSocketAddress> newNeighbors = new LinkedList<>();
+        List<String> newNeighbors = new LinkedList<>();
         if(oldProp == null) {
             newNeighbors = newProp.neighbors();
         } else {
-            for (InetSocketAddress inetAddress : newProp.neighbors()) {
+            for (String inetAddress : newProp.neighbors()) {
                 if (!oldProp.neighbors().contains(inetAddress))
                     newNeighbors.add(inetAddress);
             }
         }
 
-        for (InetSocketAddress toAdd : newNeighbors)
+        for (String toAdd : newNeighbors)
             neighbor(toAdd);
 
         assert neighbors.size() == newProp.neighbors().size();

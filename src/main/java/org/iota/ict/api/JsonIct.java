@@ -109,12 +109,10 @@ public class JsonIct {
     public JSONObject addNeighbor(String address) {
         if (!address.matches("^[a-zA-Z0-9\\-.]+:[0-9]{1,5}$"))
             throw new IllegalArgumentException("Address does not match required format 'host:port'.");
-        String host = address.split(":")[0];
-        int port = Integer.parseInt(address.split(":")[1]);
         EditableProperties properties = ict.getProperties().toEditable();
 
-        List<InetSocketAddress> neighbors = properties.neighbors();
-        neighbors.add(new InetSocketAddress(host, port));
+        List<String> neighbors = properties.neighbors();
+        neighbors.add(address);
         properties.neighbors(neighbors);
         ict.updateProperties(properties.toFinal());
 
@@ -125,9 +123,9 @@ public class JsonIct {
 
     public JSONObject removeNeighbor(String address) {
         EditableProperties properties = ict.getProperties().toEditable();
-        List<InetSocketAddress> neighbors = properties.neighbors();
-        for (InetSocketAddress nb : neighbors) {
-            if (nb.toString().equals(address)) {
+        List<String> neighbors = properties.neighbors();
+        for (String nb : neighbors) {
+            if (nb.equals(address)) {
                 neighbors.remove(nb);
                 properties.neighbors(neighbors);
                 ict.updateProperties(properties.toFinal());

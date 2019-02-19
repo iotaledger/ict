@@ -36,7 +36,7 @@ public class EditableProperties extends Properties {
         return this;
     }
 
-    public EditableProperties neighbors(List<InetSocketAddress> neighbors) {
+    public EditableProperties neighbors(List<String> neighbors) {
         this.neighbors = new LinkedList<>(neighbors);
         return this;
     }

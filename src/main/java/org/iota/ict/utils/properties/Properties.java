@@ -35,7 +35,7 @@ public class Properties implements Cloneable {
     protected int port = 1337;
     protected int guiPort = 2187;
     protected long roundDuration = 60000;
-    protected List<InetSocketAddress> neighbors = new LinkedList<>();
+    protected List<String> neighbors = new LinkedList<>();
     protected List<String> economicCluster = new LinkedList<>();
 
     public static Properties fromFile(String path) {
@@ -80,7 +80,7 @@ public class Properties implements Cloneable {
         name = propObject.getProperty(Property.name.name(), DEFAULT_PROPERTIES.name);
         port = (int) readLongProperty(propObject, Property.port, 1, 65535, DEFAULT_PROPERTIES.port);
         roundDuration = readLongProperty(propObject, Property.round_duration, 100, Long.MAX_VALUE, DEFAULT_PROPERTIES.roundDuration);
-        neighbors = neighborsFromString(propObject.getProperty(Property.neighbors.name(), ""));
+        neighbors = stringListFromString(propObject.getProperty(Property.neighbors.name(), ""));
         guiEnabled = propObject.getProperty(Property.gui_enabled.name(), DEFAULT_PROPERTIES.guiEnabled + "").toLowerCase().equals("true");
         guiPort = (int) readLongProperty(propObject, Property.gui_port, 1, 65535, DEFAULT_PROPERTIES.guiPort);
         guiPassword = propObject.getProperty(Property.gui_password.name(), DEFAULT_PROPERTIES.guiPassword);
@@ -144,9 +144,7 @@ public class Properties implements Cloneable {
     }
 
     private String neighborsToString() {
-        List<String> addresses = new LinkedList<>();
-        for (InetSocketAddress address : neighbors)
-            addresses.add(address.getHostString() + ":" + address.getPort());
+        List<String> addresses = new LinkedList<>(neighbors);
         return stringListToString(addresses);
     }
 
@@ -266,7 +264,7 @@ public class Properties implements Cloneable {
         return guiEnabled;
     }
 
-    public List<InetSocketAddress> neighbors() {
+    public List<String> neighbors() {
         return new LinkedList<>(neighbors);
     }
 
