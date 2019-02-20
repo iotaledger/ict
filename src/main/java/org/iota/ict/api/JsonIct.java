@@ -16,7 +16,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +23,6 @@ import java.util.Map;
 
 public class JsonIct {
 
-    protected int statsRound = -1;
     protected Map<Neighbor, JSONArray> statsByNeighbor = new HashMap<>();
 
     protected static final Logger LOGGER = Ict.LOGGER;
@@ -61,7 +59,7 @@ public class JsonIct {
     }
 
     public JSONObject getConfig() {
-        return ict.getProperties().toJSON().put("gui_password", "");
+        return ict.getProperties().toEditable().guiPassword("").toJSON();
     }
 
     public JSONArray getNeighbors() {

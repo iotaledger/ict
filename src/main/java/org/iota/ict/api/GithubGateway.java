@@ -1,14 +1,8 @@
 package org.iota.ict.api;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.iota.ict.utils.Constants;
-import org.iota.ict.utils.IOHelper;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.*;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -17,7 +11,6 @@ public final class GithubGateway {
     private GithubGateway() {
     }
 
-    private static Logger LOGGER = LogManager.getLogger("GitHubGW");
     protected static String BASE_URL = "https://api.github.com";
 
     public static JSONObject getRepoInfo(String userSlashRepo) {
@@ -31,7 +24,7 @@ public final class GithubGateway {
     }
 
     public static String getContents(String userSlashRepo, String branch, String path) {
-        return send_POST_Request("https://raw.githubusercontent.com/" + userSlashRepo + "/" + branch + "/" + path);
+        return HttpGateway.sendPostRequest("https://raw.githubusercontent.com/" + userSlashRepo + "/" + branch + "/" + path);
     }
 
     public static URL getAssetDownloadUrl(String userSlashRepo, String label) {
@@ -80,29 +73,6 @@ public final class GithubGateway {
     }
 
     protected static String send_API_POST_Request(String path) {
-        return send_POST_Request(BASE_URL + path);
-    }
-
-    protected static String send_POST_Request(String path) {
-        try {
-            URL url = new URL(path);
-            HttpURLConnection connection = connect(url);
-            if (connection.getResponseCode() != 200)
-                throw new RuntimeException("Failed to connect to " + url + ". Bad response code: " + connection.getResponseCode());
-            return IOHelper.readInputStream(connection.getInputStream());
-        } catch (IOException t) {
-            LOGGER.error("Failed to connect to Github (" + path + ").", t);
-            throw new RuntimeException(t);
-        }
-    }
-
-    protected static HttpURLConnection connect(URL url) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) (url.openConnection());
-        connection.setRequestProperty("Content-Type", "application/json");
-        connection.setRequestProperty("Accept", "application/vnd.github.v3+json");
-        connection.setRequestMethod("GET");
-        connection.setDoOutput(true);
-        connection.connect();
-        return connection;
+        return HttpGateway.sendPostRequest(BASE_URL + path);
     }
 }
