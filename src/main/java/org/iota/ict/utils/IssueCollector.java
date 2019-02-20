@@ -21,6 +21,10 @@ public final class IssueCollector {
         }
     }
 
+    public static int amountOfIndicidents() {
+        return incidents.size();
+    }
+
     public static void log() {
         // use system.err instead of logger in case there is an exception with logging
         if (incidents.size() > 0) {

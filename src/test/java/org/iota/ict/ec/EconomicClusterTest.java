@@ -6,6 +6,7 @@ import org.iota.ict.model.bundle.Bundle;
 import org.iota.ict.utils.Trytes;
 import org.iota.ict.model.transaction.Transaction;
 import org.iota.ict.model.transaction.TransactionBuilder;
+import org.iota.ict.utils.crypto.MerkleTree;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -18,9 +19,9 @@ public class EconomicClusterTest extends IctTestTemplate {
         Ict ictB = createIct();
         connect(ictA, ictB);
 
-        ControlledEconomicActor ca1 = new ControlledEconomicActor(Trytes.randomSequenceOfLength(81));
-        ControlledEconomicActor ca2 = new ControlledEconomicActor(Trytes.randomSequenceOfLength(81));
-        ControlledEconomicActor ca3 = new ControlledEconomicActor(Trytes.randomSequenceOfLength(81));
+        ControlledEconomicActor ca1 = new ControlledEconomicActor(new MerkleTree(Trytes.randomSequenceOfLength(81), 3), 0);
+        ControlledEconomicActor ca2 = new ControlledEconomicActor(new MerkleTree(Trytes.randomSequenceOfLength(81), 3), 0);
+        ControlledEconomicActor ca3 = new ControlledEconomicActor(new MerkleTree(Trytes.randomSequenceOfLength(81), 3), 0);
 
         EconomicCluster cluster = new EconomicCluster(ictB);
         TrustedEconomicActor ta1 = new TrustedEconomicActor(ca1.getAddress(), 0.2);

@@ -2,6 +2,7 @@ package org.iota.ict.network.gossip;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.iota.ict.utils.IssueCollector;
 import org.iota.ict.utils.RestartableThread;
 
 import java.util.Collections;
@@ -31,7 +32,12 @@ public class GossipEventDispatcher extends RestartableThread {
             try {
                 GossipEvent event = eventQueue.take();
                 for (GossipListener listener : listeners)
-                    listener.onGossipEvent(event);
+                    try {
+                        listener.onGossipEvent(event);
+                    } catch (Throwable t) {
+                        LOGGER.error("An exception or error was thrown by a gossip listener.");
+                        t.printStackTrace();
+                    }
                 event.getTransaction().compress(); // TODO compress only if nobody is using this transaction anymore
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();

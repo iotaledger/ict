@@ -5,6 +5,7 @@ import org.iota.ict.model.transfer.InputBuilder;
 import org.iota.ict.model.transfer.OutputBuilder;
 import org.iota.ict.model.transfer.TransferBuilder;
 import org.iota.ict.model.transaction.TransactionBuilder;
+import org.iota.ict.utils.crypto.MerkleTree;
 import org.iota.ict.utils.crypto.SignatureSchemeImplementation;
 
 import java.math.BigInteger;
@@ -18,13 +19,13 @@ import java.util.Set;
  * */
 public class ControlledEconomicActor extends EconomicActor {
 
-    protected final String seed;
-    protected final SignatureSchemeImplementation.PrivateKey privateKey;
+    protected final MerkleTree merkleTree;
+    protected int keyIndex;
 
-    public ControlledEconomicActor(String seed) {
-        super(SignatureSchemeImplementation.deriveAddressFromSeed(seed, 0, 3));
-        privateKey = SignatureSchemeImplementation.derivePrivateKeyFromSeed(seed, 0, 3);
-        this.seed = seed;
+    public ControlledEconomicActor(MerkleTree merkleTree, int keyIndex) {
+        super(merkleTree.getAddress());
+        this.merkleTree = merkleTree;
+        this.keyIndex = keyIndex;
     }
 
     public Bundle issueMarker(String trunk, String branch, int securityLevel) {
@@ -32,7 +33,7 @@ public class ControlledEconomicActor extends EconomicActor {
         Set<OutputBuilder> outputs = new HashSet<>();
 
         String messageToSign =  messageToSign(trunk, branch);
-        SignatureSchemeImplementation.Signature signature = privateKey.sign(messageToSign);
+        SignatureSchemeImplementation.Signature signature = merkleTree.sign(keyIndex++, messageToSign);
         assert signature.deriveAddress().equals(address);
         outputs.add(new OutputBuilder(address, BigInteger.ZERO, signature.toString()));
 

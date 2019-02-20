@@ -3,6 +3,7 @@ package org.iota.ict.network.gossip;
 import org.iota.ict.Ict;
 import org.iota.ict.IctTestTemplate;
 import org.iota.ict.model.transaction.TransactionBuilder;
+import org.iota.ict.utils.IssueCollector;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,5 +33,36 @@ public class GossipEventDispatcherTest extends IctTestTemplate {
 
         long duration = System.currentTimeMillis() - start;
         Assert.assertTrue("gossip listener blocked main thread", duration < 2000);
+    }
+
+    @Test
+    public void testCatchExceptionFromListener() {
+
+        Thread.UncaughtExceptionHandler handlerBefore = Thread.getDefaultUncaughtExceptionHandler();
+
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread thread, Throwable throwable) {
+                IssueCollector.collect(throwable);
+                throwable.printStackTrace();
+            }
+        });
+
+        final GossipEventDispatcher eventDispatcher = new GossipEventDispatcher();
+
+        eventDispatcher.listeners.add(new GossipListener() {
+            @Override
+            public void onGossipEvent(GossipEvent e) {
+                throw new RuntimeException();
+            }
+        });
+        eventDispatcher.start();
+        eventDispatcher.notifyListeners(new GossipEvent(null, false));
+
+        saveSleep(20);
+
+        Thread.setDefaultUncaughtExceptionHandler(handlerBefore);
+
+        Assert.assertEquals("There were uncatched exceptions", 0, IssueCollector.amountOfIndicidents());
     }
 }
