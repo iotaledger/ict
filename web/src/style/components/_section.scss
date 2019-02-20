@@ -1,0 +1,36 @@
+section {
+	padding: 32px 50px;
+
+	@include layout(tablet) {
+		padding: 100px 20px 32px;
+	}
+
+	h1 {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		text-transform: uppercase;
+		font-size: 30px;
+		margin-bottom: 48px;
+		font-weight: 200;
+		color: $color-header;
+
+		nav {
+			display: flex;
+			align-items: center;
+			> * {
+				margin-left: 14px;
+			}
+		}
+
+		@include layout(mobile) {
+			display: block;
+
+			nav {
+				> * {
+					margin: 14px 14px 0 0;
+				}
+			}
+		}
+	}
+}
