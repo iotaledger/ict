@@ -17,7 +17,7 @@ public class Constants {
     public static final String ICT_VERSION = "0.5-SNAPSHOT";
     public static final String ICT_REPOSITORY = "iotaledger/ict";
     public static final String DEFAULT_PROPERTY_FILE_PATH = "ict.cfg";
-    public static final String WEB_GUI_PATH = "web/";
+    public static final String WEB_GUI_PATH = "web/dist/";
 
     public static final int MAX_NEIGHBOR_COUNT = 3;
     public static final int TRANSACTION_SIZE_TRITS = Transaction.Field.NONCE.tritOffset + Transaction.Field.NONCE.tritLength;
