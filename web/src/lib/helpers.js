@@ -1,5 +1,8 @@
 export const toDate = (timestamp, long) => {
-	const date = new Date(timestamp).toLocaleString().replace(',', '');
+	const date = new Date(timestamp)
+		.toLocaleString('en-GB', { hour12: false })
+		.replace(/\//g, '.')
+		.replace(',', '');
 	return long ? date.substr(0, date.length - 3) : date.substr(-8, 5);
 };
 

@@ -112,17 +112,19 @@ class Neighbors extends Component {
 			<section className="neighbors">
 				<h1>
 					Neighbors
-					<button
-						className="button success"
-						type="button"
-						onClick={() =>
-							this.setState({
-								formVisible: true
-							})
-						}
-					>
-						Add new
-					</button>
+					<nav>
+						<button
+							className="button success"
+							type="button"
+							onClick={() =>
+								this.setState({
+									formVisible: true
+								})
+							}
+						>
+							Add new
+						</button>
+					</nav>
 				</h1>
 				{removeConfirm && (
 					<Popup

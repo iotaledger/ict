@@ -42,8 +42,8 @@ class Log extends Component {
 								Export
 							</button>
 						</nav>
-						{logs.reverse().map(({ timestamp, level, message }) => (
-							<p key={timestamp} className={level.toLowerCase()}>
+						{logs.reverse().map(({ timestamp, level, message }, index) => (
+							<p key={index} className={level.toLowerCase()}>
 								<strong>{toDate(timestamp, true)}</strong>
 								<span>{message}</span>
 							</p>

@@ -15,7 +15,10 @@ const defaultState = {
 	installError: null,
 	removeModule: null,
 	removing: null,
-	removingError: null
+	removingError: null,
+	updateModule: false,
+	updating: false,
+	updatingError: null
 };
 
 class Modules extends Component {
@@ -44,7 +47,7 @@ class Modules extends Component {
 		const { installModule } = this.state;
 
 		this.setState({
-			installing: true
+			updating: true
 		});
 
 		const { error } = await set('addModule', { user_slash_repo: installModule });
@@ -55,6 +58,25 @@ class Modules extends Component {
 			this.setState({
 				installError: error,
 				installing: false
+			});
+		}
+	};
+
+	updateModule = async () => {
+		const { path, version } = this.state.updateModule;
+
+		this.setState({
+			updating: true
+		});
+
+		const { error } = await set('updateModule', { path, version });
+
+		if (!error) {
+			this.init();
+		} else {
+			this.setState({
+				updatingError: error,
+				updating: false
 			});
 		}
 	};
@@ -87,7 +109,10 @@ class Modules extends Component {
 			removing,
 			installing,
 			installError,
-			removingError
+			removingError,
+			updating,
+			updateModule,
+			updatingError
 		} = this.state;
 
 		const installedModules = modules.map(({ name }) => name);
@@ -149,6 +174,22 @@ class Modules extends Component {
 							</p>
 						</Popup>
 					)}
+
+					{updateModule && (
+						<Popup
+							onConfirm={this.updateModule}
+							type="success"
+							cta="Update"
+							loading={updating}
+							onClose={() => this.setState({ updateModule: null, updating: null, updatingError: null })}
+						>
+							<p>
+								Update module <strong>{updateModule.path}</strong> to version <strong>{updateModule.version}</strong>?
+								{updatingError && <small className="error">{updatingError}</small>}
+							</p>
+						</Popup>
+					)}
+
 					{modules.length > 0 && (
 						<div className="module-list">
 							<h3>Installed</h3>
@@ -169,7 +210,11 @@ class Modules extends Component {
 													Launch
 												</a>
 												{update && (
-													<button className="button small" onClick={this.saveConfig} type="button">
+													<button
+														className="button small"
+														onClick={() => this.setState({ updateModule: { path, version: update } })}
+														type="button"
+													>
 														Update
 													</button>
 												)}

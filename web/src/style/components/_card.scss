@@ -18,6 +18,7 @@
 	animation-fill-mode: forwards;
 	opacity: 0;
 	transform: translate(0, 30px);
+	border-radius: 6px;
 
 	@for $i from 2 through 20 {
 		&:nth-of-type(#{$i}) {
@@ -45,6 +46,7 @@
 		user-select: all;
 		color: $color-primary;
 		border-bottom: 1px solid $color-box-divider;
+		border-radius: 6px 6px 0 0;
 	}
 
 	> div {
@@ -81,7 +83,7 @@
 		border: 1px solid $color-input-border;
 		border-radius: 3px;
 		font-size: 12px;
-		padding: 8px;
+		padding: 10px;
 		margin-bottom: 16px;
 	}
 

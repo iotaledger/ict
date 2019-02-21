@@ -93,7 +93,7 @@ class Configuration extends Component {
 							loading={loading}
 							onClose={() => this.setState({ shouldConfirm: null, error: null })}
 						>
-							Save changes to configuration?
+							<p>Save changes to configuration?</p>
 							{error && <small className="error">{error}</small>}
 						</Popup>
 					)}
