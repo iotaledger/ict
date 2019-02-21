@@ -68,6 +68,8 @@ public class Ict extends RestartableThread implements IctInterface {
     @Override
     public void run() {
         while (isRunning()) {
+            if(!Constants.TESTING)
+                Updater.checkForUpdatesIfYouHaveNotDoneSoInALongTime(moduleHolder);
             synchronized (notifySyncObject) {
                 try {
                     notifySyncObject.wait(Math.max(1, Math.min(roundStart + properties.roundDuration() - System.currentTimeMillis(), 30000)));
@@ -82,8 +84,6 @@ public class Ict extends RestartableThread implements IctInterface {
                 eventDispatcher.log();
                 roundStart = System.currentTimeMillis();
             }
-            if(!Constants.TESTING)
-                Updater.checkForUpdatesIfYouHaveNotDoneSoInALongTime(moduleHolder);
         }
     }
 

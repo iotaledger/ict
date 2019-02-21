@@ -144,7 +144,9 @@ public class JsonIct {
         IxiModuleHolder holder = ict.getModuleHolder();
         for (IxiModule module : holder.getModules()) {
             IxiModuleInfo info = holder.getInfo(module);
+            String update = info.getUpdate();
             JSONObject moduleJSON = info.toJSON();
+            if(update != null) moduleJSON.put("update", update);
             moduleJSON.put("configurable", module.getContext().getConfiguration() != null);
             modules.put(moduleJSON);
         }

@@ -17,7 +17,7 @@ public class IxiModuleInfo {
     public final String name;
     public final String mainClass;
     public final String description;
-    public String update = null;
+    private String update = null;
     public int guiPort;
     private final String path;
     public final JSONArray supportedVersions;
@@ -48,6 +48,10 @@ public class IxiModuleInfo {
         json.put("main_class", mainClass);
         json.put("supported_versions", supportedVersions);
         return json;
+    }
+
+    public String getUpdate() {
+        return update;
     }
 
     public void checkForUpdate() {
