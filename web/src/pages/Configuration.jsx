@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Cookies from 'js-cookie';
 
 import Card from '../components/Card';
 import Popup from '../components/Popup';
@@ -51,6 +52,9 @@ class Configuration extends Component {
 		const { error } = await set('setConfig', { config: JSON.stringify(config) });
 
 		if (!error) {
+			if (config.gui_password) {
+				Cookies.set('password', config.gui_password);
+			}
 			this.init();
 		} else {
 			this.setState({

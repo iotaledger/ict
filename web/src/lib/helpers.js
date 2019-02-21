@@ -7,3 +7,16 @@ export const moduleURI = (name, port) => {
 	let url = `${window.location.protocol}//${window.location.hostname}`;
 	return port ? `${url}:${port}/` : `${url}:${window.location.port}/modules/${name}/`;
 };
+
+export const downloadFile = (fileName, content) => {
+	var element = document.createElement('a');
+	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + content);
+	element.setAttribute('download', fileName);
+
+	element.style.display = 'none';
+	document.body.appendChild(element);
+
+	element.click();
+
+	document.body.removeChild(element);
+};
