@@ -1,6 +1,6 @@
 export const toDate = (timestamp, long) => {
-	const date = new Date(timestamp).toISOString().replace('T', ' ');
-	return long ? date.substr(0, 16) : date.substr(-13, 5);
+	const date = new Date(timestamp).toLocaleString().replace(',', '');
+	return long ? date.substr(0, date.length - 3) : date.substr(-8, 5);
 };
 
 export const moduleURI = (name, port) => {

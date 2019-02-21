@@ -153,7 +153,7 @@ class Modules extends Component {
 						<div className="module-list">
 							<h3>Installed</h3>
 							<ul>
-								{modules.map(({ name, repo, update, path, description, gui_port }) => (
+								{modules.map(({ name, repository, update, path, description, gui_port }) => (
 									<li onClick={this.setModule(name)} key={path} className={activeModule === name ? 'active' : ''}>
 										<h4>
 											<Icon size={20} icon="info" />
@@ -183,7 +183,7 @@ class Modules extends Component {
 											</nav>
 										</h4>
 										<p>{description}</p>
-										<a href={`https://github.com/${repo}`} target="_blank" rel="noopener noreferrer">
+										<a href={`https://github.com/${repository}`} target="_blank" rel="noopener noreferrer">
 											<Icon size={12} icon="link" />
 											Visit GitHub Repo
 										</a>

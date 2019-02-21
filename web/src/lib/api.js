@@ -7,7 +7,7 @@ export const get = async (route, password, params) => {
 
 		const body = stringify(payload);
 
-		const response = await fetch(`http://localhost:2187/get${route.charAt(0).toUpperCase() + route.slice(1)}`, {
+		const response = await fetch(`/get${route.charAt(0).toUpperCase() + route.slice(1)}`, {
 			headers: {
 				'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
 			},
@@ -42,7 +42,7 @@ export const set = async (route, payload) => {
 
 		const body = stringify(payload);
 
-		const response = await fetch(`http://localhost:2187/${route}`, {
+		const response = await fetch(`/${route}`, {
 			headers: {
 				'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
 			},

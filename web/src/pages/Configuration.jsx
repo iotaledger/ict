@@ -98,7 +98,7 @@ class Configuration extends Component {
 							<Card title={title} key={title}>
 								{items.map(
 									({ name, label }) =>
-										config[name] && (
+										name in config && (
 											<label key={name} htmlFor={name}>
 												{label} <input id={name} type="text" onChange={this.updateEntry(name)} value={config[name]} />
 											</label>
