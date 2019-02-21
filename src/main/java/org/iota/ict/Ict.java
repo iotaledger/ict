@@ -3,6 +3,7 @@ package org.iota.ict;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.api.RestApi;
+import org.iota.ict.ixi.IxiModule;
 import org.iota.ict.ixi.IxiModuleHolder;
 import org.iota.ict.model.RingTangle;
 import org.iota.ict.model.Tangle;
@@ -42,7 +43,6 @@ public class Ict extends RestartableThread implements IctInterface {
     protected FinalProperties properties;
     public final static Logger LOGGER = LogManager.getLogger("Ict");
     protected long roundStart = System.currentTimeMillis();
-    protected static long lastCheckedForUpdate = System.currentTimeMillis();
 
     protected Object notifySyncObject = new Object();
 
@@ -83,7 +83,7 @@ public class Ict extends RestartableThread implements IctInterface {
                 roundStart = System.currentTimeMillis();
             }
             if(!Constants.TESTING)
-                Updater.checkForUpdatesIfYouHaveNotDoneSoInALongTime();
+                Updater.checkForUpdatesIfYouHaveNotDoneSoInALongTime(moduleHolder);
         }
     }
 

@@ -1,5 +1,8 @@
 package org.iota.ict.ixi;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.iota.ict.Ict;
 import org.iota.ict.api.GithubGateway;
 import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.VersionComparator;
@@ -14,9 +17,12 @@ public class IxiModuleInfo {
     public final String name;
     public final String mainClass;
     public final String description;
+    public String update = null;
     public int guiPort;
     private final String path;
     public final JSONArray supportedVersions;
+
+    private static final Logger LOGGER = LogManager.getLogger("ModuleInfo");
 
     public IxiModuleInfo(JSONObject json, String path) throws JSONException {
         version = json.getString("version");
@@ -44,14 +50,16 @@ public class IxiModuleInfo {
         return json;
     }
 
-    public String checkForUpdate() {
+    public void checkForUpdate() {
+        LOGGER.info("checking module '"+name+"' for updates ...");
         try {
             String versionsString = GithubGateway.getContents(repository, "master", "versions.json");
             JSONObject versions = new JSONObject(versionsString);
-            String latestCompatibleVersion = versions.getString(Constants.ICT_VERSION);
-            return VersionComparator.getInstance().compare(latestCompatibleVersion, version) > 0 ? latestCompatibleVersion : null;
+            String latestCompatibleVersion = versions.has(Constants.ICT_VERSION) ? versions.getString(Constants.ICT_VERSION) : "0";
+            update = VersionComparator.getInstance().compare(latestCompatibleVersion, version) > 0 ? latestCompatibleVersion : null;
+            LOGGER.info((update == null ? "No update" : "Update to version "+update) + " available for module '" + name + "'.");
         } catch (Throwable t) {
-            return null;
+            LOGGER.error("Could not check repository '"+repository+"' for updates.", t);
         }
     }
 
