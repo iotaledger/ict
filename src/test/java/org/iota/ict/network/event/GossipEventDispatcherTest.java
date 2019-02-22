@@ -2,6 +2,7 @@ package org.iota.ict.network.event;
 
 import org.iota.ict.Ict;
 import org.iota.ict.IctTestTemplate;
+import org.iota.ict.model.Transaction;
 import org.iota.ict.model.TransactionBuilder;
 import org.iota.ict.utils.IssueCollector;
 import org.junit.Assert;
@@ -59,12 +60,13 @@ public class GossipEventDispatcherTest extends IctTestTemplate {
             }
         });
         eventDispatcher.start();
-        eventDispatcher.notifyListeners(new GossipEvent(null, false));
+        eventDispatcher.notifyListeners(new GossipEvent(Transaction.NULL_TRANSACTION, false));
 
         saveSleep(20);
 
         Thread.setDefaultUncaughtExceptionHandler(handlerBefore);
 
+        IssueCollector.log();
         Assert.assertEquals("There were uncatched exceptions", 0, IssueCollector.amountOfIndicidents());
     }
 }

@@ -187,7 +187,7 @@ public class JsonIct {
             return success();
         } catch (Throwable t) {
             nmoduleBeingCurrentlyInstalled = null;
-            throw new RuntimeException("Installation of module '" + repository + "' failed: " + t.getMessage(), t);
+            throw new RuntimeException("Installation of module '" + repository + "' failed: " + (t.getMessage() != null ? t.getMessage()  : t.getClass().getName()), t);
         } finally {
             nmoduleBeingCurrentlyInstalled = null;
         }
@@ -198,6 +198,8 @@ public class JsonIct {
         try {
             String versionsString = GithubGateway.getContents(repository, "master", "versions.json");
             JSONObject versions = new JSONObject(versionsString);
+            if(!versions.has(Constants.ICT_VERSION))
+                LOGGER.warn("versions.json of repository '"+repository+"' does not specify recommended module version for Ict version " + Constants.ICT_VERSION);
             String label = versions.getString(Constants.ICT_VERSION);
             if (label != null)
                 return label;
