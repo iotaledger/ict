@@ -333,12 +333,7 @@ public class Main {
     public static void main(String[] args) {
 
         Main.args = args;
-
         Constants.TESTING = false;
-
-        System.out.println();
-        Updater.checkForUpdatesIfYouHaveNotDoneSoInALongTime();
-        System.out.println();
 
         Properties ictProperties = processCmdLineArgs(args);
 

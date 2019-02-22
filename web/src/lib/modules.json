@@ -1,0 +1,7 @@
+[
+	{
+		"name": "CHAT.ixi",
+		"repo": "mikrohash/chat.ixi",
+		"description": "CHAT.ixi is an IXI (IOTA eXtension Interface) module for the Iota Controlled agenT (Ict). It extends the functionality of the core Ict client with a chat application which allows users in the Ict network to exchange messages on a permissionless, distributed data-integrity protocol - the Tangle."
+	}
+]

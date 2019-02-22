@@ -1,0 +1,74 @@
+.popup {
+	position: fixed;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	top: 0px;
+	left: 0px;
+	width: 100vw;
+	height: 100vh;
+	overflow: hidden;
+	z-index: 10;
+
+	&:before {
+		content: '';
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		background: $color-sidebar-bg;
+		opacity: 0.8;
+	}
+
+	.x {
+		background: none;
+		display: block;
+		width: 38px;
+		height: 38px;
+		line-height: 44px;
+		cursor: pointer;
+		margin-right: -10px;
+
+		path {
+			fill: $color-body;
+		}
+		&:hover {
+			opacity: 0.75;
+		}
+	}
+
+	.card {
+		min-width: 480px;
+		border-radius: 0px;
+
+		p{
+			font-size: 13px;
+			line-height: 20px;
+		}
+
+		@include layout(mobile) {
+			min-width: 0px;
+			width: 100vw;
+		}
+
+		input {
+			max-width: 100%;
+		}
+	}
+
+	.confirm {
+		margin-top: 12px;
+		text-align: right;
+
+		button{
+			margin-left: 16px;
+		}
+	}
+
+	&.loading {
+		pointer-events: none;
+		fieldset button:first-of-type {
+			pointer-events: none;
+			@include loading();
+		}
+	}
+}

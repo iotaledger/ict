@@ -33,9 +33,10 @@ cd ict
 # 3) build the runnable .jar file (you will need Gradle)
 gradle fatJar
 
-#4) install the web gui dependencies
+#4) install dependencies and build the web gui
 cd web
 npm install
+npm run build
 ```
 
 ### Running the Client
