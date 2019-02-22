@@ -47,7 +47,7 @@ class Modules extends Component {
 		const { installModule } = this.state;
 
 		this.setState({
-			updating: true
+			installing: true
 		});
 
 		const { error } = await set('addModule', { user_slash_repo: installModule });
@@ -143,7 +143,7 @@ class Modules extends Component {
 										Format: <strong>username/repository</strong> or Github URL
 									</p>
 									<label htmlFor="newAddress">
-										Node address
+										GitHub repository
 										<input
 											type="text"
 											id="newAddress"
