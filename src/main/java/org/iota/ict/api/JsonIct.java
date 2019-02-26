@@ -187,7 +187,7 @@ public class JsonIct {
             return success();
         } catch (Throwable t) {
             nmoduleBeingCurrentlyInstalled = null;
-            throw new RuntimeException("Installation of module '" + repository + "' failed: " + (t.getMessage() != null ? t.getMessage()  : t.getClass().getName()), t);
+            throw new RuntimeException("Installation of module '" + repository + "' failed: " + t, t);
         } finally {
             nmoduleBeingCurrentlyInstalled = null;
         }
