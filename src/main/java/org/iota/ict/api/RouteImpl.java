@@ -298,7 +298,7 @@ class RouteGetConfig extends RouteImpl {
 
 /**
  * @api {post} /setConfig/ setConfig
- * @apiParam {Object} config Ict configuration settings to update for the node. The `config` object must be in the same structure as the one returned from the [`getConfig`](#getConfig) endpoint and include all fields.
+ * @apiParam {Object} config Ict configuration settings to update for the node. The `config` object must be in the same structure as the one returned from the [`getConfig`](#getConfig) endpoint and must include all fields.
  * @apiDescription Update a node's Ict configuration settings. The new configuration settings are stored in the ict.cfg file.
  * Depending on the exact changes, the node might be restarted to apply the changes.
  * @apiName setConfig
@@ -948,7 +948,7 @@ class RouteGetModuleConfig extends RouteImpl {
 /**
  * @api {post} /setModuleConfig/ setModuleConfig
  * @apiUse modulePathParam
- * @apiParam {Object} config The new configuration object. The `config` object must be in the same structure as the one returned from the [`getModuleConfig`](#getModuleConfig) endpoint and include all fields.
+ * @apiParam {Object} config The new configuration object. The `config` object must be in the same structure as the one returned from the [`getModuleConfig`](#getModuleConfig) endpoint and must include all fields.
  * @apiDescription Change the configuration settings of a given IXI module that's installed on a node. The new configuration settings are stored in the module's .cfg file.
  * @apiName SetModuleConfig
  * @apiGroup Modules
