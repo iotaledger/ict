@@ -44,27 +44,105 @@ public abstract class RouteImpl implements Route {
         return new JSONObject().put("error", message).put("success", false);
     }
 }
+/**
+ * @apiDefine basicSuccess
+ * @apiSuccess {Object} success `true` if the action was successful, `false` if there was an error.
+ * @apiSuccessExample {json} 200 Success
+ *     {
+ *      "success": true
+ *     }
+ */
+
+ /**
+ * @apiDefine neighborParam
+ * @apiParam {String} address Address of the neighbor node to remove. Addresses must be in the following format: `HOST:PORT` (for example, `example.org:1337`).
+ */
 
 /**
- * @api {post} /getInfo/ GetInfo
- * @apiDescription  Provides general information about the Ict node.
- * @apiName GetInfo
+ * @apiDefine modulePathParam
+ * @apiParam {String} path Relative path of the module in the `modules/` directory.
+ */
+
+ /**
+  * @apiDefine moduleNotFoundErrorExample
+  * @apiErrorExample {json} ModuleNotFound Error
+  * {
+  * "success": false,
+  * "error": "No module 'chat.ixi.jar' installed."
+  * }
+  */
+
+/**
+ * @api {post} /getInfo/ getInfo
+ * @apiDescription  Get general information about a node, including whether updates are available, the current version of the Ict that it's running, and the default configuration settings.
+ * @apiName getInfo
+ * @apiExample {curl} Curl
+ * curl http://localhost:2187/getInfo \
+ * -X POST \
+ * -H 'Content-Type: application/x-www-form-urlencoded' \
+ * -d 'password=change_me_now'
+ * @apiExample {js} NodeJS
+ * var request = require('request');
+ *
+ * var password = "password=change_me_now";
+ *                
+ * var options = {
+ * url: 'http://localhost:2187/getInfo',
+ * method: 'POST',
+ * headers: {
+ * 'Content-Type': 'application/x-www-form-urlencoded'
+ * },
+ * form: password
+ * };
+ *
+ * request(options, function (error, response, data) {
+ *   if (!error && response.statusCode == 200) {
+ *       var result = JSON.parse(data);
+ *       console.log(JSON.stringify(result, null, 1));
+ *   }
+ * });
+ * @apiExample {python} Python
+ * import json
+ * import urllib3
+ * 
+ * password = 'password=change_me_now'
+ * 
+ * headers = {
+ *    'content-type': 'application/x-www-form-urlencoded'
+ * }
+ * 
+ * http = urllib3.PoolManager()
+ * 
+ * response = http.request('POST', 'http://localhost:2187/getInfo', body=password, headers=headers)
+ * 
+ * results = json.loads(response.data.decode('utf-8'))
+ * 
+ * print(json.dumps(results, indent=1, sort_keys=True))
  * @apiGroup General
  * @apiVersion 0.4.0
- * @apiSuccess {String} version Currently installed Ict version.
- * @apiSuccess {String} update Version of available update, unset if no update available.
- * @apiSuccess {Object} default_config Default Ict configuration. **Not the custom configuration of the node.**
- * @apiSuccessExample {json} Success-Response:
- *     {
- *         "version": "0.5.0"
- *         "update": "0.6.0",
- *         "default_config": {
- *            "name": "ict",
- *            "round_duration": 60000,
- *             ...
- *         }
- *         "success": true,
- *     }
+ * @apiSuccess {String} version Version of the Ict
+ * @apiSuccess {String} update Version of the latest Ict version. This field is returned only if a version is available that's newer than the value of the `version` field.
+ * @apiSuccess {Object} default_config Default configuration settings. **Not the custom configuration of the node.**
+ * @apiSuccessExample {json} 200 Success
+ * {
+ * "default_config": {
+ *     "anti_spam_abs": 1000,
+ *     "gui_enabled": true,
+ *     "gui_password": "change_me_now",
+ *     "gui_port": 2187,
+ *     "host": "0.0.0.0",
+ *     "max_forward_delay": 200,
+ *     "max_heap_size": 1.01,
+ *     "min_forward_delay": 0,
+ *     "name": "ict",
+ *     "neighbors": [],
+ *     "port": 1337,
+ *     "round_duration": 60000,
+ *     "tangle_capacity": 10000
+ *     },
+ * "success": true,
+ * "version": "0.5"
+ * }
  */
 class RouteGetInfo extends RouteImpl {
 
@@ -77,15 +155,55 @@ class RouteGetInfo extends RouteImpl {
 }
 
 /**
- * @api {post} /update/ Update
- * @apiParam {String} version Version to update to. Use the version provided in the `update` field returned by [GetInfo](#api-General-GetInfo).
- * @apiDescription Downloads the latest Ict version.
- * @apiName Update
+ * @api {post} /update/ update
+ * @apiParam {String} version Version of the Ict to download.
+ * @apiDescription Download the given Ict version on a node. To check if a newer version of the Ict is available, use the [`getInfo`](#getInfo) endpoint.
+ * @apiName update
+ * @apiExample {curl} Curl
+ * curl http://localhost:2187/update \
+ * -X POST \
+ * -H 'Content-Type: application/x-www-form-urlencoded' \
+ * -d 'password=change_me_now&version=0.5'
+ * @apiExample {js} NodeJS
+ * var request = require('request');
+ *
+ * var data = "password=change_me_now&version=0.5";
+ *                
+ * var options = {
+ * url: 'http://localhost:2187/update',
+ * method: 'POST',
+ * headers: {
+ * 'Content-Type': 'application/x-www-form-urlencoded'
+ * },
+ * form: data
+ * };
+ *
+ * request(options, function (error, response, data) {
+ *   if (!error && response.statusCode == 200) {
+ *       var result = JSON.parse(data);
+ *       console.log(JSON.stringify(result, null, 1));
+ *   }
+ * });
+ * @apiExample {python} Python
+ * import json
+ * import urllib3
+ * 
+ * data = 'password=change_me_now&version=0.5'
+ * 
+ * headers = {
+ *    'content-type': 'application/x-www-form-urlencoded'
+ * }
+ * 
+ * http = urllib3.PoolManager()
+ * 
+ * response = http.request('POST', 'http://localhost:2187/update', body=data, headers=headers)
+ * 
+ * results = json.loads(response.data.decode('utf-8'))
+ * 
+ * print(json.dumps(results, indent=1, sort_keys=True))
  * @apiGroup General
  * @apiVersion 0.4.0
- * @apiSuccess {Object} success `true` if the action was successful, `false` if there was an error.
- * @apiSuccessExample {json} Success-Response:
- *     { "success": true }
+ * @apiUse basicSuccess
  */
 class RouteUpdate extends RouteImpl {
 
@@ -98,21 +216,75 @@ class RouteUpdate extends RouteImpl {
     }
 }
 /**
- * @api {post} /getConfig/ GetConfig
- * @apiDescription Provides the current configuration of the running Ict node instance.
- * @apiName GetConfig
+ * @api {post} /getConfig/ getConfig
+ * @apiDescription Get a node's Ict configuration settings.
+ * @apiName getConfig
  * @apiGroup Config
+ * @apiExample {curl} Curl
+ * curl http://localhost:2187/getConfig \
+ * -X POST \
+ * -H 'Content-Type: application/x-www-form-urlencoded' \
+ * -d 'password=change_me_now'
+ * @apiExample {js} NodeJS
+ * var request = require('request');
+ *
+ * var password = "password=change_me_now";
+ *                
+ * var options = {
+ * url: 'http://localhost:2187/getConfig',
+ * method: 'POST',
+ * headers: {
+ * 'Content-Type': 'application/x-www-form-urlencoded'
+ * },
+ * form: password
+ * };
+ *
+ * request(options, function (error, response, data) {
+ *   if (!error && response.statusCode == 200) {
+ *       var result = JSON.parse(data);
+ *       console.log(JSON.stringify(result, null, 1));
+ *   }
+ * });
+ * @apiExample {python} Python
+ * import json
+ * import urllib3
+ * 
+ * password = 'password=change_me_now'
+ * 
+ * headers = {
+ *    'content-type': 'application/x-www-form-urlencoded'
+ * }
+ * 
+ * http = urllib3.PoolManager()
+ * 
+ * response = http.request('POST', 'http://localhost:2187/getConfig', body=password, headers=headers)
+ * 
+ * results = json.loads(response.data.decode('utf-8'))
+ * 
+ * print(json.dumps(results, indent=1, sort_keys=True))
  * @apiVersion 0.4.0
- * @apiSuccess {Object} config Current Ict node configuration.
- * @apiSuccessExample {json} Success-Response:
- *     {
- *         "config": {
- *              "name": "myIct",
- *              "round_duration": 300000,
- *               ...
- *         }
- *         "success": true,
- *     }
+ * @apiSuccess {Object} config Ict configuration settings for the node
+ * @apiSuccessExample {json} 200 Success
+ * {
+ *  "anti_spam_abs": 1000,
+ *  "gui_enabled": true,
+ *  "gui_password": "",
+ *  "gui_port": 2187,
+ *  "host": "0.0.0.0",
+ *  "max_forward_delay": 200,
+ *  "max_heap_size": 1.01,
+ *  "min_forward_delay": 0,
+ *  "name": "ict",
+ *  "neighbors": [
+ *   "URL:PORT",
+ *   "URL:PORT",
+ *   "URL:PORT"
+ *  ],
+ *  "port": 1337,
+ *  "round_duration": 60000,
+ *  "success": true,
+ *  "tangle_capacity": 10000
+ * }
  */
 class RouteGetConfig extends RouteImpl {
 
@@ -125,16 +297,91 @@ class RouteGetConfig extends RouteImpl {
 }
 
 /**
- * @api {post} /setConfig/ SetConfig
- * @apiParam {Object} config The complete configuration object to apply. Must have the same stricture as `config` field returned by [GetConfig](#api-Config-GetConfig).
- * @apiDescription Changes the configuration of the running node instance. The new configuration will be stored in ict.cfg.
+ * @api {post} /setConfig/ setConfig
+ * @apiParam {Object} config Ict configuration settings to update for the node. The `config` object must be in the same structure as the one returned from the [`getConfig`](#getConfig) endpoint and include all fields.
+ * @apiDescription Update a node's Ict configuration settings. The new configuration settings are stored in the ict.cfg file.
  * Depending on the exact changes, the node might be restarted to apply the changes.
- * @apiName SetConfig
+ * @apiName setConfig
  * @apiGroup Config
+ * @apiExample {curl} Curl
+ * curl http://localhost:2187/setConfig \
+ * -X POST \
+ * -H 'Content-Type: application/x-www-form-urlencoded' \
+ * -d 'password=change_me_now&config={"anti_spam_abs": 1000,
+ * "gui_enabled": true,"gui_password": "change_me_now",
+ * "gui_port": 2187,"host": "0.0.0.0","max_forward_delay": 200,
+ * "max_heap_size": 1.01,"min_forward_delay": 0,"name": "ict",
+ * "neighbors": ["URL:PORT","URL:PORT","URL:PORT"],"port": 1337,
+ * "round_duration": 60000,"tangle_capacity": 1000}'
+ * @apiExample {js} NodeJS
+ * var request = require('request');
+ * 
+ * var config = {
+ *   anti_spam_abs: 1000,
+ *   gui_enabled: true,
+ *   gui_password: "change_me_now",
+ *   gui_port: 2187,
+ *   host: "0.0.0.0",
+ *   max_forward_delay: 200,
+ *   max_heap_size: 1.01,
+ *   min_forward_delay: 0,
+ *   name: "ict",
+ *   neighbors: ["URL:PORT","URL:PORT","URL:PORT"],
+ *   port: 1337,
+ *   round_duration: 60000,
+ *   tangle_capacity: 1000
+ *   };
+ * 
+ * var data = "password=change_me_now&config=" + JSON.stringify(config);
+ * 
+ * var options = {
+ *   url: 'http://localhost:2187/setConfig',
+ *   method: 'POST',
+ *   headers: {
+ *     'Content-Type': 'application/x-www-form-urlencoded'
+ *   },
+ *   form: data
+ * };
+ * 
+ * request(options, function (error, response, data) {
+ *   if (!error && response.statusCode == 200) {
+ *     var result = JSON.parse(data);
+ *     console.log(JSON.stringify(result, null, 1));
+ *   }
+ * });
+ * @apiExample {python} Python
+ * import json
+ * import urllib3
+ *
+ * config = {
+ *  'anti_spam_abs': 1000,
+ *  'gui_enabled': True,
+ *  'gui_password': 'change_me_now',
+ *  'gui_port': 2187,
+ *  'host': '0.0.0.0',
+ *  'max_forward_delay': 200,
+ *  'max_heap_size': 1.01,
+ *  'min_forward_delay': 0,
+ *  'name': 'ict',
+ *  'neighbors': ('URL:PORT', 'URL:PORT', 'URL:PORT'),
+ *  'port': 1337,
+ *  'round_duration': 60000,
+ *  'tangle_capacity': 1000
+ * }
+ *
+ * data = 'password=change_me_now&config={}'.format(json.dumps(config))
+ *
+ * headers = {
+ *    'content-type': 'application/x-www-form-urlencoded'
+ * }
+ *
+ * http = urllib3.PoolManager()
+ * response = http.request('POST', 'http://localhost:2187/setConfig', body=data, headers=headers)
+ * results = json.loads(response.data.decode('utf-8'))
+ *
+ * print(json.dumps(results, indent=2, sort_keys=True))
  * @apiVersion 0.4.0
- * @apiSuccess {Object} success `true` if the action was successful, `false` if there was an error.
- * @apiSuccessExample {json} Success-Response:
- *     {"success": true }
+ * @apiUse basicSuccess
  */
 class RouteSetConfig extends RouteImpl {
 
@@ -147,26 +394,69 @@ class RouteSetConfig extends RouteImpl {
 }
 
 /**
- * @api {post} /getNeighbors/ GetNeighbors
- * @apiDescription Returns all neighbors the Ict node is currently connected to. Also includes stats of the most recent rounds.
- * @apiName GetNeighbors
+ * @api {post} /getNeighbors/ getNeighbors
+ * @apiDescription Get all neighbors that a node is connected to and the statistics for their most recent communications.
+ * @apiName getNeighbors
  * @apiGroup Neighbors
+ * @apiExample {curl} Curl
+ * curl http://localhost:2187/getNeighbors \
+ * -X POST \
+ * -H 'Content-Type: application/x-www-form-urlencoded' \
+ * -d 'password=change_me_now'
+ * @apiExample {js} NodeJS
+ * var request = require('request');
+ *
+ * var password = "password=change_me_now";
+ *                
+ * var options = {
+ * url: 'http://localhost:2187/getNeighbors',
+ * method: 'POST',
+ * headers: {
+ * 'Content-Type': 'application/x-www-form-urlencoded'
+ * },
+ * form: password
+ * };
+ *
+ * request(options, function (error, response, data) {
+ *   if (!error && response.statusCode == 200) {
+ *       var result = JSON.parse(data);
+ *       console.log(JSON.stringify(result, null, 1));
+ *   }
+ * });
+ * @apiExample {python} Python
+ * import json
+ * import urllib3
+ * 
+ * password = 'password=change_me_now'
+ * 
+ * headers = {
+ *    'content-type': 'application/x-www-form-urlencoded'
+ * }
+ * 
+ * http = urllib3.PoolManager()
+ * 
+ * response = http.request('POST', 'http://localhost:2187/getNeighbors', body=password, headers=headers)
+ * 
+ * results = json.loads(response.data.decode('utf-8'))
+ * 
+ * print(json.dumps(results, indent=1, sort_keys=True))
  * @apiVersion 0.4.0
- * @apiSuccess {Array} neighbors Array of all neighbors. For each neighbor, contains the node `address` and transaction `stats` of the previous rounds.
- * @apiSuccessExample {json} Success-Response:
- *     {
- *         "neighbors": [
+ * @apiSuccess {Array} neighbors All neighbors that the node is connected to
+ * @apiSuccessExample {json} 200 Success
+ * {
+ *  "neighbors": [
  *             {
- *                 "address": "http://example.org:1337",
- *                 "stats": [
- *                     {"timestamp": 1547437313, "all": 192, new": 76, "requested": 3, "invalid": 0, "ignored": 5},
+ *              "address": "http://example.com:1337",
+ *              "stats": [
+ *                     {
+ *                      "timestamp": 1547437313, "all": 192, "new": 76, "requested": 3, "invalid": 0, "ignored": 5},
  *                     ...
  *                 ]
 *              },
  *             ...
  *         ]
- *         "success": true
- *     }
+ *  "success": true
+ * }
  */
 class RouteGetNeighbors extends RouteImpl {
 
@@ -178,20 +468,65 @@ class RouteGetNeighbors extends RouteImpl {
 }
 
 /**
- * @api {post} /addNeighbor/ AddNeighbor
- * @apiParam {String} address Address of the neighbor node. Format: `HOST:IP` (e.g. `example.org:1337`).
- * @apiDescription Adds a neighbor to the current Ict instance.
- * @apiName AddNeighbor
+ * @api {post} /addNeighbor/ addNeighbor
+ * @apiUse neighborParam
+ * @apiDescription Add a given neighbor to a node.
+ * @apiName addNeighbor
  * @apiGroup Neighbors
+ * @apiExample {curl} Curl
+ * curl http://localhost:2187/addNeighbor \
+ * -X POST \
+ * -H 'Content-Type: application/x-www-form-urlencoded' \
+ * -d 'password=change_me_now&address=example.com:1337'
+ * @apiExample {js} NodeJS
+ * var request = require('request');
+ *
+ * var data = "password=change_me_now&address=example.com:1337";
+ *                
+ * var options = {
+ * url: 'http://localhost:2187/addNeighbor',
+ * method: 'POST',
+ * headers: {
+ * 'Content-Type': 'application/x-www-form-urlencoded'
+ * },
+ * form: data
+ * };
+ *
+ * request(options, function (error, response, data) {
+ *   if (!error && response.statusCode == 200) {
+ *       var result = JSON.parse(data);
+ *       console.log(JSON.stringify(result, null, 1));
+ *   }
+ * });
+ * @apiExample {python} Python
+ * import json
+ * import urllib3
+ * 
+ * data = 'password=change_me_now&address=example.com:1337'
+ * 
+ * headers = {
+ *    'content-type': 'application/x-www-form-urlencoded'
+ * }
+ * 
+ * http = urllib3.PoolManager()
+ * 
+ * response = http.request('POST', 'http://localhost:2187/addNeighbor', body=data, headers=headers)
+ * 
+ * results = json.loads(response.data.decode('utf-8'))
+ * 
+ * print(json.dumps(results, indent=1, sort_keys=True))
  * @apiVersion 0.4.0
- * @apiSuccess {Object} success `true` if the action was successful, `false` if there was an error.
- * @apiSuccessExample {json} Success-Response:
- *     {"success": true }
+ * @apiUse basicSuccess
  * @apiErrorExample {json} Format Error
- *     {"success": false, "error": "Address does not match required format 'host:port'." }
+ * {
+ * "success": false,
+ * "error": "Address does not match required format 'host:port'."
+ * }
  * @apiErrorExample {json} TooManyNeighbors Error
- *     {"success": false, "error": "Already reached maximum amount of neighbors." }
- * */
+ * {"success": false,
+ * "error": "Already reached maximum amount of neighbors."
+ * }
+ */
 class RouteAddNeighbor extends RouteImpl {
 
     protected RouteAddNeighbor(JsonIct jsonIct) { super(jsonIct, "/addNeighbor"); }
@@ -203,18 +538,61 @@ class RouteAddNeighbor extends RouteImpl {
 }
 
 /**
- * @api {post} /removeNeighbor/ RemoveNeighbor
- * @apiParam {String} address Address of the neighbor node to remove. Format: `HOST:IP` (e.g. `example.org:1337`).
+ * @api {post} /removeNeighbor/ removeNeighbor
+ * @apiUse neighborParam
  * @apiDescription Removes a neighbor from the current Ict instance.
  * @apiName RemoveNeighbor
  * @apiGroup Neighbors
+ * @apiExample {curl} Curl
+ * curl http://localhost:2187/removeNeighbor \
+ * -X POST \
+ * -H 'Content-Type: application/x-www-form-urlencoded' \
+ * -d 'password=change_me_now&address=example.com:1337'
+ * @apiExample {js} NodeJS
+ * var request = require('request');
+ *
+ * var data = "password=change_me_now&address=example.com:1337";
+ *                
+ * var options = {
+ * url: 'http://localhost:2187/removeNeighbor',
+ * method: 'POST',
+ * headers: {
+ * 'Content-Type': 'application/x-www-form-urlencoded'
+ * },
+ * form: data
+ * };
+ *
+ * request(options, function (error, response, data) {
+ *   if (!error && response.statusCode == 200) {
+ *       var result = JSON.parse(data);
+ *       console.log(JSON.stringify(result, null, 1));
+ *   }
+ * });
+ * @apiExample {python} Python
+ * import json
+ * import urllib3
+ * 
+ * data = 'password=change_me_now&address=example.com:1337'
+ * 
+ * headers = {
+ *    'content-type': 'application/x-www-form-urlencoded'
+ * }
+ * 
+ * http = urllib3.PoolManager()
+ * 
+ * response = http.request('POST', 'http://localhost:2187/removeNeighbor', body=data, headers=headers)
+ * 
+ * results = json.loads(response.data.decode('utf-8'))
+ * 
+ * print(json.dumps(results, indent=1, sort_keys=True))
  * @apiVersion 0.4.0
- * @apiSuccess {Object} success `true` if the action was successful, `false` if there was an error.
- * @apiSuccessExample {json} Success-Response:
- *     {"success": true }
+ * @apiUse basicSuccess
  * @apiErrorExample {json} NeighborNotFound Error
- *     {"success": false, "error": "No neighbor with address 'example.org:1337'." }
- * */
+ * {
+ * "success": false,
+ * "error": "No neighbor with address 'example.com:1337'."
+ * }
+ */
 class RouteRemoveNeighbor extends RouteImpl {
 
     protected RouteRemoveNeighbor(JsonIct jsonIct) { super(jsonIct, "/removeNeighbor"); }
@@ -226,20 +604,65 @@ class RouteRemoveNeighbor extends RouteImpl {
 }
 
 /**
- * @api {post} /addModule/ AddModule
- * @apiParam {String} repository GitHub reference to the repository from where to download the module. Format: `username/repository` (e.g. `iotaledger/chat.ixi`)
- * @apiDescription Installs an IXI module by downloading the precompiled .jar file from GitHub.
- * @apiName AddModule
+ * @api {post} /addModule/ addModule
+ * @apiParam {String} user_slash_repo Path to a precompiled .jar file on GitHub in the format `username/repository` (for example, `iotaledger/chat.ixi`)
+ * @apiDescription Install an IXI module by downloading the precompiled .jar file from GitHub.
+ * @apiName addModule
  * @apiGroup Modules
+ * @apiExample {curl} Curl
+ * curl http://localhost:2187/addModule \
+ * -X POST \
+ * -H 'Content-Type: application/x-www-form-urlencoded' \
+ * -d 'password=change_me_now&user_slash_repo=iotaledger/chat.ixi'
+ * @apiExample {js} NodeJS
+ * var request = require('request');
+ *
+ * var data = "password=change_me_now&user_slash_repo=iotaledger/chat.ixi";
+ *                
+ * var options = {
+ * url: 'http://localhost:2187/addModule',
+ * method: 'POST',
+ * headers: {
+ * 'Content-Type': 'application/x-www-form-urlencoded'
+ * },
+ * form: data
+ * };
+ *
+ * request(options, function (error, response, data) {
+ *   if (!error && response.statusCode == 200) {
+ *       var result = JSON.parse(data);
+ *       console.log(JSON.stringify(result, null, 1));
+ *   }
+ * });
+ * @apiExample {python} Python
+ * import json
+ * import urllib3
+ * 
+ * data = 'password=change_me_now&user_slash_repo=iotaledger/chat.ixi'
+ * 
+ * headers = {
+ *    'content-type': 'application/x-www-form-urlencoded'
+ * }
+ * 
+ * http = urllib3.PoolManager()
+ * 
+ * response = http.request('POST', 'http://localhost:2187/addModule', body=data, headers=headers)
+ * 
+ * results = json.loads(response.data.decode('utf-8'))
+ * 
+ * print(json.dumps(results, indent=1, sort_keys=True))
  * @apiVersion 0.4.0
- * @apiSuccess {Object} success `true` if the action was successful, `false` if there was an error.
- * @apiSuccessExample {json} Success-Response:
- *     {"success": true }
+ * @apiUse basicSuccess
  * @apiErrorExample {json} NoReleasesFound Error
- *     {"success": false, "error": "No releases in repository iotaledger/chat.ixi" }
+ * {
+ * "success": false, "error": "No releases in repository iotaledger/chat.ixi"
+ * }
  * @apiErrorExample {json} NoAssetsFound Error
- *     {"success": false, "error": "No assets found in release '1.0'" }
- * */
+ * {
+ * "success": false,
+ * "error": "No assets found in release '1.0'"
+ * }
+ */
 class RouteAddModule extends RouteImpl {
 
     protected RouteAddModule(JsonIct jsonIct) { super(jsonIct, "/addModule"); }
@@ -251,18 +674,57 @@ class RouteAddModule extends RouteImpl {
 }
 
 /**
- * @api {post} /removeModule/ RemoveModule
- * @apiParam {String} path Relative path of the module in the modules/ directory. Use the value of the `path` field returned by [GetModules](#api-Modules-GetModules).
- * @apiDescription Terminates and deletes an installed IXI module.
- * @apiName RemoveModule
+ * @api {post} /removeModule/ removeModule
+ * @apiUse modulePathParam
+ * @apiDescription Deletes an installed IXI module from a node.  To check which modules are installed on a node, use the [GetModules](#getModules) endpoint.
+ * @apiName removeModule
  * @apiGroup Modules
+ * @apiExample {curl} Curl
+ * curl http://localhost:2187/removeModule \
+ * -X POST \
+ * -H 'Content-Type: application/x-www-form-urlencoded' \
+ * -d 'password=change_me_now&path=chat.ixi-1.4.jar'
+ * @apiExample {js} NodeJS
+ * var request = require('request');
+ *
+ * var data = "password=change_me_now&path=chat.ixi-1.4.jar";
+ *                
+ * var options = {
+ * url: 'http://localhost:2187/removeModule',
+ * method: 'POST',
+ * headers: {
+ * 'Content-Type': 'application/x-www-form-urlencoded'
+ * },
+ * form: data
+ * };
+ *
+ * request(options, function (error, response, data) {
+ *   if (!error && response.statusCode == 200) {
+ *       var result = JSON.parse(data);
+ *       console.log(JSON.stringify(result, null, 1));
+ *   }
+ * });
+ * @apiExample {python} Python
+ * import json
+ * import urllib3
+ * 
+ * data = 'password=change_me_now&path=chat.ixi-1.4.jar'
+ * 
+ * headers = {
+ *    'content-type': 'application/x-www-form-urlencoded'
+ * }
+ * 
+ * http = urllib3.PoolManager()
+ * 
+ * response = http.request('POST', 'http://localhost:2187/removeModule', body=data, headers=headers)
+ * 
+ * results = json.loads(response.data.decode('utf-8'))
+ * 
+ * print(json.dumps(results, indent=1, sort_keys=True))
  * @apiVersion 0.4.0
- * @apiSuccess {Object} success `true` if the action was successful, `false` if there was an error.
- * @apiSuccessExample {json} Success-Response:
- *     {"success": true }
- * @apiErrorExample {json} ModuleNotFound Error
- *     {"success": false, "error": "No module 'chat.ixi.jar' installed." }
- * */
+ * @apiUse basicSuccess
+ * @apiUse moduleNotFoundErrorExample
+ */
 class RouteRemoveModule extends RouteImpl {
 
     protected RouteRemoveModule(JsonIct jsonIct) { super(jsonIct, "/removeModule"); }
@@ -274,19 +736,58 @@ class RouteRemoveModule extends RouteImpl {
 }
 
 /**
- * @api {post} /updateModule/ UpdateModule
- * @apiParam {String} path Relative path of the module in the modules/ directory. Use the value of the `path` field returned by [GetModules](#api-Modules-GetModules).
- * @apiParam {String} version Version to install, use the value of the `update` field returned by [GetModules](#api-Modules-GetModules).
- * @apiDescription Installs a different version of the module. Deletes the current version.
- * @apiName UpdateModule
+ * @api {post} /updateModule/ updateModule
+ * @apiUse modulePathParam
+ * @apiParam {String} version Version of the IXI module to install
+ * @apiDescription Delete a module and install a different version of it. To get the latest version of a module, use the [GetModules](#getModules) endpoint.
+ * @apiName updateModule
  * @apiGroup Modules
+ * @apiExample {curl} Curl
+ * curl http://localhost:2187/updateModule \
+ * -X POST \
+ * -H 'Content-Type: application/x-www-form-urlencoded' \
+ * -d 'password=change_me_now&path=chat.ixi-1.4.jar&version=1.4'
+ * @apiExample {js} NodeJS
+ * var request = require('request');
+ *
+ * var data = "password=change_me_now&path=chat.ixi-1.4.jar&version=1.4";
+ *                
+ * var options = {
+ * url: 'http://localhost:2187/updateModule',
+ * method: 'POST',
+ * headers: {
+ * 'Content-Type': 'application/x-www-form-urlencoded'
+ * },
+ * form: data
+ * };
+ *
+ * request(options, function (error, response, data) {
+ *   if (!error && response.statusCode == 200) {
+ *       var result = JSON.parse(data);
+ *       console.log(JSON.stringify(result, null, 1));
+ *   }
+ * });
+ * @apiExample {python} Python
+ * import json
+ * import urllib3
+ * 
+ * data = 'password=change_me_now&path=chat.ixi-1.4.jar&version=1.4'
+ * 
+ * headers = {
+ *    'content-type': 'application/x-www-form-urlencoded'
+ * }
+ * 
+ * http = urllib3.PoolManager()
+ * 
+ * response = http.request('POST', 'http://localhost:2187/updateModule', body=data, headers=headers)
+ * 
+ * results = json.loads(response.data.decode('utf-8'))
+ * 
+ * print(json.dumps(results, indent=1, sort_keys=True))
  * @apiVersion 0.4.0
- * @apiSuccess {Object} success `true` if the action was successful, `false` if there was an error.
- * @apiSuccessExample {json} Success-Response:
- *     {"success": true }
- * @apiErrorExample {json} ModuleNotFound Error
- *     {"success": false, "error": "No module 'chat.ixi.jar' installed." }
- * */
+ * @apiUse basicSuccess
+ * @apiUse moduleNotFoundErrorExample
+ */
 class RouteUpdateModule extends RouteImpl {
 
     protected RouteUpdateModule(JsonIct jsonIct) { super(jsonIct, "/updateModule"); }
@@ -299,15 +800,56 @@ class RouteUpdateModule extends RouteImpl {
 }
 
 /**
- * @api {post} /getModules/ GetModules
- * @apiDescription Provides a list of all installed IXI modules.
- * @apiName GetModules
+ * @api {post} /getModules/ getModules
+ * @apiDescription Get all IXI modules that are installed on a node.
+ * @apiName getModules
  * @apiGroup Modules
+ * @apiExample {curl} Curl
+ * curl http://localhost:2187/getModules \
+ * -X POST \
+ * -H 'Content-Type: application/x-www-form-urlencoded' \
+ * -d 'password=change_me_now'
+ * @apiExample {js} NodeJS
+ * var request = require('request');
+ *
+ * var password = "password=change_me_now";
+ *                
+ * var options = {
+ * url: 'http://localhost:2187/getModules',
+ * method: 'POST',
+ * headers: {
+ * 'Content-Type': 'application/x-www-form-urlencoded'
+ * },
+ * form: password
+ * };
+ *
+ * request(options, function (error, response, data) {
+ *   if (!error && response.statusCode == 200) {
+ *       var result = JSON.parse(data);
+ *       console.log(JSON.stringify(result, null, 1));
+ *   }
+ * });
+ * @apiExample {python} Python
+ * import json
+ * import urllib3
+ * 
+ * password = 'password=change_me_now'
+ * 
+ * headers = {
+ *    'content-type': 'application/x-www-form-urlencoded'
+ * }
+ * 
+ * http = urllib3.PoolManager()
+ * 
+ * response = http.request('POST', 'http://localhost:2187/getModules', body=password, headers=headers)
+ * 
+ * results = json.loads(response.data.decode('utf-8'))
+ * 
+ * print(json.dumps(results, indent=1, sort_keys=True))
  * @apiVersion 0.4.0
- * @apiSuccess {Array} modules Array of all installed IXI modules. For each module, contains the `path` (identifier) and meta data.
- * The field `update` contains the version of an available update, if set.). If `configurable` is set to `true`, the
- * module can be configured. Please see [GetModuleConfig](#api-Modules-GetModuleConfig).
- * @apiSuccessExample {json} Success-Response:
+ * @apiSuccess {Array} modules All the IXI modules that are installed on the node. The `update` field is returned only if a newer version is available. If the `configurable` field is set to `true`, the
+ * module can be configured. To configure a module, use the [`getModuleConfig`](#getModuleConfig) endpoint.
+ * @apiSuccessExample {json} 200 Success
  *     {
  *         "modules": [
  *             {
@@ -322,9 +864,9 @@ class RouteUpdateModule extends RouteImpl {
  *         ],
  *         "success": true
  *     }
- * @apiErrorExample {json} ModuleNotFound Error
- *     {"success": false, "error": "No module 'chat.ixi' installed." }
- * */
+ * @apiUse moduleNotFoundErrorExample
+ */
+
 class RouteGetModules extends RouteImpl {
 
     protected RouteGetModules(JsonIct jsonIct) { super(jsonIct, "/getModules"); }
@@ -336,22 +878,63 @@ class RouteGetModules extends RouteImpl {
 
 /**
  * @api {post} /getModuleConfig/ getModuleConfig
- * @apiParam {String} path Relative path of the module in the modules/ directory. Use the value of the `path` field returned by [GetModules](#api-Modules-GetModules).
- * @apiDescription Returns the current and the default configuration of this IXI module. Unset if the module is not configurable.
- * @apiName GetModuleConfig
+ * @apiUse modulePathParam
+ * @apiDescription Get the current and the default configuration settings of an IXI module that's installed on a node.
+ * @apiName getModuleConfig
  * @apiGroup Modules
+ * @apiExample {curl} Curl
+ * curl http://localhost:2187/getModuleConfig \
+ * -X POST \
+ * -H 'Content-Type: application/x-www-form-urlencoded' \
+ * -d 'password=change_me_now&path=chat.ixi-1.4.jar'
+ * @apiExample {js} NodeJS
+ * var request = require('request');
+ *
+ * var data = "password=change_me_now&path=chat.ixi-1.4.jar";
+ *                
+ * var options = {
+ * url: 'http://localhost:2187/getModuleConfig',
+ * method: 'POST',
+ * headers: {
+ * 'Content-Type': 'application/x-www-form-urlencoded'
+ * },
+ * form: data
+ * };
+ *
+ * request(options, function (error, response, data) {
+ *   if (!error && response.statusCode == 200) {
+ *       var result = JSON.parse(data);
+ *       console.log(JSON.stringify(result, null, 1));
+ *   }
+ * });
+ * @apiExample {python} Python
+ * import json
+ * import urllib3
+ * 
+ * data = 'password=change_me_now&path=chat.ixi-1.4.jar'
+ * 
+ * headers = {
+ *    'content-type': 'application/x-www-form-urlencoded'
+ * }
+ * 
+ * http = urllib3.PoolManager()
+ * 
+ * response = http.request('POST', 'http://localhost:2187/getModuleConfig', body=data, headers=headers)
+ * 
+ * results = json.loads(response.data.decode('utf-8'))
+ * 
+ * print(json.dumps(results, indent=1, sort_keys=True))
  * @apiVersion 0.5.0
- * @apiSuccess {Object} config The current configuration of the IXI module.
- * @apiSuccess {Object} default_config The default configuration. Intended for resetting the configuration.
- * @apiSuccessExample {json} Success-Response:
- *     {
- *         "config": { "color": "red", ... },
- *         "default_config": { "color": "blue", ... },
- *         "success": true
- *     }
- * @apiErrorExample {json} ModuleNotFound Error
- *     {"success": false, "error": "No module 'chat.ixi.jar'." }
- * */
+ * @apiSuccess {Object} config The current configuration settings of the IXI module.
+ * @apiSuccess {Object} default_config The default configuration settings of the IXI module. Use this object if you want to reset the configuration settings.
+ * @apiSuccessExample {json} 200 Success
+ * {
+ *  "config": { "color": "red", ... },
+ *  "default_config": { "color": "blue", ... },
+ *  "success": true
+ * }
+ * @apiUse moduleNotFoundErrorExample
+ */
 class RouteGetModuleConfig extends RouteImpl {
 
     protected RouteGetModuleConfig(JsonIct jsonIct) { super(jsonIct, "/getModuleConfig"); }
@@ -364,20 +947,68 @@ class RouteGetModuleConfig extends RouteImpl {
 
 /**
  * @api {post} /setModuleConfig/ setModuleConfig
- * @apiParam {String} path Relative path of the module in the modules/ directory. Use the value of the `path` field returned by [GetModules](#api-Modules-GetModules).
- * @apiParam {Object} config The new configuration object, usually a modified version what was returned by [GetModuleConfig](#api-Modules-GetModuleConfig).
- * @apiDescription Changes the configuration of the module. The new configuration will be stored in the respective module's cfg file.
+ * @apiUse modulePathParam
+ * @apiParam {Object} config The new configuration object. The `config` object must be in the same structure as the one returned from the [`getModuleConfig`](#getModuleConfig) endpoint and include all fields.
+ * @apiDescription Change the configuration settings of a given IXI module that's installed on a node. The new configuration settings are stored in the module's .cfg file.
  * @apiName SetModuleConfig
  * @apiGroup Modules
+ * @apiExample {curl} Curl
+ * curl http://localhost:2187/setModuleConfig \
+ * -X POST \
+ * -H 'Content-Type: application/x-www-form-urlencoded' \
+ * -d 'password=change_me_now&path=chat.ixi-1.4.jar&config={"password":"Bk6ZxLxu7ANvcCKmoI3O",
+ * "channels":["casual","ict","announcements","speculation"],
+ * "contacts":["VSVSXLQW"],"username":"Anonymous"}
+ * @apiExample {js} NodeJS
+ * var request = require('request');
+ *
+ * var data = "password=change_me_now&path=chat.ixi-1.4.jar&config={"password":"Bk6ZxLxu7ANvcCKmoI3O",
+ * "channels":["casual","ict","announcements","speculation"],
+ * "contacts":["VSVSXLQW"],"username":"Anonymous"}";
+ *                
+ * var options = {
+ * url: 'http://localhost:2187/setModuleConfig',
+ * method: 'POST',
+ * headers: {
+ * 'Content-Type': 'application/x-www-form-urlencoded'
+ * },
+ * form: data
+ * };
+ *
+ * request(options, function (error, response, data) {
+ *   if (!error && response.statusCode == 200) {
+ *       var result = JSON.parse(data);
+ *       console.log(JSON.stringify(result, null, 1));
+ *   }
+ * });
+ * @apiExample {python} Python
+ * import json
+ * import urllib3
+ * 
+ * data = 'password=change_me_now&path=chat.ixi-1.4.jar&config={"password":"Bk6ZxLxu7ANvcCKmoI3O",
+ * "channels":["casual","ict","announcements","speculation"],
+ * "contacts":["VSVSXLQW"],"username":"Anonymous"}'
+ * 
+ * headers = {
+ *    'content-type': 'application/x-www-form-urlencoded'
+ * }
+ * 
+ * http = urllib3.PoolManager()
+ * 
+ * response = http.request('POST', 'http://localhost:2187/setModuleConfig', body=data, headers=headers)
+ * 
+ * results = json.loads(response.data.decode('utf-8'))
+ * 
+ * print(json.dumps(results, indent=1, sort_keys=True))
  * @apiVersion 0.5.0
- * @apiSuccess {Object} success `true` if the action was successful, `false` if there was an error.
- * @apiSuccessExample {json} Success-Response:
- *     {"success": true }
+ * @apiUse basicSuccess
+ * @apiUse moduleNotFoundErrorExample
  * @apiErrorExample {json} ModuleNotFound Error
- *     {"success": false, "error": "No module 'chat.ixi.jar'." }
- * @apiErrorExample {json} ModuleNotFound Error
- *     {"success": false, "error": "Property 'color' cannot be assigned to value 'helicopter'." }
- * */
+ * {
+ * "success": false,
+ * "error": "Property 'color' cannot be assigned to value 'helicopter'."
+ * }
+ */
 class RouteSetModuleConfig extends RouteImpl {
 
     protected RouteSetModuleConfig(JsonIct jsonIct) { super(jsonIct, "/setModuleConfig"); }
@@ -390,29 +1021,79 @@ class RouteSetModuleConfig extends RouteImpl {
 }
 
 /**
- * @api {post} /getLogs/ GetLogs
- * @apiDescription Returns all log messages of the node within a specified index interval. Will not return the entire interval if it is too large.
- * @apiParam {Number} [min] Index of first message to include in response.
- * @apiParam {Number} [max] Index of last message to include in response.
- * @apiSuccess {Boolean} [block} If true, will wait until the at least the log message with the index matching the `min` parameter is available before responding.
- * @apiName GetLogs
+ * @api {post} /getLogs/ getLogs
+ * @apiDescription Get all log messages within a given index interval.
+ * @apiParam {Number} [min] Index of first message that you want to read
+ * @apiParam {Number} [max] Index of last message that you want to read
+ * @apiSuccess {Boolean} block If `true`, the log message with the index of the `min` parameter is not yet available. The log message will be returned when it's available.
+ * @apiName getLogs
  * @apiGroup Log
  * @apiVersion 0.5.0
- * @apiSuccess {Array} logs Array (limited length) of logs ordered by index (ascending).
- * @apiSuccess {Number} min Index of first available log message to fetch.
- * @apiSuccess {Number} max Index of last available log message to fetch.
- * @apiSuccessExample {json} Success-Response:
- *     {
- *         "logs": [
- *             {"level": "info", "timestamp": 1547437313, "message": "Sender/Neighbor]   102  |90   |0    |0    |0       localhost/127.0.0.1:14265"},
- *             {"level": "warn", "timestamp": 1547439294, "message": "[Receiver/Ict]   Received invalid transaction from neighbor: localhost/127.0.0.1:14265 (issuance timestamp not in tolerated interval)"},
+ * @apiExample {curl} Curl
+ * curl http://localhost:2187/getLogs \
+ * -X POST \
+ * -H 'Content-Type: application/x-www-form-urlencoded' \
+ * -d 'password=change_me_now&min=0&max=20'
+ * @apiExample {js} NodeJS
+ * var request = require('request');
+ *
+ * var data = "password=change_me_now&min=0&max=20";
+ *                
+ * var options = {
+ * url: 'http://localhost:2187/getLogs',
+ * method: 'POST',
+ * headers: {
+ * 'Content-Type': 'application/x-www-form-urlencoded'
+ * },
+ * form: data
+ * };
+ *
+ * request(options, function (error, response, data) {
+ *   if (!error && response.statusCode == 200) {
+ *       var result = JSON.parse(data);
+ *       console.log(JSON.stringify(result, null, 1));
+ *   }
+ * });
+ * @apiExample {python} Python
+ * import json
+ * import urllib3
+ * 
+ * data = 'password=change_me_now&min=0&max=20'
+ * 
+ * headers = {
+ *    'content-type': 'application/x-www-form-urlencoded'
+ * }
+ * 
+ * http = urllib3.PoolManager()
+ * 
+ * response = http.request('POST', 'http://localhost:2187/getLogs', body=data, headers=headers)
+ * 
+ * results = json.loads(response.data.decode('utf-8'))
+ * 
+ * print(json.dumps(results, indent=1, sort_keys=True))
+ * @apiSuccess {Array} logs Array (limited length) of logs in ascending index order.
+ * @apiSuccess {Number} min Index of first available log message to read.
+ * @apiSuccess {Number} max Index of last available log message to read.
+ * @apiSuccessExample {json} 200 Success
+ * {
+ *  "logs": [
+ *        {
+ *         "level": "info",
+ *         "timestamp": 1547437313,
+ *         "message": "Sender/Neighbor]   102  |90   |0    |0    |0       localhost/127.0.0.1:14265"
+ *        },
+ *        {
+ *         "level": "warn",
+ *         "timestamp": 1547439294,
+ *         "message": "[Receiver/Ict]   Received invalid transaction from neighbor: localhost/127.0.0.1:14265 (issuance timestamp not in tolerated interval)"
+ *        },
  *             ...
- *         ],
- *         "min": 0,
- *         "max": 112,
- *         "success": true
- *     }
- * */
+ *        ],
+ *  "min": 0,
+ *  "max": 112,
+ *  "success": true
+ * }
+ */
 class RouteGetLogs extends RouteImpl {
 
     protected RouteGetLogs(JsonIct jsonIct) { super(jsonIct, "/getLogs"); }
