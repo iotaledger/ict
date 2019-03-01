@@ -1,5 +1,1 @@
-{
-"version": "5.1",
-"dependencies": ["java", "node"],
-"build-dependnecies": ["gradle"],
-}
+{"version":"5.1","dependencies":["java","node"],"build-dependnecies":["gradle"]}
