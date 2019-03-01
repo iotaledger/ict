@@ -1,0 +1,5 @@
+{
+version: "5.1",
+dependencise: ["java", "node"],
+build-dependnecies: ["gradle"],
+}
