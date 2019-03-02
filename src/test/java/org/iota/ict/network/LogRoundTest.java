@@ -28,7 +28,7 @@ public class LogRoundTest extends GossipTest {
         Assert.assertEquals("neighbor received invalid transactions", 0, statsForA.invalid);
         Assert.assertEquals("neighbor did not add request to stats", 1, statsForA.requested);
 
-        b.getNeighbors().get(0).newRound(10000);
+        b.getNeighbors().get(0).newRound(10000, false);
         Assert.assertEquals("stats was not reset upon new round", 0, statsForA.receivedAll);
         Assert.assertEquals("previous stats were lost upon new round", 10, statsForA.receivedAll);
     }

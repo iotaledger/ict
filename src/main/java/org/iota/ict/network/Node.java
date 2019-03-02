@@ -31,7 +31,6 @@ public class Node extends RestartableThread implements PropertiesUser {
     protected InetSocketAddress address;
     protected DatagramSocket socket;
 
-    protected List<Round> rounds = new ArrayList<>();
     protected int round;
 
     public Node(IctInterface ict) {
@@ -174,51 +173,15 @@ public class Node extends RestartableThread implements PropertiesUser {
     }
 
     public void newRound() {
-        round++;
-        Stats[] stats = new Stats[neighbors.size()];
-        for(int i = 0; i < neighbors.size(); i++)
-            stats[i] = new Stats(neighbors.get(i));
-        rounds.add(new Round(round, System.currentTimeMillis(), stats));
-        if (rounds.size() > Constants.MAX_AMOUNT_OF_ROUNDS_STORED)
-            rounds.remove(0);
 
         if (round % 10 == 0)
             logHeader();
         // two separate FOR-loops to prevent delays between newRound() calls
         for (Neighbor neighbor : ict.getNeighbors()) {
             long tolerance = ict.getProperties().antiSpamAbs();
-            neighbor.newRound(tolerance);
+            neighbor.newRound(tolerance, true);
         }
         for (Neighbor neighbor : ict.getNeighbors())
             neighbor.resolveHost();
-    }
-
-    public static class Round {
-        public final int index;
-        public final long timestamp;
-        public final Stats[] stats;
-
-        public Round(int index, long timestamp, Stats[] stats) {
-            this.index = index;
-            this.timestamp = timestamp;
-            this.stats = stats;
-        }
-
-        public JSONObject toJSON(Neighbor neighbor) {
-            for(Stats s : stats)
-                if(s.neighbor == neighbor)
-                    return new JSONObject()
-                            .put("timestamp", timestamp)
-                            .put("requested", s.requested)
-                            .put("ignored", s.ignored)
-                            .put("invalid", s.invalid)
-                            .put("new", s.receivedNew)
-                            .put("all", s.receivedAll);
-            return null;
-        }
-    }
-
-    public List<Round> getRounds() {
-        return rounds;
     }
 }

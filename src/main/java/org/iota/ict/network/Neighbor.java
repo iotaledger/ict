@@ -2,9 +2,13 @@ package org.iota.ict.network;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.Stats;
 
 import java.net.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * This class defines a neighbored Ict node. Neighbor nodes usually run remotely on a different device and connection
@@ -15,13 +19,13 @@ public class Neighbor {
 
     public static final Logger logger = LogManager.getLogger("Neighbor");
     private InetSocketAddress address;
-    private Stats stats = new Stats(this);
-    private Stats statsPrev = new Stats(this);
+    private List<Stats> statsHistory = new ArrayList<>();
     private double maxAllowedTransactionsForRound;
 
     public Neighbor(InetSocketAddress address, long maxTransactionsAbsolute) {
         this.address = address;
         this.maxAllowedTransactionsForRound = maxTransactionsAbsolute;
+        statsHistory.add(new Stats(this));
     }
 
     public void resolveHost() {
@@ -50,14 +54,16 @@ public class Neighbor {
         }
     }
 
-    public void newRound(long maxAllowedTransactionsForRound) {
+    public void newRound(long maxAllowedTransactionsForRound, boolean log) {
         this.maxAllowedTransactionsForRound = maxAllowedTransactionsForRound;
-        reportStatsOfRound();
-        stats = new Stats(this);
-        statsPrev = stats;
+        if(log) reportStatsOfRound();
+        statsHistory.add(new Stats(this));
+        while (statsHistory.size() > Constants.MAX_AMOUNT_OF_ROUNDS_STORED)
+            statsHistory.remove(0);
     }
 
     private void reportStatsOfRound() {
+        Stats stats = getStats();
         StringBuilder report = new StringBuilder();
         report.append(pad(stats.receivedAll)).append('|');
         report.append(pad(stats.receivedNew)).append('|');
@@ -69,15 +75,15 @@ public class Neighbor {
     }
 
     public Stats getStats() {
-        return stats;
+        return statsHistory.get(statsHistory.size()-1);
     }
 
-    public Stats getStatsPrev() {
-        return statsPrev;
+    public List<Stats> getStatsHistory() {
+        return new ArrayList<>(statsHistory);
     }
 
     public boolean reachedLimitOfAllowedTransactions() {
-        return stats.receivedAll >= maxAllowedTransactionsForRound;
+        return getStats().receivedAll >= maxAllowedTransactionsForRound;
     }
 
     private static String pad(long value) {

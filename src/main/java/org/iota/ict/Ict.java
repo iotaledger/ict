@@ -183,9 +183,4 @@ public class Ict extends RestartableThread implements IctInterface {
     public void onGossipEvent(GossipEvent event) {
         eventDispatcher.notifyListeners(event);
     }
-
-    @Override
-    public List<Node.Round> getRounds() {
-        return node.getRounds();
-    }
 }
