@@ -86,6 +86,7 @@ public class JsonIct {
     }
 
     private void updateStatsForNeighbor(Neighbor neighbor, JSONArray stats, List<Node.Round> rounds) {
+
         // remove all rounds from json which are no longer stored
         if(stats.length() > 0 && rounds.size() > 0)
         while (stats.getJSONObject(0).getLong("timestamp") < rounds.get(0).timestamp)

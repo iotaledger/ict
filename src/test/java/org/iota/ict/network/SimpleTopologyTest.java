@@ -38,8 +38,8 @@ public class SimpleTopologyTest extends GossipTest {
         sendMessages(a, amountOfMessages);
 
         waitUntilCommunicationEnds(500);
-        Assert.assertTrue("no infinite loop message forwarding", c.getNeighbors().get(0).stats.receivedAll <= amountOfMessages);
-        Assert.assertTrue("no infinite loop message forwarding", c.getNeighbors().get(1).stats.receivedAll <= amountOfMessages);
-        Assert.assertTrue("all messages received", c.getNeighbors().get(0).stats.receivedAll + c.getNeighbors().get(1).stats.receivedAll >= amountOfMessages);
+        Assert.assertTrue("no infinite loop message forwarding", c.getNeighbors().get(0).getStats().receivedAll <= amountOfMessages);
+        Assert.assertTrue("no infinite loop message forwarding", c.getNeighbors().get(1).getStats().receivedAll <= amountOfMessages);
+        Assert.assertTrue("all messages received", c.getNeighbors().get(0).getStats().receivedAll + c.getNeighbors().get(1).getStats().receivedAll >= amountOfMessages);
     }
 }

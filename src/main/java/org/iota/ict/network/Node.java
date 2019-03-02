@@ -175,7 +175,10 @@ public class Node extends RestartableThread implements PropertiesUser {
 
     public void newRound() {
         round++;
-        rounds.add(new Round());
+        Stats[] stats = new Stats[neighbors.size()];
+        for(int i = 0; i < neighbors.size(); i++)
+            stats[i] = new Stats(neighbors.get(i));
+        rounds.add(new Round(round, System.currentTimeMillis(), stats));
         if (rounds.size() > Constants.MAX_AMOUNT_OF_ROUNDS_STORED)
             rounds.remove(0);
 
@@ -190,42 +193,28 @@ public class Node extends RestartableThread implements PropertiesUser {
             neighbor.resolveHost();
     }
 
-    public class Round {
-        public final int round = Node.this.round;
-        public final long timestamp = System.currentTimeMillis();
+    public static class Round {
+        public final int index;
+        public final long timestamp;
         public final Stats[] stats;
 
-        Round() {
-            stats = new Stats[neighbors.size()];
-            for(int i = 0; i < neighbors.size(); i++)
-                stats[i] = new Stats(neighbors.get(i));
+        public Round(int index, long timestamp, Stats[] stats) {
+            this.index = index;
+            this.timestamp = timestamp;
+            this.stats = stats;
         }
 
         public JSONObject toJSON(Neighbor neighbor) {
             for(Stats s : stats)
                 if(s.neighbor == neighbor)
                     return new JSONObject()
-                        .put("timestamp", timestamp)
-                            .put("requested", s.requestedTxs)
-                            .put("ignored", s.ignoredTxs)
-                            .put("invalid", s.invalidTxs)
-                            .put("new", s.newTxs)
-                            .put("all", s.allTxs);
+                            .put("timestamp", timestamp)
+                            .put("requested", s.requested)
+                            .put("ignored", s.ignored)
+                            .put("invalid", s.invalid)
+                            .put("new", s.receivedNew)
+                            .put("all", s.receivedAll);
             return null;
-        }
-
-        public class Stats {
-            final Neighbor neighbor;
-            final long ignoredTxs, newTxs, allTxs, invalidTxs, requestedTxs;
-
-            Stats(Neighbor neighbor) {
-                this.neighbor = neighbor;
-                ignoredTxs = neighbor.stats.ignored;
-                newTxs = neighbor.stats.receivedNew;
-                allTxs = neighbor.stats.receivedAll;
-                invalidTxs = neighbor.stats.receivedInvalid;
-                requestedTxs = neighbor.stats.requested;
-            }
         }
     }
 

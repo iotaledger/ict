@@ -56,22 +56,22 @@ public class Receiver extends RestartableThread {
         if (sender == null)
             return;
 
-        sender.stats.receivedAll++;
+        sender.getStats().receivedAll++;
 
         if (sender.reachedLimitOfAllowedTransactions()) {
-            sender.stats.ignored++;
+            sender.getStats().ignored++;
             return;
         }
 
         Transaction transaction = unpack(packet);
 
         if (transaction == null) {
-            sender.stats.receivedInvalid++;
+            sender.getStats().invalid++;
             return;
         }
 
         if (Math.abs(transaction.issuanceTimestamp - System.currentTimeMillis()) > Constants.TIMESTAMP_DIFFERENCE_TOLERANCE_IN_MILLIS) {
-            sender.stats.ignored++;
+            sender.getStats().ignored++;
             return;
         }
 
@@ -94,7 +94,7 @@ public class Receiver extends RestartableThread {
         Tangle.TransactionLog log = node.ict.getTangle().findTransactionLog(transaction);
         if (log == null) {
             log = node.ict.getTangle().createTransactionLogIfAbsent(transaction);
-            sender.stats.receivedNew++;
+            sender.getStats().receivedNew++;
             log.senders.add(sender);
             node.ict.onGossipEvent(new GossipEvent(transaction, false));
         }
@@ -105,7 +105,7 @@ public class Receiver extends RestartableThread {
         if (requestHash.equals(Trytes.NULL_HASH))
             return; // no transaction requested
         Transaction requested = node.ict.findTransactionByHash(requestHash);
-        requester.stats.requested++;
+        requester.getStats().requested++;
         if (requested == null)
             return; // unknown transaction
         answerRequest(requested, requester);

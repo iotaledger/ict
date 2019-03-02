@@ -2,10 +2,9 @@ package org.iota.ict.network;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.iota.ict.Ict;
+import org.iota.ict.utils.Stats;
 
 import java.net.*;
-import java.util.Arrays;
 
 /**
  * This class defines a neighbored Ict node. Neighbor nodes usually run remotely on a different device and connection
@@ -16,30 +15,13 @@ public class Neighbor {
 
     public static final Logger logger = LogManager.getLogger("Neighbor");
     private InetSocketAddress address;
-    public final Stats stats = new Stats();
+    private Stats stats = new Stats(this);
+    private Stats statsPrev = new Stats(this);
     private double maxAllowedTransactionsForRound;
 
     public Neighbor(InetSocketAddress address, long maxTransactionsAbsolute) {
         this.address = address;
         this.maxAllowedTransactionsForRound = maxTransactionsAbsolute;
-    }
-
-    public class Stats {
-        public long receivedAll, receivedNew, receivedInvalid, requested, ignored;
-        public long prevReceivedAll, prevReceivedNew, prevReceivedInvalid, prevRequested, prevIgnored;
-
-        public void newRound() {
-            prevReceivedAll = receivedAll;
-            prevReceivedNew = receivedNew;
-            prevReceivedInvalid = receivedInvalid;
-            prevRequested = requested;
-            prevIgnored = ignored;
-            receivedAll = 0;
-            receivedNew = 0;
-            receivedInvalid = 0;
-            requested = 0;
-            ignored = 0;
-        }
     }
 
     public void resolveHost() {
@@ -71,7 +53,8 @@ public class Neighbor {
     public void newRound(long maxAllowedTransactionsForRound) {
         this.maxAllowedTransactionsForRound = maxAllowedTransactionsForRound;
         reportStatsOfRound();
-        stats.newRound();
+        stats = new Stats(this);
+        statsPrev = stats;
     }
 
     private void reportStatsOfRound() {
@@ -79,10 +62,18 @@ public class Neighbor {
         report.append(pad(stats.receivedAll)).append('|');
         report.append(pad(stats.receivedNew)).append('|');
         report.append(pad(stats.requested)).append('|');
-        report.append(pad(stats.receivedInvalid)).append('|');
+        report.append(pad(stats.invalid)).append('|');
         report.append(pad(stats.ignored));
         report.append("   ").append(address);
         logger.info(report);
+    }
+
+    public Stats getStats() {
+        return stats;
+    }
+
+    public Stats getStatsPrev() {
+        return statsPrev;
     }
 
     public boolean reachedLimitOfAllowedTransactions() {
