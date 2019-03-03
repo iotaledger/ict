@@ -3,6 +3,7 @@ package org.iota.ict.api;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.Ict;
 import org.iota.ict.IctInterface;
+import org.iota.ict.Main;
 import org.iota.ict.ixi.IxiModule;
 import org.iota.ict.ixi.IxiModuleHolder;
 import org.iota.ict.ixi.IxiModuleInfo;
@@ -50,7 +51,7 @@ public class JsonIct {
         if (newConfig.guiPassword().length() == 0)
             newConfig.guiPassword(currentConfig.guiPassword());
         ict.updateProperties(newConfig.toFinal());
-        newConfig.store(Constants.DEFAULT_PROPERTY_FILE_PATH);
+        newConfig.store(Main.getConfigFilePath());
         return success();
     }
 
@@ -116,7 +117,7 @@ public class JsonIct {
         ict.updateProperties(properties.toFinal());
 
         LOGGER.info("added neighbor: " + address);
-        properties.store(Constants.DEFAULT_PROPERTY_FILE_PATH);
+        properties.store(Main.getConfigFilePath());
         return success();
     }
 
@@ -129,7 +130,7 @@ public class JsonIct {
                 properties.neighbors(neighbors);
                 ict.updateProperties(properties.toFinal());
                 LOGGER.info("removed neighbor: " + address);
-                properties.store(Constants.DEFAULT_PROPERTY_FILE_PATH);
+                properties.store(Main.getConfigFilePath());
                 return success();
             }
         }
