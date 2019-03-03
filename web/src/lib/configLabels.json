@@ -9,7 +9,7 @@
 			"name": "round_duration"
 		},
 		{
-			"label": "Tangle opacity",
+			"label": "Tangle capacity",
 			"name": "tangle_capacity"
 		},
 		{
