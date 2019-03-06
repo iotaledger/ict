@@ -4,6 +4,7 @@ import org.iota.ict.Ict;
 import org.iota.ict.model.transaction.Transaction;
 import org.iota.ict.model.transaction.TransactionBuilder;
 import org.iota.ict.utils.Constants;
+import org.iota.ict.utils.Stats;
 import org.iota.ict.utils.properties.EditableProperties;
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,7 +27,7 @@ public class SpamProtectionTest extends GossipTest {
 
         connect(a, b);
 
-        Neighbor.Stats statsForA = b.getNeighbors().get(0).stats;
+        Stats statsForA = b.getNeighbors().get(0).getStats();
 
         statsForA.receivedAll = maxTransactionsPerRound - 10;
         testUnidirectionalCommunication(a, b, 10);
@@ -57,7 +58,7 @@ public class SpamProtectionTest extends GossipTest {
         waitUntilCommunicationEnds(200);
         Constants.TESTING = true;
 
-        Neighbor.Stats statsForA = b.getNeighbors().get(0).stats;
-        Assert.assertTrue("Ict accepted transactions not satisfying MWM.", statsForA.receivedInvalid > transactionsWithoutMWM.size() * 0.7);
+        Stats statsForA = b.getNeighbors().get(0).getStats();
+        Assert.assertTrue("Ict accepted transactions not satisfying MWM.", statsForA.invalid > transactionsWithoutMWM.size() * 0.7);
     }
 }

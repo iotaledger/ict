@@ -1,0 +1,58 @@
+{
+	"General": [
+		{
+			"label": "ICT Name",
+			"name": "name"
+		},
+		{
+			"label": "Round duration (ms)",
+			"name": "round_duration"
+		},
+		{
+			"label": "Tangle capacity",
+			"name": "tangle_capacity"
+		},
+		{
+			"label": "Max heap size",
+			"name": "max_heap_size"
+		}
+	],
+	"Address": [
+		{
+			"label": "Host name",
+			"name": "host"
+		},
+		{
+			"label": "Port",
+			"name": "port"
+		}
+	],
+	"Gossip": [
+		{
+			"label": "Min forward delay (ms)",
+			"name": "min_forward_delay"
+		},
+		{
+			"label": "Max forward delay (ms)",
+			"name": "max_forward_delay"
+		},
+		{
+			"label": "Max. Abs. Tx./Round",
+			"name": "anti_spam_abs"
+		}
+	],
+	"Web access": [
+		{
+			"label": "Web access enabled",
+			"name": "gui_enabled"
+		},
+		{
+			"label": "Port",
+			"name": "gui_port"
+		},
+		{
+			"label": "Password",
+			"name": "gui_password"
+		}
+	]
+}

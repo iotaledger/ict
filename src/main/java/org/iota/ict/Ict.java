@@ -44,7 +44,6 @@ public class Ict extends RestartableThread implements IctInterface {
     protected FinalProperties properties;
     public final static Logger LOGGER = LogManager.getLogger("Ict");
     protected long roundStart = System.currentTimeMillis();
-    protected static long lastCheckedForUpdate = System.currentTimeMillis();
 
     protected Object notifySyncObject = new Object();
 
@@ -72,6 +71,8 @@ public class Ict extends RestartableThread implements IctInterface {
     @Override
     public void run() {
         while (isRunning()) {
+            if(!Constants.TESTING)
+                Updater.checkForUpdatesIfYouHaveNotDoneSoInALongTime(moduleHolder);
             synchronized (notifySyncObject) {
                 try {
                     notifySyncObject.wait(Math.max(1, Math.min(roundStart + properties.roundDuration() - System.currentTimeMillis(), 30000)));
@@ -86,8 +87,6 @@ public class Ict extends RestartableThread implements IctInterface {
                 eventDispatcher.log();
                 roundStart = System.currentTimeMillis();
             }
-            if(!Constants.TESTING)
-                Updater.checkForUpdatesIfYouHaveNotDoneSoInALongTime();
         }
     }
 
@@ -186,11 +185,6 @@ public class Ict extends RestartableThread implements IctInterface {
     @Override
     public void onGossipEvent(GossipEvent event) {
         eventDispatcher.notifyListeners(event);
-    }
-
-    @Override
-    public List<Node.Round> getRounds() {
-        return node.getRounds();
     }
 
     @Override

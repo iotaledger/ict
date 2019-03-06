@@ -30,7 +30,6 @@ public class Node extends RestartableThread implements PropertiesUser {
     protected InetSocketAddress address;
     protected DatagramSocket socket;
 
-    protected List<Round> rounds = new ArrayList<>();
     protected int round;
 
     public Node(IctInterface ict) {
@@ -186,62 +185,15 @@ public class Node extends RestartableThread implements PropertiesUser {
     }
 
     public void newRound() {
-        round++;
-        rounds.add(new Round());
-        if (rounds.size() > Constants.MAX_AMOUNT_OF_ROUNDS_STORED)
-            rounds.remove(0);
 
         if (round % 10 == 0)
             logHeader();
         // two separate FOR-loops to prevent delays between newRound() calls
         for (Neighbor neighbor : ict.getNeighbors()) {
             long tolerance = ict.getProperties().antiSpamAbs();
-            neighbor.newRound(tolerance);
+            neighbor.newRound(tolerance, true);
         }
         for (Neighbor neighbor : ict.getNeighbors())
             neighbor.resolveHost();
-    }
-
-    public class Round {
-        public final int round = Node.this.round;
-        public final long timestamp = System.currentTimeMillis();
-        public final Stats[] stats;
-
-        Round() {
-            stats = new Stats[neighbors.size()];
-            for(int i = 0; i < neighbors.size(); i++)
-                stats[i] = new Stats(neighbors.get(i));
-        }
-
-        public JSONObject toJSON(Neighbor neighbor) {
-            for(Stats s : stats)
-                if(s.neighbor == neighbor)
-                    return new JSONObject()
-                        .put("timestamp", timestamp)
-                            .put("requested", s.requestedTxs)
-                            .put("ignored", s.ignoredTxs)
-                            .put("invalid", s.invalidTxs)
-                            .put("new", s.newTxs)
-                            .put("all", s.allTxs);
-            return null;
-        }
-
-        public class Stats {
-            final Neighbor neighbor;
-            final long ignoredTxs, newTxs, allTxs, invalidTxs, requestedTxs;
-
-            Stats(Neighbor neighbor) {
-                this.neighbor = neighbor;
-                ignoredTxs = neighbor.stats.ignored;
-                newTxs = neighbor.stats.receivedNew;
-                allTxs = neighbor.stats.receivedAll;
-                invalidTxs = neighbor.stats.receivedInvalid;
-                requestedTxs = neighbor.stats.requested;
-            }
-        }
-    }
-
-    public List<Round> getRounds() {
-        return rounds;
     }
 }

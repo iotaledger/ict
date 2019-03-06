@@ -86,7 +86,7 @@ public class RestApi extends RestartableThread implements PropertiesUser {
         service.before(new Filter() {
             @Override
             public void handle(Request request, Response response) {
-                if(request.requestMethod().equals("GET") && !request.pathInfo().matches("^[/]?$")) {
+                if(request.requestMethod().equals("GET") && !request.pathInfo().matches("^[/]?$") && !request.pathInfo().startsWith("/modules/")) {
                     response.redirect("/");
                 }
                 String queryPassword = request.queryParams("password");

@@ -30,7 +30,7 @@ public final class IssueCollector {
         if (incidents.size() > 0) {
             System.err.println("***** ERROR REPORT *****");
             System.err.println("This is a list of critical incidents which occurred during runtime.");
-            System.err.println("Please create an issue on https://github.com/iotaledger/ict or report it in #omega-ict in IOTA Discord.");
+            System.err.println("Please create an issue on https://github.com/iotaledger/ict or report it in #ict-discussion in IOTA Discord.");
 
             int amountPrinted = 0;
             for (Incident incident : incidents) {

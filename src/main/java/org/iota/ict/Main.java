@@ -45,6 +45,8 @@ public class Main {
     private static final String DEFAULT_LOG_FILE_NAME = "ict.log";
     private static final String DEFAULT_ENABLE_LOGFILE_CREATION_ON_STARTUP = "false";
 
+    private static String configFilePath = Constants.DEFAULT_PROPERTY_FILE_PATH;
+
     /* Simple {@code ict}-cmdline parser to get a valid {@code ict.Properties} instance */
     final static class Cmdline {
         private static String HELP = ""
@@ -135,6 +137,7 @@ public class Main {
 
             String configFileOrNull = parseValueOrNull(args, ARG_CONFIG, ARG_CONFIG_SHORT);
             if (configFileOrNull != null) {
+                configFilePath = configFileOrNull;
                 try {
                     configFileProperties.load(new FileInputStream(configFileOrNull));
                 } catch (IOException e) {
@@ -333,12 +336,7 @@ public class Main {
     public static void main(String[] args) {
 
         Main.args = args;
-
         Constants.TESTING = false;
-
-        System.out.println();
-        Updater.checkForUpdatesIfYouHaveNotDoneSoInALongTime();
-        System.out.println();
 
         Properties ictProperties = processCmdLineArgs(args);
 
@@ -410,5 +408,9 @@ public class Main {
         }
 
         return ictProperties;
+    }
+
+    public static String getConfigFilePath() {
+        return configFilePath;
     }
 }

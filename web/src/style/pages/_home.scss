@@ -1,0 +1,15 @@
+section.home {
+	article {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		text-align: center;
+		margin: 0 auto;
+		background: url('../assets/ict-logo-outline.svg') center center no-repeat;
+		background-size: 100% auto;
+		height: 100%;
+		width: 100%;
+		max-width: 570px;
+		color: #240849;
+	}
+}

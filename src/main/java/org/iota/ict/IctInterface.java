@@ -22,7 +22,5 @@ public interface IctInterface extends Ixi, GossipListener, PropertiesUser, Resta
 
     FinalProperties getProperties();
 
-    List<Node.Round> getRounds();
-
     void request(String transactionHash);
 }

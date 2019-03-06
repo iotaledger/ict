@@ -65,7 +65,7 @@ public final class TransferBuilder {
     private static String determineBundleHash(List<BalanceChangeBuilderInterface> orderedChanges) {
         StringBuilder concat = new StringBuilder();
         for (BalanceChangeBuilderInterface change : orderedChanges)
-            concat.append(change.getEssence());
+            concat.insert(0, change.getEssence());
         return IotaCurlHash.iotaCurlHash(concat.toString(), concat.length(), Constants.CURL_ROUNDS_BUNDLE_HASH);
     }
 }

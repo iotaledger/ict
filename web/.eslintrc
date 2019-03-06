@@ -1,0 +1,15 @@
+{
+	"extends": ["airbnb", "prettier"],
+	"parser": "babel-eslint",
+	"rules": {
+		"indent": ["error", "tab", { "SwitchCase": 1 }],
+		"no-tabs": ["error", { "allowIndentationTabs": true }],
+		"react/jsx-indent-props": ["error", "tab"],
+		"react/jsx-indent": ["error", "tab"],
+		"max-len": ["error", { "code": 140, "ignoreStrings": true }],
+		"react/jsx-one-expression-per-line": "off",
+		"jsx-a11y/click-events-have-key-events": "off",
+		"jsx-a11y/no-noninteractive-element-interactions": "off",
+		"camelcase": ["error", { "allow": ["^default_config", "gui_port", "user_slash_repo"] }]
+	}
+}

@@ -50,7 +50,8 @@ public class IxiModuleHolder extends RestartableThread {
         IxiModule module = modulesByPath.get(path);
         IxiModuleInfo info = modulesWithInfo.get(module);
         uninstall(path);
-        install(GithubGateway.getAssetDownloadUrl(info.repository, version));
+        IxiModule newModule = install(GithubGateway.getAssetDownloadUrl(info.repository, version));
+        newModule.start();
     }
 
     public boolean uninstall(String path) {

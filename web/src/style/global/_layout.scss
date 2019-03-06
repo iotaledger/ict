@@ -1,0 +1,30 @@
+@mixin layout($media) {
+	@if $media == tablet {
+		@media only screen and (max-width: 960px) {
+			@content;
+		}
+	} @else if $media == mobile {
+		@media only screen and (max-width: 640px) {
+			@content;
+		}
+	}
+}
+
+main {
+	display: grid;
+	grid-template-columns: 248px 1fr;
+
+	@include layout(tablet) {
+		grid-template-columns: 1fr;
+	}
+}
+
+.columns {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	grid-column-gap: 40px;
+
+	@include layout(mobile) {
+		display: block;
+	}
+}

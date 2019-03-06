@@ -1,19 +1,39 @@
 {
-  "name": "ict",
-  "version": "0.4.0",
-  "license": "Apache-2.0",
-  "description": "Web Control Panel for Ict",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/iotaledger/ict"
-  },
-  "scripts": {
-    "build": "webpack -p",
-    "start": "webpack-dev-server -d --content-base ./public"
-  },
-  "dependencies": {
-    "requirejs": "2.3.6",
-    "jquery": "latest",
-    "sweetalert": "latest"
-  }
+	"name": "ict",
+	"version": "0.5.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"start": "parcel src/index.html --out-dir=dist",
+		"build": "parcel build src/index.html --no-source-maps --out-dir=dist",
+		"lint": "eslint src/**/*.jsx"
+	},
+	"author": "Rihards Gravis <rihards.gravis@iota.org>",
+	"license": "Apache-2.0",
+	"dependencies": {
+		"js-cookie": "^2.2.0",
+		"prop-types": "^15.7.2",
+		"react": "^16.8.2",
+		"react-dom": "^16.8.2",
+		"react-router-dom": "^4.3.1",
+		"recharts": "^1.5.0"
+	},
+	"devDependencies": {
+		"@babel/core": "^7.3.3",
+		"@babel/plugin-proposal-class-properties": "^7.3.3",
+		"@babel/preset-react": "^7.0.0",
+		"babel-core": "^7.0.0-bridge.0",
+		"babel-eslint": "^10.0.1",
+		"babel-plugin-transform-runtime": "^6.23.0",
+		"babel-preset-env": "^1.7.0",
+		"babel-runtime": "^6.26.0",
+		"eslint": "^5.14.1",
+		"eslint-config-airbnb": "^17.1.0",
+		"eslint-config-prettier": "^4.0.0",
+		"eslint-plugin-import": "^2.16.0",
+		"eslint-plugin-jsx-a11y": "^6.2.1",
+		"eslint-plugin-react": "^7.12.4",
+		"parcel-bundler": "^1.11.0",
+		"sass": "^1.17.0"
+	}
 }
