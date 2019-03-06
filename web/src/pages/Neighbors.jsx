@@ -167,6 +167,8 @@ class Neighbors extends Component {
 				)}
 				{neighbors &&
 					neighbors.map(({ address, stats }) => {
+					    if(stats.length > 0)
+					        stats.pop();
 						if (!stats.length) {
 							stats.push({
 								all: 0,
