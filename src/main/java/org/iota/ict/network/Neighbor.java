@@ -2,10 +2,8 @@ package org.iota.ict.network;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.iota.ict.Ict;
 
 import java.net.*;
-import java.util.Arrays;
 
 /**
  * This class defines a neighbored Ict node. Neighbor nodes usually run remotely on a different device and connection
@@ -15,12 +13,16 @@ import java.util.Arrays;
 public class Neighbor {
 
     public static final Logger logger = LogManager.getLogger("Neighbor");
-    private InetSocketAddress address;
+    private String address;
+    private InetSocketAddress socketAddress;
     public final Stats stats = new Stats();
     private double maxAllowedTransactionsForRound;
 
-    public Neighbor(InetSocketAddress address, long maxTransactionsAbsolute) {
+    public Neighbor(String address, long maxTransactionsAbsolute) {
         this.address = address;
+        String host = address.split(":")[0];
+        int port = Integer.parseInt(address.split(":")[1]);
+        this.socketAddress = new InetSocketAddress(host, port);
         this.maxAllowedTransactionsForRound = maxTransactionsAbsolute;
     }
 
@@ -44,10 +46,10 @@ public class Neighbor {
 
     public void resolveHost() {
         try {
-            if (!address.getAddress().equals(InetAddress.getByName(address.getHostName())))
-                address = new InetSocketAddress(address.getHostName(), address.getPort());
+            if (!socketAddress.getAddress().equals(InetAddress.getByName(socketAddress.getHostName())))
+                socketAddress = new InetSocketAddress(socketAddress.getHostName(), socketAddress.getPort());
         } catch (UnknownHostException e) {
-            logger.warn(("Unknown Host for: " + address.getHostString()) + " (" + e.getMessage() + ")");
+            logger.warn(("Unknown Host for: " + socketAddress.getHostString()) + " (" + e.getMessage() + ")");
         }
     }
 
@@ -55,13 +57,13 @@ public class Neighbor {
         //if (address.equals(packet.getSocketAddress()))
         //    return true;
         boolean sameIP = sentPacketFromSameIP(packet);
-        boolean samePort = address.getPort() == packet.getPort();
+        boolean samePort = socketAddress.getPort() == packet.getPort();
         return sameIP && samePort;
     }
 
     public boolean sentPacketFromSameIP(DatagramPacket packet) {
         try {
-            return address.getAddress().getHostAddress().equals(packet.getAddress().getHostAddress());
+            return socketAddress.getAddress().getHostAddress().equals(packet.getAddress().getHostAddress());
         } catch (NullPointerException e) {
             // cannot resolve ip
             return false;
@@ -81,7 +83,7 @@ public class Neighbor {
         report.append(pad(stats.requested)).append('|');
         report.append(pad(stats.receivedInvalid)).append('|');
         report.append(pad(stats.ignored));
-        report.append("   ").append(address);
+        report.append("   ").append(socketAddress);
         logger.info(report);
     }
 
@@ -97,7 +99,11 @@ public class Neighbor {
         return String.format("%1$-5s", str);
     }
 
-    public InetSocketAddress getAddress() {
+    public InetSocketAddress getSocketAddress() {
+        return socketAddress;
+    }
+
+    public String getAddress() {
         return address;
     }
 }
