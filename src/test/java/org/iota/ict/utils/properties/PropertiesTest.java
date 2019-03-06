@@ -29,8 +29,8 @@ public class PropertiesTest {
         properties.port = 1 + (int)(Math.random() * 10000);
         properties.guiEnabled = Math.random() < 0.5;
         properties.name = Trytes.randomSequenceOfLength(10);
-        properties.neighbors.add(new InetSocketAddress("example.org", 1337));
-        properties.neighbors.add(new InetSocketAddress("123.4.5.678", 14265));
+        properties.neighbors.add("example.org:1337");
+        properties.neighbors.add("123.4.5.678:14265");
         return properties;
     }
 }

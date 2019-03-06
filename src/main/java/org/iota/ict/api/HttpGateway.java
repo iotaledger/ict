@@ -10,28 +10,26 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HttpGateway {
+public final class HttpGateway {
 
     private HttpGateway() {
     }
 
-    /*
-    TODO reimplement for GitHub requests
-
-    public static String sendGithubPostRequest(String path) {
-        connection.setRequestProperty("Content-Type", "application/json");
-        connection.setRequestProperty("Accept", "application/vnd.github.v3+json");
-    }*/
-
-    public static String sendPostRequest(String path) {
-        return sendPostRequest(path, new HashMap<String, String>());
+    public static String sendGetRequest(String urlString, Map<String, String> params, Map<String, String> requestProperties) {
+        return sendRequest(urlString, RequestMethod.GET, params, requestProperties);
     }
 
-    public static String sendPostRequest(String path, Map<String, String> params) {
+    public static String sendPostRequest(String urlString, Map<String, String> params, Map<String, String> requestProperties) {
+        return sendRequest(urlString, RequestMethod.POST, params, requestProperties);
+    }
+
+    public static String sendRequest(String urlString, RequestMethod method, Map<String, String> params, Map<String, String> requestProperties) {
         try {
-            URL url = new URL(path);
-            HttpURLConnection connection = connect(url);
-            writeParams(connection, params);
+            URL url = new URL(urlString);
+            HttpURLConnection connection = createConnection(url, method);
+            applyRequestProperties(connection, requestProperties);
+            if(method == RequestMethod.POST)
+                writeParams(connection, params);
             connection.connect();
 
             if (connection.getResponseCode() != HttpURLConnection.HTTP_OK)
@@ -40,6 +38,11 @@ public class HttpGateway {
         } catch (IOException t) {
             throw new RuntimeException(t);
         }
+    }
+
+    private static void applyRequestProperties(HttpURLConnection connection, Map<String, String> requestProperties) {
+        for(Map.Entry<String, String> requestProperty : requestProperties.entrySet())
+            connection.setRequestProperty(requestProperty.getKey(), requestProperty.getValue());
     }
 
     private static void writeParams(HttpURLConnection connection, Map<String, String> params) throws IOException {
@@ -66,13 +69,17 @@ public class HttpGateway {
         return queryString.toString();
     }
 
-    private static HttpURLConnection connect(URL url) throws IOException {
+    private static HttpURLConnection createConnection(URL url, RequestMethod method) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) (url.openConnection());
-        connection.setRequestMethod("POST");
+        connection.setRequestMethod(method.name());
         connection.setReadTimeout(10000);
         connection.setConnectTimeout(10000);
         connection.setDoInput(true);
         connection.setDoOutput(true);
         return connection;
+    }
+
+    private enum RequestMethod {
+        POST, GET
     }
 }
