@@ -4,6 +4,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.Main;
 import org.iota.ict.api.GithubGateway;
+import org.iota.ict.ixi.IxiModule;
+import org.iota.ict.ixi.IxiModuleHolder;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,9 +33,12 @@ public final class Updater {
         LOGGER.info("Download complete. Please run the new version ("+targetFileName+").");
     }
 
-    public static void checkForUpdatesIfYouHaveNotDoneSoInALongTime() {
-        if(lastTimeChckecForUpdates + Constants.CHECK_FOR_UPDATES_INTERVAL_MS < System.currentTimeMillis())
+    public static void checkForUpdatesIfYouHaveNotDoneSoInALongTime(IxiModuleHolder moduleHolder) {
+        if(lastTimeChckecForUpdates + Constants.CHECK_FOR_UPDATES_INTERVAL_MS < System.currentTimeMillis()) {
             checkForUpdates();
+            for(IxiModule module : moduleHolder.getModules())
+                moduleHolder.getInfo(module).checkForUpdate();
+        }
     }
 
     public static void checkForUpdates() {

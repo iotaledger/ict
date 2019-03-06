@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'org.iota'
-version '0.5-SNAPSHOT'
+version '0.5.1'
 
 sourceCompatibility = 1.7
 
@@ -37,7 +37,7 @@ task fatJar(type: Jar) {
     }
     baseName = 'ict'
     destinationDir = file("$rootDir/")
-    from("./") { include 'web/**' }
+    from("./web/dist") { into 'web' }
     from { configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) } }
 
     exclude 'META-INF/org/apache/logging/log4j/core/config/plugins/Log4j2Plugins.dat'

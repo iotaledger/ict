@@ -21,12 +21,16 @@ public final class IssueCollector {
         }
     }
 
+    public static int amountOfIndicidents() {
+        return incidents.size();
+    }
+
     public static void log() {
         // use system.err instead of logger in case there is an exception with logging
         if (incidents.size() > 0) {
             System.err.println("***** ERROR REPORT *****");
             System.err.println("This is a list of critical incidents which occurred during runtime.");
-            System.err.println("Please create an issue on https://github.com/iotaledger/ict or report it in #omega-ict in IOTA Discord.");
+            System.err.println("Please create an issue on https://github.com/iotaledger/ict or report it in #ict-discussion in IOTA Discord.");
 
             int amountPrinted = 0;
             for (Incident incident : incidents) {

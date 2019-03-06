@@ -33,9 +33,10 @@ cd ict
 # 3) build the runnable .jar file (you will need Gradle)
 gradle fatJar
 
-#4) install the web gui dependencies
+#4) install dependencies and build the web gui
 cd web
 npm install
+npm run build
 ```
 
 ### Running the Client
@@ -46,8 +47,8 @@ You will need the JRE (Java Runtime Environment) or JDK (Java Development Kit).
 # 1) move to whatever directory/folder where your .jar file is in
 cd Desktop/ict/
 
-# 2) run the .jar file
-java -jar ict.jar
+# 2) run the .jar file (example: java -jar ict-0.5.jar)
+java -jar ict-[VERSION].jar
 ```
 
 Use `--config-create` option to create a configuration file (**ict.cfg**). Restart your Ict after modifying the configuration.

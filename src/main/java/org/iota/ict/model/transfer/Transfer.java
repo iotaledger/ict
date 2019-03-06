@@ -8,7 +8,9 @@ import org.iota.ict.utils.Trytes;
 import org.iota.ict.utils.crypto.SignatureSchemeImplementation;
 
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -129,7 +131,9 @@ public class Transfer {
         private State state = null;
 
         private BalanceChangeCollector(Bundle bundle) {
-            for (Transaction t : bundle.getTransactions())
+            List<Transaction> transactionsReverseOrder = bundle.getTransactions();
+            Collections.reverse(transactionsReverseOrder);
+            for (Transaction t : transactionsReverseOrder)
                 assignTransactionToInputOrOutput(t);
             completeCurrentBuilding();
         }

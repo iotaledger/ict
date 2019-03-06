@@ -1,0 +1,133 @@
+@keyframes appear {
+	0% {
+		transform: translate(0, 30px);
+		opacity: 0;
+	}
+	100% {
+		transform: translate(0, 0);
+		opacity: 1;
+	}
+}
+
+.modules {
+	h3 {
+		font-size: 16px;
+		text-transform: uppercase;
+		margin-bottom: 20px;
+		color: $color-primary;
+		font-weight: 600;
+	}
+
+	.module-list {
+		background: $color-box-bg;
+		padding: 30px 28px;
+		animation: appear 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+		animation-fill-mode: forwards;
+	}
+
+	li {
+		display: block;
+		background: #fff;
+		cursor: pointer;
+		padding: 10px 12px;
+		border-radius: 2px;
+		border-left: 4px solid transparent;
+		max-height: 46px;
+		overflow: hidden;
+		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		margin-bottom: 14px;
+
+		p {
+			font-size: 13px;
+			line-height: 20px;
+			margin-bottom: 16px;
+		}
+
+		h4 {
+			position: relative;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			text-transform: uppercase;
+			font-size: 16px;
+			line-height: 25px;
+			margin-bottom: 18px;
+			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+			nav {
+				display: flex;
+				align-items: center;
+				> * {
+					margin-left: 14px;
+				}
+			}
+		}
+
+		> a {
+			display: block;
+			font-size: 13px;
+			font-weight: 600;
+			color: $color-primary;
+			margin-bottom: 16px;
+
+			svg {
+				margin: 0 10px 0 0;
+			}
+
+			&:hover {
+				text-decoration: underline;
+			}
+		}
+
+		h4 > svg {
+			position: absolute;
+			top: 2px;
+			left: 0px;
+			opacity: 0;
+			transition: all 0.12s ease-out;
+			path {
+				fill: $color-primary;
+			}
+			&:last-of-type {
+				display: none;
+			}
+		}
+
+		&:hover,
+		&.active {
+			h4 {
+				padding-left: 28px;
+
+				svg {
+					opacity: 1;
+					transition-delay: 0.1s;
+				}
+			}
+		}
+
+		&:hover {
+			box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.1);
+		}
+
+		&.active {
+			border-left: 4px solid $color-primary;
+			border-radius: 0px;
+			max-height: 200px;
+
+			p {
+				display: block;
+			}
+			h4 {
+				margin-bottom: 28px;
+				svg {
+					&:first-of-type {
+						display: none;
+					}
+					&:last-of-type {
+						display: block;
+					}
+				}
+			}
+		}
+	}
+}

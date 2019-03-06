@@ -1,0 +1,135 @@
+@keyframes pulse {
+	0% {
+		background-color: rgba(255, 255, 255, 0.6);
+	}
+	100% {
+		background-color: $color-sidebar-item-active;
+	}
+}
+
+aside {
+	background: $color-sidebar-bg;
+	color: $color-sidebar-body;
+	text-transform: uppercase;
+	height: 100%;
+
+	@include layout(tablet) {
+		position: fixed;
+		height: 100vh;
+		width: 100vw;
+		left: 0px;
+		top: 0px;
+		z-index: 5;
+		background: none;
+		overflow: hidden;
+		pointer-events: none;
+	}
+
+	header {
+		padding: 12px 30px;
+		background: $color-sidebar-bg;
+		pointer-events: all;
+	}
+
+	> div {
+		background: $color-sidebar-bg;
+		max-width: 248px;
+		width: 100%;
+		pointer-events: all;
+		@include layout(tablet) {
+			position: absolute;
+			top: 74px;
+			left: -248px;
+			height: calc(100vh - 68px);
+		}
+		@include layout(mobile) {
+			max-width: none;
+			left: -100%;
+		}
+	}
+
+	@include layout(tablet) {
+		&.open {
+			background: rgba(0, 0, 0, 0.45);
+			> div {
+				left: 0px;
+			}
+		}
+	}
+
+	img {
+		display: block;
+		height: 60px;
+		@include layout(tablet) {
+			height: 50px;
+		}
+	}
+
+	h1 {
+		line-height: 64px;
+		font-size: 14px;
+		padding-left: 38px;
+		letter-spacing: 1px;
+		color: $color-sidebar-body-hover;
+		&:first-of-type{
+			border-top: 1px solid $color-sidebar-divider;
+		}
+	}
+
+	a {
+		display: block;
+		position: relative;
+		font-size: 12px;
+		line-height: 56px;
+		background: $color-sidebar-item;
+		padding-left: 32px;
+		border-left: 6px solid transparent;
+		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+		svg {
+			position: absolute;
+			top: 50%;
+			left: 32px;
+			margin-top: -10px;
+			opacity: 0;
+			transition: all 0.12s ease-out;
+			path {
+				fill: $color-sidebar-body-hover;
+			}
+		}
+
+		&:hover,
+		&.active {
+			background: $color-sidebar-item-hover;
+			color: $color-sidebar-body-hover;
+			padding-left: 62px;
+			svg {
+				opacity: 1;
+				transition-delay: 0.1s;
+			}
+		}
+
+		&.active {
+			background: $color-sidebar-item-active;
+			border-left-color: $color-sidebar-item-border;
+			animation: pulse 0.4s;
+		}
+	}
+
+	button {
+		display: none;
+		background: none;
+		position: absolute;
+		top: 25px;
+		right: 20px;
+		cursor: pointer;
+
+		svg path{
+			fill: $color-sidebar-body-hover;
+		}
+
+		@include layout(tablet) {
+			display: block;
+		}
+	}
+}

@@ -3,11 +3,11 @@ package org.iota.ict.api;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.Ict;
 import org.iota.ict.IctInterface;
+import org.iota.ict.Main;
 import org.iota.ict.ixi.IxiModule;
 import org.iota.ict.ixi.IxiModuleHolder;
 import org.iota.ict.ixi.IxiModuleInfo;
 import org.iota.ict.network.Neighbor;
-import org.iota.ict.network.Node;
 import org.iota.ict.utils.*;
 import org.iota.ict.utils.properties.EditableProperties;
 import org.iota.ict.utils.properties.FinalProperties;
@@ -17,13 +17,9 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class JsonIct {
-
-    protected Map<Neighbor, JSONArray> statsByNeighbor = new HashMap<>();
 
     protected static final Logger LOGGER = Ict.LOGGER;
     protected final IctInterface ict;
@@ -54,7 +50,7 @@ public class JsonIct {
         if (newConfig.guiPassword().length() == 0)
             newConfig.guiPassword(currentConfig.guiPassword());
         ict.updateProperties(newConfig.toFinal());
-        newConfig.store(Constants.DEFAULT_PROPERTY_FILE_PATH);
+        newConfig.store(Main.getConfigFilePath());
         return success();
     }
 
@@ -65,43 +61,46 @@ public class JsonIct {
     public JSONArray getNeighbors() {
         JSONArray nbs = new JSONArray();
         for (Neighbor neighbor : ict.getNeighbors()) {
-            JSONObject nb = new JSONObject();
-
-            List<Node.Round> rounds = ict.getRounds();
-            if(!statsByNeighbor.containsKey(neighbor))
-                statsByNeighbor.put(neighbor, new JSONArray());
-            JSONArray stats = statsByNeighbor.get(neighbor);
-
-            if(rounds.size() == 0) {
-
-            }
-            updateStatsForNeighbor(neighbor, stats, rounds);
-            nb.put("address", neighbor.getAddress());
-            nb.put("stats", stats);
-            nbs.put(nb);
+            JSONObject nbJSON = new JSONObject();
+            nbJSON.put("address", neighbor.getAddress());
+            nbJSON.put("stats", neighborStatsToScaledJSON(neighbor));
+            nbs.put(nbJSON);
         }
         return nbs;
     }
 
-    private void updateStatsForNeighbor(Neighbor neighbor, JSONArray stats, List<Node.Round> rounds) {
-        // remove all rounds from json which are no longer stored
-        if(stats.length() > 0 && rounds.size() > 0)
-        while (stats.getJSONObject(0).getLong("timestamp") < rounds.get(0).timestamp)
-            stats.remove(0);
+    protected static JSONArray neighborStatsToScaledJSON(Neighbor neighbor) {
 
-        // add all rounds to json which are new
-        int firstNewRoundIndex;
-        if(stats.length() > 0) {
-            long lastSyncedTimestamp = stats.getJSONObject(stats.length()-1).getLong("timestamp");
-            for(firstNewRoundIndex = rounds.size()-1; rounds.get(firstNewRoundIndex).timestamp > lastSyncedTimestamp && firstNewRoundIndex > 0; firstNewRoundIndex--);
+        List<Stats> statsHistory = neighbor.getStatsHistory();
+        long timestampMin = statsHistory.get(0).timestamp;
+        long timestampMax = System.currentTimeMillis()+1;
+        Stats[] statsHistoryScaled;
+
+        if(statsHistory.size() <= Constants.API_MAX_STATS_PER_NEIGHBOR) {
+            statsHistoryScaled = new Stats[statsHistory.size()];
+            for(int i = 0; i < statsHistory.size(); i++)
+                statsHistoryScaled[i] = statsHistory.get(i);
         } else {
-            firstNewRoundIndex = 0;
+            statsHistoryScaled = new Stats[Constants.API_MAX_STATS_PER_NEIGHBOR];
+            for(int i = 0; i < statsHistoryScaled.length; i++) {
+                statsHistoryScaled[i] = new Stats(neighbor);
+                statsHistoryScaled[i].timestamp = timestampMin + (timestampMax - timestampMin) / Constants.API_MAX_STATS_PER_NEIGHBOR * i;
+            }
+
+            for(Stats stats : statsHistory) {
+
+                if(stats.timestamp < timestampMin || stats.timestamp > timestampMax)
+                    throw new RuntimeException(timestampMin + " " + stats.timestamp);
+
+                int index = (int)((Constants.API_MAX_STATS_PER_NEIGHBOR * (stats.timestamp - timestampMin)) / (timestampMax - timestampMin));
+                statsHistoryScaled[index].accumulate(stats);
+            }
         }
-        for(int i = firstNewRoundIndex; i < rounds.size(); i++) {
-            JSONObject json = rounds.get(i).toJSON(neighbor);
-            if(json != null)
-                stats.put(json);
-        }
+
+        JSONArray neighborStats = new JSONArray();
+        for(Stats stats : statsHistoryScaled)
+            neighborStats.put(stats.toJSON());
+        return neighborStats;
     }
 
     public JSONObject addNeighbor(String address) {
@@ -115,7 +114,7 @@ public class JsonIct {
         ict.updateProperties(properties.toFinal());
 
         LOGGER.info("added neighbor: " + address);
-        properties.store(Constants.DEFAULT_PROPERTY_FILE_PATH);
+        properties.store(Main.getConfigFilePath());
         return success();
     }
 
@@ -128,7 +127,7 @@ public class JsonIct {
                 properties.neighbors(neighbors);
                 ict.updateProperties(properties.toFinal());
                 LOGGER.info("removed neighbor: " + address);
-                properties.store(Constants.DEFAULT_PROPERTY_FILE_PATH);
+                properties.store(Main.getConfigFilePath());
                 return success();
             }
         }
@@ -140,7 +139,9 @@ public class JsonIct {
         IxiModuleHolder holder = ict.getModuleHolder();
         for (IxiModule module : holder.getModules()) {
             IxiModuleInfo info = holder.getInfo(module);
+            String update = info.getUpdate();
             JSONObject moduleJSON = info.toJSON();
+            if(update != null) moduleJSON.put("update", update);
             moduleJSON.put("configurable", module.getContext().getConfiguration() != null);
             modules.put(moduleJSON);
         }
@@ -181,7 +182,7 @@ public class JsonIct {
             return success();
         } catch (Throwable t) {
             nmoduleBeingCurrentlyInstalled = null;
-            throw new RuntimeException("Installation of module '" + repository + "' failed: " + t.getMessage(), t);
+            throw new RuntimeException("Installation of module '" + repository + "' failed: " + t, t);
         } finally {
             nmoduleBeingCurrentlyInstalled = null;
         }
@@ -192,6 +193,8 @@ public class JsonIct {
         try {
             String versionsString = GithubGateway.getContents(repository, "master", "versions.json");
             JSONObject versions = new JSONObject(versionsString);
+            if(!versions.has(Constants.ICT_VERSION))
+                LOGGER.warn("versions.json of repository '"+repository+"' does not specify recommended module version for Ict version " + Constants.ICT_VERSION);
             String label = versions.getString(Constants.ICT_VERSION);
             if (label != null)
                 return label;

@@ -45,7 +45,6 @@ public class TransferTest {
         Assert.assertTrue("Signatures are invalid.", transfer.areSignaturesValid());
         Assert.assertEquals("Did not collect as many inputs as submitted transfer had.", inputs.size(), transfer.getInputs().size());
         Assert.assertEquals("Did not collect as many outputs as submitted transfer had.", outputs.size(), transfer.getOutputs().size());
-        Assert.assertTrue("Some outputs of the submitted transfer were not collected.", transfer.getOutputs().containsAll(outputs));
         assertReferenceInputAreIncludedInTransfer(inputs, transfer);
     }
 

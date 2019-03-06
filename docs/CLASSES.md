@@ -16,10 +16,6 @@ from this class.
 
 ## org.iota.ict.utils
 
-### [Properties](../src/main/java/org/iota/ict/utils/Properties.java)
-With instances of this class, the Ict and its sub-components can be easily configured. The properties can be read from files or defined during runtime. Some
-properties might not be changeable yet after passing them to the Ict.
-
 ### [Trytes](../src/main/java/org/iota/ict/utils/Trytes.java)
 This class is a helper tool which allows to perform basic tryte operations, such as conversion between trytes and
 trits, bytes, numbers and ascii strings. Each tryte String must consist entirely of the uppercase letters A-Z and
@@ -31,6 +27,39 @@ second byte the other 4 trits.
 ### [Constants](../src/main/java/org/iota/ict/utils/Constants.java)
 Important constants which are not changed during runtime but might be changed during development or are used by
 multiple classes are kept together here to make them easier to find and adjust.
+
+## org.iota.ict.utils.interfaces
+
+### [Configurable](../src/main/java/org/iota/ict/utils/interfaces/Configurable.java)
+Is called when the configuration is externally updated. The implementation can either accept the changes and update
+the internal configuration or throw an Exception with a meaningful message to inform the caller about why the changes
+cannot be applied (invalid format, invalid length, illegal characters, illegal combination of flags, etc.).
+
+## org.iota.ict.utils.properties
+
+### [Properties](../src/main/java/org/iota/ict/utils/properties/Properties.java)
+With instances of this class, the Ict and its sub-components can be easily configured. The properties can be read from files or defined during runtime. Some
+properties might not be changeable yet after passing them to the Ict.
+
+## org.iota.ict.utils.crypto
+
+### [PublicKey](../src/main/java/org/iota/ict/utils/crypto/PublicKey.java)
+@param signature The signature to validate.
+@param message The message the signature is supposed to sign.
+@return <code>true</code> if the signature belongs to this public key and signs the message.
+
+### [PrivateKey](../src/main/java/org/iota/ict/utils/crypto/PrivateKey.java)
+@param message The message to sign.
+@return A signature signing the message.
+
+## org.iota.ict.ixi.context
+
+### [IxiContext](../src/main/java/org/iota/ict/ixi/context/IxiContext.java)
+This class expands the module-Ict interface with additional features which are not directly related to the Tangle
+and therefore not part of the actual IXI. It's main purpose is streamlining the working mechanisms of IXI modules,
+for example by giving them a standard interface to manage configuration.
+<p>
+Implementations:
 
 ## org.iota.ict.network
 
@@ -104,7 +133,7 @@ and their fields are not supposed to change after instantiation. To create custo
 
 ### [RingTangle](../src/main/java/org/iota/ict/model/RingTangle.java)
 This Tangle prunes transactions after reaching a certain size. It works similar to a ring memory (hence the name).
-The transactions are pruned in order of their timestamp, always keeping the N (<b>transactionCapacity</b>) most recent ones.
+The transactions are pruned in order of their timestamp, always keeping the N (<b>capacity</b>) most recent ones.
 As an exception, the NULL transaction will never be pruned away.
 
 ### [BalanceChange](../src/main/java/org/iota/ict/model/BalanceChange.java)
