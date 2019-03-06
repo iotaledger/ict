@@ -47,7 +47,7 @@ You will need the JRE (Java Runtime Environment) or JDK (Java Development Kit).
 # 1) move to whatever directory/folder where your .jar file is in
 cd Desktop/ict/
 
-# 2) run the .jar file (example: java -jar ict-0.5.jar)
+# 2) run the .jar file (example: java -jar ict-0.6.jar)
 java -jar ict-[VERSION].jar
 ```
 
