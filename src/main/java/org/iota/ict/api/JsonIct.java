@@ -87,7 +87,7 @@ public class JsonIct {
     protected static List<Stats> subListByTimestampInterval(List<Stats> statsAscendingTimestamp, long timestampMin, long timestampMax) {
         int indexMin, indexMax;
         for(indexMin = 0; indexMin < statsAscendingTimestamp.size() && statsAscendingTimestamp.get(indexMin).timestamp < timestampMin; indexMin++);
-        for(indexMax = indexMin; indexMax < statsAscendingTimestamp.size()-1 && statsAscendingTimestamp.get(indexMax+1).timestamp < timestampMin; indexMax++);
+        for(indexMax = indexMin; indexMax < statsAscendingTimestamp.size()-1 && statsAscendingTimestamp.get(indexMax+1).timestamp < timestampMax; indexMax++);
         return statsAscendingTimestamp.subList(indexMin, indexMax);
     }
 
