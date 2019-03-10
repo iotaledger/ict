@@ -463,7 +463,9 @@ class RouteGetNeighbors extends RouteImpl {
     protected RouteGetNeighbors(JsonIct jsonIct) { super(jsonIct, "/getNeighbors"); }
 
     public JSONObject execute(Request request) {
-        return new JSONObject().put("neighbors", jsonIct.getNeighbors());
+        long timestampMin = Long.parseLong(request.queryParamOrDefault("timestamp_min", ""+(System.currentTimeMillis()-7*24*3600*1000)));
+        long timestampMax = Long.parseLong(request.queryParamOrDefault("timestamp_max", ""+(System.currentTimeMillis())));
+        return new JSONObject().put("neighbors", jsonIct.getNeighbors(timestampMin, timestampMax));
     }
 }
 

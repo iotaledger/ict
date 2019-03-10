@@ -58,49 +58,64 @@ public class JsonIct {
         return ict.getProperties().toEditable().guiPassword("").toJSON();
     }
 
-    public JSONArray getNeighbors() {
+    public JSONArray getNeighbors(long timestampMin, long timestampMax) {
         JSONArray nbs = new JSONArray();
         for (Neighbor neighbor : ict.getNeighbors()) {
             JSONObject nbJSON = new JSONObject();
             nbJSON.put("address", neighbor.getAddress());
-            nbJSON.put("stats", neighborStatsToScaledJSON(neighbor));
+            nbJSON.put("stats", neighborStatsToScaledJSON(neighbor, timestampMin, timestampMax));
             nbs.put(nbJSON);
         }
         return nbs;
     }
 
-    protected static JSONArray neighborStatsToScaledJSON(Neighbor neighbor) {
+    protected static JSONArray neighborStatsToScaledJSON(Neighbor neighbor, long timestampMin, long timestampMax) {
 
         List<Stats> statsHistory = neighbor.getStatsHistory();
-        long timestampMin = statsHistory.get(0).timestamp;
-        long timestampMax = System.currentTimeMillis()+1;
-        Stats[] statsHistoryScaled;
+        statsHistory = subListByTimestampInterval(statsHistory, timestampMin, timestampMax);
 
-        if(statsHistory.size() <= Constants.API_MAX_STATS_PER_NEIGHBOR) {
-            statsHistoryScaled = new Stats[statsHistory.size()];
-            for(int i = 0; i < statsHistory.size(); i++)
-                statsHistoryScaled[i] = statsHistory.get(i);
-        } else {
-            statsHistoryScaled = new Stats[Constants.API_MAX_STATS_PER_NEIGHBOR];
-            for(int i = 0; i < statsHistoryScaled.length; i++) {
-                statsHistoryScaled[i] = new Stats(neighbor);
-                statsHistoryScaled[i].timestamp = timestampMin + (timestampMax - timestampMin) / Constants.API_MAX_STATS_PER_NEIGHBOR * i;
-            }
-
-            for(Stats stats : statsHistory) {
-
-                if(stats.timestamp < timestampMin || stats.timestamp > timestampMax)
-                    throw new RuntimeException(timestampMin + " " + stats.timestamp);
-
-                int index = (int)((Constants.API_MAX_STATS_PER_NEIGHBOR * (stats.timestamp - timestampMin)) / (timestampMax - timestampMin));
-                statsHistoryScaled[index].accumulate(stats);
-            }
-        }
+        Stats[] statsHistoryScaled = statsHistory.size() <= Constants.API_MAX_STATS_PER_NEIGHBOR
+                ? neighborStatsNoScalingRequired(statsHistory)
+                : scaleNeighborStats(statsHistory, neighbor);
 
         JSONArray neighborStats = new JSONArray();
         for(Stats stats : statsHistoryScaled)
             neighborStats.put(stats.toJSON());
         return neighborStats;
+    }
+
+    protected static List<Stats> subListByTimestampInterval(List<Stats> statsAscendingTimestamp, long timestampMin, long timestampMax) {
+        int indexMin, indexMax;
+        for(indexMin = 0; indexMin < statsAscendingTimestamp.size() && statsAscendingTimestamp.get(indexMin).timestamp < timestampMin; indexMin++);
+        for(indexMax = indexMin; indexMax < statsAscendingTimestamp.size()-1 && statsAscendingTimestamp.get(indexMax+1).timestamp < timestampMin; indexMax++);
+        return statsAscendingTimestamp.subList(indexMin, indexMax);
+    }
+
+    protected static Stats[] neighborStatsNoScalingRequired(List<Stats> statsHistory) {
+        Stats[] statsHistoryScaled;
+        statsHistoryScaled = new Stats[statsHistory.size()];
+        for(int i = 0; i < statsHistory.size(); i++)
+            statsHistoryScaled[i] = statsHistory.get(i);
+        return statsHistoryScaled;
+    }
+
+    protected static Stats[] scaleNeighborStats(List<Stats> statsHistory, Neighbor neighbor) {
+
+        long timestampMin = statsHistory.get(0).timestamp;
+        long timestampMax = statsHistory.get(statsHistory.size()-1).timestamp;
+
+        Stats[] statsHistoryScaled;
+        statsHistoryScaled = new Stats[Constants.API_MAX_STATS_PER_NEIGHBOR];
+        for(int i = 0; i < statsHistoryScaled.length; i++) {
+            statsHistoryScaled[i] = new Stats(neighbor);
+            statsHistoryScaled[i].timestamp = timestampMin + (timestampMax - timestampMin) / Constants.API_MAX_STATS_PER_NEIGHBOR * i;
+        }
+
+        for(Stats stats : statsHistory) {
+            int index = (int)((Constants.API_MAX_STATS_PER_NEIGHBOR * (stats.timestamp - timestampMin)) / (timestampMax - timestampMin));
+            statsHistoryScaled[index].accumulate(stats);
+        }
+        return statsHistoryScaled;
     }
 
     public JSONObject addNeighbor(String address) {
