@@ -102,7 +102,7 @@ public class JsonIct {
     protected static Stats[] scaleNeighborStats(List<Stats> statsHistory, Neighbor neighbor) {
 
         long timestampMin = statsHistory.get(0).timestamp;
-        long timestampMax = statsHistory.get(statsHistory.size()-1).timestamp;
+        long timestampMax = statsHistory.get(statsHistory.size()-1).timestamp+1;
 
         Stats[] statsHistoryScaled;
         statsHistoryScaled = new Stats[Constants.API_MAX_STATS_PER_NEIGHBOR];

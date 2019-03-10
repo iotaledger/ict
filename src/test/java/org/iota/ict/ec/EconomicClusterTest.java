@@ -24,9 +24,9 @@ public class EconomicClusterTest extends IctTestTemplate {
         ControlledEconomicActor ca3 = new ControlledEconomicActor(new MerkleTree(Trytes.randomSequenceOfLength(81), 3), 0);
 
         EconomicCluster cluster = new EconomicCluster(ictB);
-        TrustedEconomicActor ta1 = new TrustedEconomicActor(ca1.getAddress(), 0.2);
-        TrustedEconomicActor ta2 = new TrustedEconomicActor(ca2.getAddress(), 0.3);
-        TrustedEconomicActor ta3 = new TrustedEconomicActor(ca3.getAddress(), 0.4);
+        TrustedEconomicActor ta1 = new TrustedEconomicActor(ca1.getAddress(),0.2);
+        TrustedEconomicActor ta2 = new TrustedEconomicActor(ca2.getAddress(),0.3);
+        TrustedEconomicActor ta3 = new TrustedEconomicActor(ca3.getAddress(),0.4);
         cluster.addActor(ta1);
         cluster.addActor(ta2);
         cluster.addActor(ta3);
@@ -57,6 +57,6 @@ public class EconomicClusterTest extends IctTestTemplate {
 
     private void assertApprovalRate(EconomicCluster cluster, Transaction transaction, double expected) {
         double approvalConfidence = cluster.determineApprovalConfidence(transaction);
-        Assert.assertEquals("Unexpected ransaction approval confidence for "+transaction.hash+".", expected, approvalConfidence, 1E-10);
+        Assert.assertEquals("Unexpected transaction approval confidence for "+transaction.hash+".", expected, approvalConfidence, 1E-10);
     }
 }

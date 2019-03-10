@@ -34,6 +34,19 @@ public class TransferTest {
     }
 
     @Test
+    public void testOutputMessageOrder() {
+        String outputAddress = Trytes.randomSequenceOfLength(Transaction.Field.ADDRESS.tryteLength);
+        String outputMessage = Trytes.randomSequenceOfLength(Transaction.Field.SIGNATURE_FRAGMENTS.tryteLength * 3);
+        OutputBuilder originalOutput = new OutputBuilder(outputAddress, BigInteger.ZERO, outputMessage);
+
+        Bundle bundle = buildBundle(new HashSet<InputBuilder>(), Collections.singleton(originalOutput));
+        Transfer transfer = new Transfer(bundle);
+        BalanceChange decodedOutput = new LinkedList<>(transfer.getOutputs()).get(0);
+
+        Assert.assertEquals("Decoded BalanceChange message unexpected.", outputMessage, decodedOutput.getSignatureOrMessage());
+    }
+
+    @Test
     public void testCollectInputsAndOutputs() {
         Set<InputBuilder> inputs = createRandomInputs(3, 1);
         BigInteger inputBalance = calcAvailableFunds(inputs);

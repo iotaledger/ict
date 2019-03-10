@@ -1,5 +1,7 @@
 package org.iota.ict.utils.crypto;
 
+import org.iota.ict.utils.Trytes;
+
 public class MerkleTree {
 
     private final SignatureScheme.PrivateKey[] privateKeys;
@@ -12,7 +14,7 @@ public class MerkleTree {
         int width = (int)Math.pow(2, depth);
         privateKeys = new SignatureScheme.PrivateKey[width];
         publicKeys = new SignatureScheme.PublicKey[width];
-        initKeys(seed, 1);
+        initKeys(seed, 3);
         nodes = calcNodes();
     }
 
@@ -34,9 +36,9 @@ public class MerkleTree {
         return nodes;
     }
 
-    private void initKeys(String seed, int fragmentsPerKey) {
+    private void initKeys(String seed, int securityLevel) {
         for(int i = 0; i < privateKeys.length; i++) {
-            privateKeys[i] = SignatureSchemeImplementation.derivePrivateKeyFromSeed(seed, i, fragmentsPerKey);
+            privateKeys[i] = SignatureSchemeImplementation.derivePrivateKeyFromSeed(seed, i, securityLevel);
             publicKeys[i] = privateKeys[i].derivePublicKey();
         }
     }
@@ -68,6 +70,10 @@ public class MerkleTree {
         return SignatureSchemeImplementation.hash((comp < 0 ? nodeA : nodeB) + (comp < 0 ? nodeB : nodeA));
     }
 
+    public int getDepth() {
+        return depth;
+    }
+
     public static class Signature extends SignatureSchemeImplementation.Signature {
 
         private final String[] merklePath;
@@ -76,6 +82,13 @@ public class MerkleTree {
         public Signature(String trytes, String merklePath[], String signed) {
             super(trytes, signed);
             this.merklePath = merklePath;
+        }
+
+        public static Signature fromTrytesConcatenatedWithMerklePath(String trytesConcatenateWithMerklePath, String signed) {
+            int trytesLength = signed.length() * 81;
+            String trytes = trytesConcatenateWithMerklePath.substring(0, trytesLength);
+            String[] merklePath = trytesConcatenateWithMerklePath.substring(trytes.length()).split("(?<=\\G.{81})");
+            return new Signature(trytes, merklePath, signed);
         }
 
         @Override

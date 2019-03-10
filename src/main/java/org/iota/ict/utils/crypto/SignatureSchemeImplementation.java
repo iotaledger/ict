@@ -19,15 +19,15 @@ public final class SignatureSchemeImplementation extends SignatureScheme {
         return publicKey.getAddress();
     }
 
-    public static PrivateKey derivePrivateKeyFromSeed(String seed, int index, int fragments) {
+    public static PrivateKey derivePrivateKeyFromSeed(String seed, int index, int securityLevel) {
         String subSeed = hash(seed + Trytes.fromNumber(BigInteger.valueOf(index), 9));
-        return derivePrivateKeyFromSubSeed(subSeed, fragments);
+        return derivePrivateKeyFromSubSeed(subSeed, securityLevel);
     }
 
-    private static PrivateKey derivePrivateKeyFromSubSeed(String subSeed, int fragments) {
+    private static PrivateKey derivePrivateKeyFromSubSeed(String subSeed, int securityLevel) {
         StringBuilder privateKey = new StringBuilder();
         String lastPrivateKeyFragment = subSeed;
-        while (privateKey.length() < KEY_FRAGMENT_LENGTH * 27 * fragments) {
+        while (privateKey.length() < KEY_FRAGMENT_LENGTH * 27 * securityLevel) {
             privateKey.append(lastPrivateKeyFragment = hash(lastPrivateKeyFragment));
         }
         return new PrivateKey(privateKey.toString());
@@ -113,8 +113,8 @@ public final class SignatureSchemeImplementation extends SignatureScheme {
     }
 
     public static class PublicKey implements SignatureScheme.PublicKey<SignatureSchemeImplementation> {
-        private final String trytes;
-        private final String address;
+        protected final String trytes;
+        protected final String address;
 
         public PublicKey(String trytes) {
             this.trytes = trytes;
@@ -152,9 +152,9 @@ public final class SignatureSchemeImplementation extends SignatureScheme {
         // amount of trytes a transaction can sign
         public static final int SIGNED_TRYTES_PER_FRAGMENT = FRAGMENT_LENGTH / FRAGMENT_FRAGMENT_LENGTH;
 
-        private final String trytes;
-        private final String signed;
-        private PublicKey publicKey;
+        protected final String trytes;
+        protected final String signed;
+        protected PublicKey publicKey;
 
         public Signature(String trytes, String signed) {
             this.trytes = trytes;

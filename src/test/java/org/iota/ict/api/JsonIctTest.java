@@ -14,7 +14,7 @@ public class JsonIctTest {
     @Test
     public void neighborStatsToScaledJSON() {
         Neighbor neighbor = generateNeighborWithRandomStats(Constants.API_MAX_STATS_PER_NEIGHBOR * 5);
-        JSONArray array = JsonIct.neighborStatsToScaledJSON(neighbor);
+        JSONArray array = JsonIct.neighborStatsToScaledJSON(neighbor, 0, System.currentTimeMillis()+1);
         assertSumEquals(neighbor.getStatsHistory(), array);
     }
 

@@ -4,8 +4,8 @@ import org.iota.ict.model.bc.BalanceChange;
 import org.iota.ict.model.bundle.Bundle;
 import org.iota.ict.model.transaction.Transaction;
 import org.iota.ict.model.transfer.Transfer;
+import org.iota.ict.utils.Trytes;
 import org.iota.ict.utils.crypto.MerkleTree;
-import org.iota.ict.utils.crypto.SignatureSchemeImplementation;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -72,7 +72,8 @@ public class TrustedEconomicActor extends EconomicActor {
             return false;
         String messageToSign = messageToSign(marker.getTail().trunkHash(), marker.getTail().branchHash());
 
-        MerkleTree.Signature signature = new MerkleTree.Signature(messageToSign, null, null); // TODO
+        String signatureTrytesConcatenatedWithMerklePath = output.getSignatureOrMessage().replace(Trytes.NULL_HASH, "");
+        MerkleTree.Signature signature = MerkleTree.Signature.fromTrytesConcatenatedWithMerklePath(signatureTrytesConcatenatedWithMerklePath, messageToSign);
 
         return address.equals(signature.deriveAddress());
    }
