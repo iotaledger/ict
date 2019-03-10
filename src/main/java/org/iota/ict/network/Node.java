@@ -186,7 +186,7 @@ public class Node extends RestartableThread implements PropertiesUser {
 
     public void newRound() {
 
-        if (round % 10 == 0)
+        if (round++ % 10 == 0)
             logHeader();
         // two separate FOR-loops to prevent delays between newRound() calls
         for (Neighbor neighbor : ict.getNeighbors()) {

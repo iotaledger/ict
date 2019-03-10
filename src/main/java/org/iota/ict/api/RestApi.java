@@ -11,7 +11,9 @@ import spark.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class RestApi extends RestartableThread implements PropertiesUser {
@@ -22,6 +24,8 @@ public class RestApi extends RestartableThread implements PropertiesUser {
     protected FinalProperties properties;
     protected Set<RouteImpl> routes = new HashSet<>();
     protected boolean initialized = false;
+
+    private Map<String, Long> timeoutsByIP = new HashMap<>();
 
     static {
         try {
@@ -86,12 +90,18 @@ public class RestApi extends RestartableThread implements PropertiesUser {
         service.before(new Filter() {
             @Override
             public void handle(Request request, Response response) {
+
+                if(timeoutsByIP.containsKey(request.ip()) && System.currentTimeMillis() < timeoutsByIP.get(request.ip()))
+                    service.halt(429, "Authentication failed, try again in "+( timeoutsByIP.get(request.ip())-System.currentTimeMillis())/1000+" seconds.");
+
                 if(request.requestMethod().equals("GET") && !request.pathInfo().matches("^[/]?$") && !request.pathInfo().startsWith("/modules/")) {
                     response.redirect("/");
                 }
                 String queryPassword = request.queryParams("password");
-                if (!queryPassword.equals(properties.guiPassword()))
+                if (!queryPassword.equals(properties.guiPassword())) {
+                    timeoutsByIP.put(request.ip(), System.currentTimeMillis()+5000);
                     service.halt(401, "Access denied: password incorrect.");
+                }
             }
         });
 
