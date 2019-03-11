@@ -69,6 +69,7 @@ public class EconomicCluster implements GossipListener, PropertiesUser {
 
         Bundle possiblyMarker = new Bundle(transaction);
         possiblyMarker.tryToComplete(ict);
+
         if(!possiblyMarker.isComplete() || !possiblyMarker.isStructureValid())
             return; // TODO if not complete, try again later
 

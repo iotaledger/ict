@@ -36,12 +36,12 @@ public class BundleCollector extends RestartableThread {
         try {
             while (isRunning()) {
                 GossipEvent gossipEvent = gossipPreprocessor.incoming.take();
-                if(!gossipEvent.isOwnTransaction()) {
+                //if(!gossipEvent.isOwnTransaction()) {
                     addIncompleteBundleTransaction(gossipEvent);
                     passOnBundleIfComplete(gossipEvent);
-                } else {
-                    gossipPreprocessor.passOn(gossipEvent);
-                }
+                //} else {
+                //    gossipPreprocessor.passOn(gossipEvent);
+                //}
             }
         } catch (InterruptedException e) {
             if(isRunning())

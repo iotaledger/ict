@@ -68,13 +68,15 @@ public class TrustedEconomicActor extends EconomicActor {
             return;
         }
 
-        if(!isMarkerSignatureValid(marker)) {
+        MerkleTree.Signature markerSignature = getMarkerSIgnature(marker);
+
+        if(markerSignature == null || !address.equals(markerSignature.deriveAddress())) {
             // invalid signature
             return;
         }
 
         Transaction tail = marker.getTail();
-        SubTangle subTangle = new SubTangle(0, 1); // TODO
+        SubTangle subTangle = new SubTangle(markerSignature.deriveIndex(), 1); // TODO derive confidence from marker
         markAsApprovedRecursively(subTangle, tail);
     }
 
@@ -95,20 +97,18 @@ public class TrustedEconomicActor extends EconomicActor {
         }
     }
 
-    protected boolean isMarkerSignatureValid(Bundle marker) {
+    protected MerkleTree.Signature getMarkerSIgnature(Bundle marker) {
         Transfer transfer = new Transfer(marker);
         List<BalanceChange> listOfSingleOutput = new LinkedList<>(transfer.getOutputs());
         if(listOfSingleOutput.size() != 1)
-            return false;
+            return null;
         BalanceChange output = listOfSingleOutput.get(0);
         if(!output.address.equals(address))
-            return false;
+            return null;
         String messageToSign = messageToSign(marker.getTail().trunkHash(), marker.getTail().branchHash());
 
         String signatureTrytesConcatenatedWithMerklePath = output.getSignatureOrMessage().replace(Trytes.NULL_HASH, "");
-        MerkleTree.Signature signature = MerkleTree.Signature.fromTrytesConcatenatedWithMerklePath(signatureTrytesConcatenatedWithMerklePath, messageToSign);
-
-        return address.equals(signature.deriveAddress());
+        return MerkleTree.Signature.fromTrytesConcatenatedWithMerklePath(signatureTrytesConcatenatedWithMerklePath, messageToSign);
     }
 
     private class SubTangle {
