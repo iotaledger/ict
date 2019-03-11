@@ -353,7 +353,7 @@ public class Transaction {
 
     public void setBranch(Transaction branch) {
         if(branch != null && !branch.hash.equals(branchHash))
-            throw new IllegalArgumentException("incorrect branch");
+            throw new IllegalArgumentException("incorrect branch (expected: '"+branchHash+"', given: '"+branch.hash+"')");
         this.branch = branch;
     }
 

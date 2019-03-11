@@ -31,6 +31,8 @@ public class EconomicClusterTest extends IctTestTemplate {
         cluster.addActor(ta2);
         cluster.addActor(ta3);
 
+        double maxTrust = ta1.getTrust() + ta2.getTrust() + ta3.getTrust();
+
         Transaction transaction = new TransactionBuilder().build();
         ictA.submit(transaction);
         waitUntilCommunicationEnds(50);
@@ -38,12 +40,12 @@ public class EconomicClusterTest extends IctTestTemplate {
         assertApprovalRate(cluster, transaction, 0);
 
         sendMarker(ictA, ca1, transaction.hash);
-        assertApprovalRate(cluster, transaction, ta1.getTrust());
+        assertApprovalRate(cluster, transaction, ta1.getTrust()/maxTrust);
 
         // do it twice: being referenced twice by the same actor shouldn't change the approval rate
         for(int i = 0; i < 2; i++) {
             sendMarker(ictA, ca2, transaction.hash);
-            assertApprovalRate(cluster, transaction, 1 - (1-ta1.getTrust()) * (1-ta2.getTrust()));
+            assertApprovalRate(cluster, transaction,  (ta1.getTrust() + ta2.getTrust()) / maxTrust);
         }
     }
 
