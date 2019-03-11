@@ -76,8 +76,13 @@ public class TrustedEconomicActor extends EconomicActor {
         }
 
         Transaction tail = marker.getTail();
-        SubTangle subTangle = new SubTangle(markerSignature.deriveIndex(), 1); // TODO derive confidence from marker
+        double confidence = decodeConfidence(tail.tag());
+        SubTangle subTangle = new SubTangle(markerSignature.deriveIndex(), confidence);
         markAsApprovedRecursively(subTangle, tail);
+    }
+
+    private static double decodeConfidence(String trytes) {
+        return Trytes.TRYTES.indexOf(trytes.charAt(0)) / 26.0;
     }
 
     private void markAsApprovedRecursively(SubTangle subTangle, Transaction root) {

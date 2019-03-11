@@ -14,7 +14,30 @@ public class EconomicClusterTest extends IctTestTemplate {
 
     @Test
     public void testOverwriteConfidence() {
-        Assert.fail("implement me >:(");
+        Ict ict = createIct();
+
+        ControlledEconomicActor ca = new ControlledEconomicActor(new MerkleTree(Trytes.randomSequenceOfLength(81), 3,3), 0);
+
+        EconomicCluster cluster = new EconomicCluster(ict);
+        TrustedEconomicActor ta = new TrustedEconomicActor(ca.getAddress(),0.2);
+        cluster.addActor(ta);
+
+        Transaction transaction = new TransactionBuilder().build();
+        ict.submit(transaction);
+        saveSleep(50);
+
+        // this marker will be created first to ensure the index is zero
+        Bundle markerWithIndex0 = ca.issueMarker(transaction.hash, transaction.hash, 1, 3/26.0);
+
+        assertApprovalRate(cluster, transaction, 0);
+        sendMarker(ict, ca, transaction.hash, 22/26.0);
+        assertApprovalRate(cluster, transaction, 22/26.0);
+        sendMarker(ict, ca, transaction.hash, 17/26.0);
+        assertApprovalRate(cluster, transaction, 17/26.0);
+
+        // issue marker with index zero: approval rate should not change because marker is old
+        sendMarker(ict, markerWithIndex0);
+        assertApprovalRate(cluster, transaction, 17/26.0);
     }
 
     @Test
@@ -42,12 +65,12 @@ public class EconomicClusterTest extends IctTestTemplate {
 
         assertApprovalRate(cluster, transaction, 0);
 
-        sendMarker(ict, ca1, transaction.hash);
+        sendMarker(ict, ca1, transaction.hash, 1);
         assertApprovalRate(cluster, transaction, ta1.getTrust()/maxTrust);
 
         // do it twice: being referenced twice by the same actor shouldn't change the approval rate
         for(int i = 0; i < 2; i++) {
-            sendMarker(ict, ca2, transaction.hash);
+            sendMarker(ict, ca2, transaction.hash, 1);
             assertApprovalRate(cluster, transaction,  (ta1.getTrust() + ta2.getTrust()) / maxTrust);
         }
     }
@@ -71,12 +94,16 @@ public class EconomicClusterTest extends IctTestTemplate {
 
         assertApprovalRate(cluster, transaction, 0);
 
-        sendMarker(ictA, ca, transaction.hash);
+        sendMarker(ictA, ca, transaction.hash, 1);
         assertApprovalRate(cluster, transaction, 1);
     }
 
-    private void sendMarker(Ict ict, ControlledEconomicActor actor, String referencedHash) {
-        Bundle marker = actor.issueMarker(referencedHash, referencedHash, 1);
+    private void sendMarker(Ict ict, ControlledEconomicActor actor, String referencedHash, double confidence) {
+        Bundle marker = actor.issueMarker(referencedHash, referencedHash, 1, confidence);
+        sendMarker(ict, marker);
+    }
+
+    private void sendMarker(Ict ict, Bundle marker) {
         for(Transaction markerTransaction : marker.getTransactions())
             ict.submit(markerTransaction);
         waitUntilCommunicationEnds(100);
