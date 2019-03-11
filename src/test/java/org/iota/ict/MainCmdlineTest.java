@@ -8,6 +8,7 @@ import org.junit.Test;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -28,14 +29,14 @@ public class MainCmdlineTest {
         DEFAULT_PROPERTIES_MAP.put(Properties.Property.max_forward_delay.name(), hardcoded.maxForwardDelay());
         DEFAULT_PROPERTIES_MAP.put(Properties.Property.min_forward_delay.name(), hardcoded.minForwardDelay());
         DEFAULT_PROPERTIES_MAP.put(Properties.Property.name.name(), hardcoded.name());
-        DEFAULT_PROPERTIES_MAP.put(Properties.Property.neighbors.name(), listAsString(hardcoded.neighbors()));
+        DEFAULT_PROPERTIES_MAP.put(Properties.Property.neighbors.name(), listAsString(new LinkedList<>(hardcoded.neighbors())));
         DEFAULT_PROPERTIES_MAP.put(Properties.Property.port.name(), hardcoded.port());
         DEFAULT_PROPERTIES_MAP.put(Properties.Property.round_duration.name(), hardcoded.roundDuration());
         DEFAULT_PROPERTIES_MAP.put(Properties.Property.tangle_capacity.name(), hardcoded.tangleCapacity());
         DEFAULT_PROPERTIES_MAP.put(Properties.Property.gui_port.name(), hardcoded.guiPort());
         DEFAULT_PROPERTIES_MAP.put(Properties.Property.gui_password.name(), hardcoded.guiPassword());
         DEFAULT_PROPERTIES_MAP.put(Properties.Property.max_heap_size.name(), hardcoded.maxHeapSize());
-        DEFAULT_PROPERTIES_MAP.put(Properties.Property.economic_cluster.name(),listAsString(hardcoded.economicCluster()));
+        DEFAULT_PROPERTIES_MAP.put(Properties.Property.economic_cluster.name(),listAsString(new LinkedList<>(hardcoded.economicCluster())));
 
         // Check that default properties map contains all property keys
         Properties.Property[] values = Properties.Property.values();

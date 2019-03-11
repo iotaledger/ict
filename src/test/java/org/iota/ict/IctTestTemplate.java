@@ -49,7 +49,7 @@ public abstract class IctTestTemplate {
 
     private static void addNeighborToIct(Ict ict, Ict neighbor) {
         EditableProperties properties = ict.getProperties().toEditable();
-        List<String> neighbors = properties.neighbors();
+        Set<String> neighbors = properties.neighbors();
         neighbors.add(neighbor.getAddress().getHostName() + ":" + neighbor.getAddress().getPort());
         properties.neighbors(neighbors);
         ict.updateProperties(properties.toFinal());

@@ -32,9 +32,9 @@ public class EconomicCluster implements GossipListener, PropertiesUser {
 
     @Override
     public void updateProperties(FinalProperties properties) {
-        List<String> list = properties.economicCluster();
+        Set<String> set = properties.economicCluster();
         HashSet<TrustedEconomicActor> newActors = new HashSet<>();
-        for(String element : list) {
+        for(String element : set) {
             String[] split = element.split(":");
             String address = split[0];
             double trust = Double.parseDouble(split[1]);

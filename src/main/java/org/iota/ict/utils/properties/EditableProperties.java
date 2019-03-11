@@ -1,8 +1,10 @@
 package org.iota.ict.utils.properties;
 
 import java.net.InetSocketAddress;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 public class EditableProperties extends Properties {
 
@@ -36,13 +38,13 @@ public class EditableProperties extends Properties {
         return this;
     }
 
-    public EditableProperties neighbors(List<String> neighbors) {
-        this.neighbors = new LinkedList<>(neighbors);
+    public EditableProperties neighbors(Set<String> neighbors) {
+        this.neighbors = new HashSet<>(neighbors);
         return this;
     }
 
-    public EditableProperties economicCluster(List<String> economicCluster) {
-        this.economicCluster = economicCluster;
+    public EditableProperties economicCluster(Set<String> economicCluster) {
+        this.economicCluster = new HashSet<>(economicCluster);
         return this;
     }
 
