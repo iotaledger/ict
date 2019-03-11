@@ -7,10 +7,7 @@ import org.iota.ict.model.transfer.Transfer;
 import org.iota.ict.utils.Trytes;
 import org.iota.ict.utils.crypto.MerkleTree;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Monitors an economic actor by following its markers. The passively-reading counter-part to {@link ControlledEconomicActor}.
@@ -18,7 +15,8 @@ import java.util.Set;
 public class TrustedEconomicActor extends EconomicActor {
 
     protected double trust;
-    protected final Set<String> approved = new HashSet<>();
+    protected final Map<String, SubTangle> latest = new HashMap<>();
+    protected final Map<String, Set<String>> missingChildren = new HashMap<>();
 
     public TrustedEconomicActor(String address, double trust) {
         super(address);
@@ -31,12 +29,36 @@ public class TrustedEconomicActor extends EconomicActor {
         this.trust = trust;
     }
 
-    public boolean approvesTransaction(Transaction transaction) {
-        return approved.contains(transaction.hash);
+    public double getConfidence(Transaction transaction) {
+        return latest.containsKey(transaction.hash) ? latest.get(transaction.hash).confidence : 0;
     }
 
     public double getTrust() {
         return trust;
+    }
+
+    public void processTransaction(Transaction transaction) {
+        if(missingChildren.keySet().contains(transaction.hash))
+            missingChildFound(transaction);
+    }
+
+    private synchronized void missingChildFound(Transaction missingChild) {
+        Set<String> parents = missingChildren.get(missingChild.hash);
+        missingChildren.remove(missingChild.hash);
+        SubTangle latestSubTangleOfParents = null;
+        for(String parent : parents) {
+            SubTangle subTangleOfParent = latest.get(parent);
+            if(latestSubTangleOfParents == null || latestSubTangleOfParents.index < subTangleOfParent.index) {
+                latestSubTangleOfParents = subTangleOfParent;
+            }
+        }
+        markAsApprovedRecursively(latestSubTangleOfParents, missingChild);
+    }
+
+    private synchronized void reportMissingChildren(String parent, String child) {
+        if(!missingChildren.containsKey(child))
+            missingChildren.put(child, new HashSet<String>());
+        missingChildren.get(child).add(parent);
     }
 
     public void processMarker(Bundle marker) {
@@ -51,14 +73,25 @@ public class TrustedEconomicActor extends EconomicActor {
             return;
         }
 
-        markAsApprovedRcursively(marker.getTail());
+        Transaction tail = marker.getTail();
+        SubTangle subTangle = new SubTangle(0, 1); // TODO
+        markAsApprovedRecursively(subTangle, tail);
     }
 
-    private void markAsApprovedRcursively(Transaction root) {
-        if(root != null && approved.add(root.hash)) {
-            // todo approve referenced transactions that are being received later
-            markAsApprovedRcursively(root.getTrunk());
-            markAsApprovedRcursively(root.getBranch());
+    private void markAsApprovedRecursively(SubTangle subTangle, Transaction root) {
+        SubTangle before = latest.get(root.hash);
+        if(latest.get(root.hash) == null || before.index < subTangle.index) {
+            latest.put(root.hash, subTangle);
+            markAsApprovedRecursivelyOrReportMissing(subTangle, root.getTrunk(), root.trunkHash(), root.hash);
+            markAsApprovedRecursivelyOrReportMissing(subTangle, root.getBranch(), root.branchHash(), root.hash);
+        }
+    }
+
+    private void markAsApprovedRecursivelyOrReportMissing(SubTangle subTangle, Transaction childOrNull, String childHash, String parentHash) {
+        if(childOrNull != null) {
+            markAsApprovedRecursively(subTangle, childOrNull);
+        } else {
+            reportMissingChildren(parentHash, childHash);
         }
     }
 
@@ -76,5 +109,15 @@ public class TrustedEconomicActor extends EconomicActor {
         MerkleTree.Signature signature = MerkleTree.Signature.fromTrytesConcatenatedWithMerklePath(signatureTrytesConcatenatedWithMerklePath, messageToSign);
 
         return address.equals(signature.deriveAddress());
-   }
+    }
+
+    private class SubTangle {
+        public final int index;
+        public final double confidence;
+
+        public SubTangle(int index, double confidence) {
+            this.index = index;
+            this.confidence = confidence;
+        }
+    }
 }

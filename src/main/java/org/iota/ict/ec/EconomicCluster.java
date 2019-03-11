@@ -11,6 +11,7 @@ import org.iota.ict.utils.properties.PropertiesUser;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class EconomicCluster implements GossipListener, PropertiesUser {
@@ -47,8 +48,7 @@ public class EconomicCluster implements GossipListener, PropertiesUser {
         double maxAbsTrust = calcMaxAbsTrust();
         double absTrust = 0;
         for(TrustedEconomicActor actor : actors) {
-            if(actor.approvesTransaction(transaction))
-                absTrust += actor.getTrust();
+            absTrust += actor.getTrust() * actor.getConfidence(transaction);
         }
         return absTrust / maxAbsTrust;
     }
@@ -75,6 +75,7 @@ public class EconomicCluster implements GossipListener, PropertiesUser {
         for(TrustedEconomicActor actor : actors) {
             if(actor.getAddress().equals(transaction.address()))
                 actor.processMarker(possiblyMarker);
+            actor.processTransaction(transaction);
         }
     }
 
