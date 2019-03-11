@@ -19,9 +19,9 @@ public class EconomicClusterTest extends IctTestTemplate {
         Ict ictB = createIct();
         connect(ictA, ictB);
 
-        ControlledEconomicActor ca1 = new ControlledEconomicActor(new MerkleTree(Trytes.randomSequenceOfLength(81), 3), 0);
-        ControlledEconomicActor ca2 = new ControlledEconomicActor(new MerkleTree(Trytes.randomSequenceOfLength(81), 3), 0);
-        ControlledEconomicActor ca3 = new ControlledEconomicActor(new MerkleTree(Trytes.randomSequenceOfLength(81), 3), 0);
+        ControlledEconomicActor ca1 = new ControlledEconomicActor(new MerkleTree(Trytes.randomSequenceOfLength(81), 3,3), 0);
+        ControlledEconomicActor ca2 = new ControlledEconomicActor(new MerkleTree(Trytes.randomSequenceOfLength(81), 3, 3), 0);
+        ControlledEconomicActor ca3 = new ControlledEconomicActor(new MerkleTree(Trytes.randomSequenceOfLength(81), 3, 3), 0);
 
         EconomicCluster cluster = new EconomicCluster(ictB);
         TrustedEconomicActor ta1 = new TrustedEconomicActor(ca1.getAddress(),0.2);

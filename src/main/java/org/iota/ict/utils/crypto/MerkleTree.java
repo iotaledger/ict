@@ -1,68 +1,27 @@
 package org.iota.ict.utils.crypto;
 
-import org.iota.ict.utils.Trytes;
-
 public class MerkleTree {
 
-    private final SignatureScheme.PrivateKey[] privateKeys;
-    private final SignatureScheme.PublicKey[] publicKeys;
-    private final String[] nodes;
-    private final int depth;
+    MerkleInnerNode root;
 
-    public MerkleTree(String seed, int depth) {
-        this.depth = depth;
-        int width = (int)Math.pow(2, depth);
-        privateKeys = new SignatureScheme.PrivateKey[width];
-        publicKeys = new SignatureScheme.PublicKey[width];
-        initKeys(seed, 3);
-        nodes = calcNodes();
+    public MerkleTree(String seed, int securityLevel, int depth) {
+        this.root = new MerkleInnerNode(seed, 0, securityLevel, depth);
+    }
+
+    public int getDepth() {
+        return root.getDepth();
     }
 
     public String getAddress() {
-        return nodes[nodes.length-1];
-    }
-
-    private String[] calcNodes() {
-        String[] nodes = new String[privateKeys.length * 2 - 1];
-
-        for(int i = 0; i < privateKeys.length; i++) {
-            nodes[i] = publicKeys[i].getAddress();
-        }
-
-        for(int i = 0; i < nodes.length/2; i++) {
-            nodes[i + privateKeys.length] = hashNodes(nodes[2*i], nodes[2*i+1]);
-        }
-
-        return nodes;
-    }
-
-    private void initKeys(String seed, int securityLevel) {
-        for(int i = 0; i < privateKeys.length; i++) {
-            privateKeys[i] = SignatureSchemeImplementation.derivePrivateKeyFromSeed(seed, i, securityLevel);
-            publicKeys[i] = privateKeys[i].derivePublicKey();
-        }
+        return root.getHash();
     }
 
     public Signature sign(int index, String toSign) {
-        String[] merklePath = genMerklePath(index);
-        return new Signature(privateKeys[index].sign(toSign).toString(), merklePath, toSign);
-    }
-
-    private String[] genMerklePath(int index) {
-        if(index < 0 || index >= privateKeys.length)
-            throw new IllegalArgumentException("index out of range");
-        String[] merklePath = new String[depth];
-
-        int layerOffset = 0;
-        for(int layer = 0; layer < depth; layer++) {
-            int ancestorIndexInLayer = (int)(index / Math.pow(2, layer));
-            int ancestorIndex = layerOffset + ancestorIndexInLayer;
-            int ancestorsSiblingIndex = ancestorIndex + (ancestorIndex%2==0 ? 1 : -1);
-            merklePath[layer] = nodes[ancestorsSiblingIndex];
-            layerOffset += (int)Math.pow(2, depth-layer);
-        }
-
-        return merklePath;
+        String[] merklePath = new String[root.depth];
+        root.writeMerklePath(merklePath, index);
+        MerkleLeave leave = root.getLeave(index);
+        SignatureScheme.Signature leaveSignature = leave.privateKey.sign(toSign);
+        return new Signature(leaveSignature.toString(), merklePath, toSign);
     }
 
     private static String hashNodes(String nodeA, String nodeB) {
@@ -70,14 +29,91 @@ public class MerkleTree {
         return SignatureSchemeImplementation.hash((comp < 0 ? nodeA : nodeB) + (comp < 0 ? nodeB : nodeA));
     }
 
-    public int getDepth() {
-        return depth;
+    private interface MerkleNode {
+        String getHash();
+        int getDepth();
+        MerkleLeave getLeave(int index);
+        void writeMerklePath(String[] path, int index);
+    }
+
+    private static class MerkleInnerNode implements MerkleNode {
+
+        private final int depth;
+        private final String hash;
+
+        private final MerkleNode childLeft;
+        private final MerkleNode childRight;
+
+        MerkleInnerNode(String seed, int indexOffset, int securityLevel, int depth) {
+            this.depth = depth;
+            int childWidth = (int)Math.pow(2, depth-1);
+            MerkleNode childA = depth > 1 ? new MerkleInnerNode(seed, indexOffset, securityLevel, depth-1) : new MerkleLeave(seed, indexOffset, securityLevel);
+            MerkleNode childB = depth > 1 ? new MerkleInnerNode(seed, indexOffset+childWidth, securityLevel, depth-1) : new MerkleLeave(seed, indexOffset+childWidth, securityLevel);
+            assert childA.getDepth()+1 == depth;
+            int comp = childA.getHash().compareTo(childB.getHash());
+            childLeft = comp < 0 ? childA : childB;
+            childRight = comp < 0 ? childB : childA;
+            hash = SignatureSchemeImplementation.hash(childLeft.getHash() + childRight.getHash());
+        }
+
+        @Override
+        public int getDepth() {
+            return depth;
+        }
+
+        @Override
+        public String getHash() {
+            return hash;
+        }
+
+        @Override
+        public MerkleLeave getLeave(int index) {
+            int childWidth = (int)Math.pow(2, depth-1);
+            return (index >= childWidth ? childLeft : childRight).getLeave(index%childWidth);
+        }
+
+        @Override
+        public  void writeMerklePath(String[] path, int index) {
+            int childWidth = (int)Math.pow(2, depth-1);
+            path[depth-1] = (index >= childWidth ? childRight : childLeft).getHash();
+            (index >= childWidth ? childLeft : childRight).writeMerklePath(path, index%childWidth);
+        }
+    }
+
+    private static class MerkleLeave implements MerkleNode {
+
+        private final SignatureScheme.PrivateKey privateKey;
+        private final SignatureScheme.PublicKey publicKey;
+
+        MerkleLeave(String seed, int index, int securityLevel) {
+            this.privateKey = SignatureSchemeImplementation.derivePrivateKeyFromSeed(seed, index, securityLevel);
+            this.publicKey = privateKey.derivePublicKey();
+        }
+
+        public int getDepth() {
+            return 0;
+        }
+
+        public String getHash() {
+            return publicKey.getAddress();
+        }
+
+        @Override
+        public MerkleLeave getLeave(int index) {
+            return this;
+        }
+
+        @Override
+        public void writeMerklePath(String[] path, int index) {
+
+        }
     }
 
     public static class Signature extends SignatureSchemeImplementation.Signature {
 
         private final String[] merklePath;
         private String address;
+        private int index = -1;
 
         public Signature(String trytes, String merklePath[], String signed) {
             super(trytes, signed);
@@ -107,12 +143,29 @@ public class MerkleTree {
         @Override
         public String deriveAddress() {
             if(address == null) {
-                String calcAddress = super.deriveAddress();
-                for(String node : merklePath)
-                    calcAddress = hashNodes(calcAddress, node);
-                address = calcAddress;
+                calcAddressAndIndex();
             }
             return address;
+        }
+
+        public int deriveIndex() {
+            if(address == null) {
+                calcAddressAndIndex();
+            }
+            return index;
+        }
+
+        private void calcAddressAndIndex() {
+            int calcIndex = 0;
+            String calcAddress = super.deriveAddress();
+            for(int layer = 0; layer < merklePath.length; layer++) {
+                String node = merklePath[layer];
+                int comp = calcAddress.compareTo(node);
+                calcAddress = hashNodes(calcAddress, node);
+                calcIndex += (int)Math.pow(2, layer) * (comp > 0 ? 0 : 1);
+            }
+            index = calcIndex;
+            address = calcAddress;
         }
     }
 }
