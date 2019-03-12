@@ -9,6 +9,8 @@ import org.iota.ict.utils.properties.EditableProperties;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,10 +33,10 @@ public class SpamProtectionTest extends GossipTest {
 
         statsForA.receivedAll = maxTransactionsPerRound - 10;
         testUnidirectionalCommunication(a, b, 10);
-        assertTransactionDoesNotMakeItThrough(a, b);
+        assertTransactionDoesNotMakeItThrough(b);
     }
 
-    private void assertTransactionDoesNotMakeItThrough(Ict sender, Ict receiver) {
+    private void assertTransactionDoesNotMakeItThrough(Ict receiver) {
         Transaction toIgnore = new TransactionBuilder().build();
         waitUntilCommunicationEnds(100);
         Assert.assertNull("Spam protection failed: transaction passed.", receiver.findTransactionByHash(toIgnore.hash));
@@ -46,19 +48,21 @@ public class SpamProtectionTest extends GossipTest {
         TransactionBuilder builder = new TransactionBuilder();
         Set<Transaction> transactionsWithoutMWM = new HashSet<>();
         for(int i = 0; i < 10; i++)
-            transactionsWithoutMWM.add(builder.build());
+            transactionsWithoutMWM.add(builder.buildWhileUpdatingTimestamp());
 
         Ict a = createIct();
         Ict b = createIct();
         connect(a, b);
 
-        Constants.TESTING = false;
+        Constants.RUN_MODUS = Constants.RunModus.TESTING_BUT_WITH_REAL_MWM;
+
         for(Transaction t : transactionsWithoutMWM)
             a.submit(t);
         waitUntilCommunicationEnds(200);
-        Constants.TESTING = true;
+
+        Constants.RUN_MODUS = Constants.RunModus.TESTING;
 
         Stats statsForA = b.getNeighbors().get(0).getStats();
-        Assert.assertTrue("Ict accepted transactions not satisfying MWM.", statsForA.invalid > transactionsWithoutMWM.size() * 0.7);
+        Assert.assertTrue("Ict accepted transactions not satisfying MWM ("+statsForA.invalid+"/"+transactionsWithoutMWM.size()+" recognized as invalid).", statsForA.invalid > transactionsWithoutMWM.size() * 0.7);
     }
 }

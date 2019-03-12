@@ -71,7 +71,7 @@ public class Ict extends RestartableThread implements IctInterface {
     @Override
     public void run() {
         while (isRunning()) {
-            if(!Constants.TESTING)
+            if(Constants.RUN_MODUS == Constants.RunModus.MAIN)
                 Updater.checkForUpdatesIfYouHaveNotDoneSoInALongTime(moduleHolder);
             synchronized (notifySyncObject) {
                 try {

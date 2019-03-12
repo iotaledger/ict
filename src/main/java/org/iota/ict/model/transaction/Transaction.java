@@ -8,6 +8,7 @@ import org.iota.ict.utils.Trytes;
 
 import java.math.BigInteger;
 import java.net.DatagramPacket;
+import java.util.Arrays;
 
 /**
  * Instances of this class are IOTA transactions which together form a tangle. Actually an IOTA transaction is no more
@@ -135,7 +136,7 @@ public class Transaction {
     }
 
     private static void assertMinWeightMagnitude(byte[] hashTrits) {
-        if (!Constants.TESTING)
+        if (Constants.RUN_MODUS != Constants.RunModus.TESTING)
             for (int i = 0; i < Constants.MIN_WEIGHT_MAGNITUDE; i++)
                 if (hashTrits[hashTrits.length - 1 - i] != 0)
                     throw new InvalidWeightException();
@@ -210,7 +211,7 @@ public class Transaction {
      * @return Calculated hash of this transaction.
      */
     private static String curlHash(String trytes) {
-        return IotaCurlHash.iotaCurlHash(trytes, Constants.TRANSACTION_SIZE_TRYTES + 81, Constants.TESTING ? 9 : Constants.CURL_ROUNDS_TRANSACTION_HASH);
+        return IotaCurlHash.iotaCurlHash(trytes, Constants.TRANSACTION_SIZE_TRYTES + 81, Constants.RUN_MODUS != Constants.RunModus.MAIN ? 9 : Constants.CURL_ROUNDS_TRANSACTION_HASH);
     }
 
     private static void putField(char[] target, Field field, long value) {
@@ -296,6 +297,10 @@ public class Transaction {
 
     public String decodeBytesToTrytes() {
         return Trytes.fromBytes(bytes, 0, Constants.TRANSACTION_SIZE_BYTES);
+    }
+
+    public boolean equalBytes(byte[] compareTo) {
+        return Arrays.equals(bytes, compareTo);
     }
 
     public void compress() {

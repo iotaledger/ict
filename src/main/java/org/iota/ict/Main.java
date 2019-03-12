@@ -336,7 +336,7 @@ public class Main {
     public static void main(String[] args) {
 
         Main.args = args;
-        Constants.TESTING = false;
+        Constants.RUN_MODUS = Constants.RunModus.MAIN;
 
         Properties ictProperties = processCmdLineArgs(args);
 
