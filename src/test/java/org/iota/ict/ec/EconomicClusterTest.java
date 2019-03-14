@@ -142,7 +142,7 @@ public class EconomicClusterTest extends IctTestTemplate {
     }
 
     private void assertApprovalRate(EconomicCluster cluster, Transaction transaction, double expected) {
-        double approvalConfidence = cluster.determineApprovalConfidence(transaction);
+        double approvalConfidence = cluster.determineApprovalConfidence(transaction.hash);
         Assert.assertEquals("Unexpected transaction approval confidence for "+transaction.hash+".", expected, approvalConfidence, 1E-10);
     }
 }

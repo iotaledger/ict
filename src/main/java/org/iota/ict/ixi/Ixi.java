@@ -81,8 +81,8 @@ public interface Ixi {
     /**
      * Determines the confidence with which a transaction is considered confirmed within the economic cluster the Ict is following.
      *
-     * @param transaction The transaction whose approval confidence to determine.
+     * @param transactionHash The hash of the transaction whose approval confidence to determine.
      * @return Determined approval confidence for the transaction in the economic cluster.
      * */
-    double determineApprovalConfidence(Transaction transaction);
+    double determineApprovalConfidence(String transactionHash);
 }

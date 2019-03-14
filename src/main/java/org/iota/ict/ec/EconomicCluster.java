@@ -44,11 +44,11 @@ public class EconomicCluster implements GossipListener, PropertiesUser {
         actors = newActors;
     }
 
-    public double determineApprovalConfidence(Transaction transaction) {
+    public double determineApprovalConfidence(String transactionHash) {
         double maxAbsTrust = calcMaxAbsTrust();
         double absTrust = 0;
         for(TrustedEconomicActor actor : actors) {
-            absTrust += actor.getTrust() * actor.getConfidence(transaction);
+            absTrust += actor.getTrust() * actor.getConfidence(transactionHash);
         }
         return absTrust / maxAbsTrust;
     }
