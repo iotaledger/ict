@@ -15,16 +15,13 @@ public class EconomicClusterTest extends IctTestTemplate {
     @Test
     public void testOverwriteConfidence() {
         Ict ict = createIct();
-
         ControlledEconomicActor ca = new ControlledEconomicActor(new MerkleTree(Trytes.randomSequenceOfLength(81), 3,3), 0);
-
         EconomicCluster cluster = new EconomicCluster(ict);
         TrustedEconomicActor ta = new TrustedEconomicActor(ca.getAddress(),0.2);
         cluster.addActor(ta);
 
         Transaction transaction = new TransactionBuilder().build();
         ict.submit(transaction);
-        saveSleep(50);
 
         // this marker will be created first to ensure the index is zero
         Bundle markerWithIndex0 = ca.issueMarker(transaction.hash, transaction.hash, 1, 3/26.0);
@@ -38,6 +35,40 @@ public class EconomicClusterTest extends IctTestTemplate {
         // issue marker with index zero: approval rate should not change because marker is old
         sendMarker(ict, markerWithIndex0);
         assertApprovalRate(cluster, transaction, 17/26.0);
+    }
+
+    @Test
+    public void testReferencedByMultipleMarkers() {
+        Ict ict = createIct();
+        ControlledEconomicActor ca = new ControlledEconomicActor(new MerkleTree(Trytes.randomSequenceOfLength(81), 3,3), 0);
+        EconomicCluster cluster = new EconomicCluster(ict);
+        TrustedEconomicActor ta = new TrustedEconomicActor(ca.getAddress(),1);
+        cluster.addActor(ta);
+
+        Transaction transaction = new TransactionBuilder().build();
+        ict.submit(transaction);
+
+        Transaction childA = buildChild(transaction);
+        Transaction childB = buildChild(transaction);
+        ict.submit(childA);
+        ict.submit(childB);
+
+        double markerAConfidence = 14/26.0;
+        double markerBConfidence = 17/26.0;
+
+        sendMarker(ict, ca, childB.hash, markerBConfidence);
+        sendMarker(ict, ca, childA.hash, markerAConfidence);
+        assertApprovalRate(cluster, transaction, Math.max(markerAConfidence, markerBConfidence));
+
+        markerBConfidence = 11/26.0;
+        sendMarker(ict, ca, childB.hash, markerBConfidence);
+        assertApprovalRate(cluster, transaction, Math.max(markerAConfidence, markerBConfidence));
+    }
+
+    private Transaction buildChild(Transaction parent) {
+        TransactionBuilder childBuilder = new TransactionBuilder();
+        childBuilder.branchHash = parent.hash;
+        return childBuilder.build();
     }
 
     @Test
@@ -107,7 +138,7 @@ public class EconomicClusterTest extends IctTestTemplate {
         for(Transaction markerTransaction : marker.getTransactions())
             ict.submit(markerTransaction);
         waitUntilCommunicationEnds(100);
-        saveSleep(50);
+        saveSleep(100);
     }
 
     private void assertApprovalRate(EconomicCluster cluster, Transaction transaction, double expected) {
