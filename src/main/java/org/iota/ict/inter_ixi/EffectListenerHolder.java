@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class EnvironmentHolder {
+public class EffectListenerHolder {
 
     private Map<String, Set<EffectListener>> registeredEffectListeners = new HashMap<>();
 
@@ -18,9 +18,9 @@ public class EnvironmentHolder {
         effectListenersOfEnvironment.add(effectListener);
     }
 
-    public void submitEffect(String environmentName, String effectTryes) {
+    public void submitEffect(String environmentName, Object effect) {
         for(EffectListener listener: registeredEffectListeners.get(environmentName))
-            listener.onReceive(effectTryes);
+            listener.onReceive(effect);
     }
 
 }

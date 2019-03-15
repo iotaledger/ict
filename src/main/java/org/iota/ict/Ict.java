@@ -4,12 +4,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.api.RestApi;
 import org.iota.ict.ec.EconomicCluster;
-import org.iota.ict.inter_ixi.EnvironmentHolder;
+import org.iota.ict.inter_ixi.EffectListener;
+import org.iota.ict.inter_ixi.EffectListenerHolder;
 import org.iota.ict.ixi.IxiModuleHolder;
 import org.iota.ict.model.tangle.RingTangle;
 import org.iota.ict.model.tangle.Tangle;
 import org.iota.ict.model.transaction.Transaction;
-import org.iota.ict.inter_ixi.EffectListener;
 import org.iota.ict.network.Neighbor;
 import org.iota.ict.network.Node;
 import org.iota.ict.network.gossip.GossipEvent;
@@ -37,7 +37,7 @@ public class Ict extends RestartableThread implements IctInterface {
     // services
     protected final GossipEventDispatcher eventDispatcher = new GossipEventDispatcher();
     protected final IxiModuleHolder moduleHolder = new IxiModuleHolder(Ict.this);
-    protected final EnvironmentHolder environmentHolder = new EnvironmentHolder();
+    protected final EffectListenerHolder effectListenerHolder = new EffectListenerHolder();
     protected final RestApi restApi;
     protected final EconomicCluster cluster;
     protected final Tangle tangle;
@@ -209,12 +209,12 @@ public class Ict extends RestartableThread implements IctInterface {
 
     @Override
     public void submitEffect(String environment, String effectTrytes) {
-        environmentHolder.submitEffect(environment, effectTrytes);
+        effectListenerHolder.submitEffect(environment, effectTrytes);
     }
 
     @Override
     public void addEffectListener(EffectListener effectListener) {
-        environmentHolder.addEffectListner(effectListener);
+        effectListenerHolder.addEffectListner(effectListener);
     }
 
 }
