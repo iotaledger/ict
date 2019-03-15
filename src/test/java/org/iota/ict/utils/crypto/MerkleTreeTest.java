@@ -6,9 +6,11 @@ import org.junit.Test;
 
 public class MerkleTreeTest {
 
+    // tree generation takes long -> use one tree for all tests
+    private static final MerkleTree merkleTree = new MerkleTree(Trytes.randomSequenceOfLength(81), 3, 3);
+
     @Test
     public void testSignatureVerification() {
-        MerkleTree merkleTree = new MerkleTree(Trytes.randomSequenceOfLength(81), 3);
         String toSign = Trytes.randomSequenceOfLength(81);
         int randomIndex = (int)(Math.random()*Math.pow(2, merkleTree.getDepth()));
         MerkleTree.Signature signature = merkleTree.sign(randomIndex, toSign);
@@ -17,11 +19,11 @@ public class MerkleTreeTest {
         String addressOfSignature = signature.deriveAddress();
 
         Assert.assertEquals("Signature validation failed.", addressOfMerkleTree, addressOfSignature);
+        Assert.assertEquals("Signature index derived incorrectly.", randomIndex, signature.deriveIndex());
     }
 
     @Test
     public void testSignatureFromTrytesConcatenatedWithMerklePath() {
-        MerkleTree merkleTree = new MerkleTree(Trytes.randomSequenceOfLength(81), 3);
         String toSign = Trytes.randomSequenceOfLength(81);
         int randomIndex = (int)(Math.random()*Math.pow(2, merkleTree.getDepth()));
         MerkleTree.Signature signature = merkleTree.sign(randomIndex, toSign);

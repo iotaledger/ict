@@ -32,7 +32,7 @@ public class Constants {
     public static final int CURL_ROUNDS_BUNDLE_HASH = 27;
     public static final int CURL_ROUNDS_EC_ADDRESS_DERIVATION = 27;
 
-    public static boolean TESTING = true;
+    public static RunModus RUN_MODUS = RunModus.TESTING;
     public static final int MIN_WEIGHT_MAGNITUDE = 3;
 
     public static final long CHECK_FOR_UPDATES_INTERVAL_MS = 6 *  3600 * 1000;
@@ -43,5 +43,9 @@ public class Constants {
     public static final class HashFlags {
         public static final int BUNDLE_HEAD_FLAG = 1;
         public static final int BUNDLE_TAIL_FLAG = 2;
+    }
+
+    public enum RunModus {
+        MAIN, TESTING, TESTING_BUT_WITH_REAL_MWM
     }
 }

@@ -74,7 +74,7 @@ public class Ict extends RestartableThread implements IctInterface {
     @Override
     public void run() {
         while (isRunning()) {
-            if(!Constants.TESTING)
+            if(Constants.RUN_MODUS == Constants.RunModus.MAIN)
                 Updater.checkForUpdatesIfYouHaveNotDoneSoInALongTime(moduleHolder);
             synchronized (notifySyncObject) {
                 try {
@@ -201,8 +201,8 @@ public class Ict extends RestartableThread implements IctInterface {
     }
 
     @Override
-    public double determineApprovalConfidence(Transaction transaction) {
-        return cluster.determineApprovalConfidence(transaction);
+    public double determineApprovalConfidence(String transactionHash) {
+        return cluster.determineApprovalConfidence(transactionHash);
     }
 
     @Override

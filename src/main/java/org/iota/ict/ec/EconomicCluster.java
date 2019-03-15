@@ -32,9 +32,9 @@ public class EconomicCluster implements GossipListener, PropertiesUser {
 
     @Override
     public void updateProperties(FinalProperties properties) {
-        List<String> list = properties.economicCluster();
+        Set<String> set = properties.economicCluster();
         HashSet<TrustedEconomicActor> newActors = new HashSet<>();
-        for(String element : list) {
+        for(String element : set) {
             String[] split = element.split(":");
             String address = split[0];
             double trust = Double.parseDouble(split[1]);
@@ -44,11 +44,11 @@ public class EconomicCluster implements GossipListener, PropertiesUser {
         actors = newActors;
     }
 
-    public double determineApprovalConfidence(Transaction transaction) {
+    public double determineApprovalConfidence(String transactionHash) {
         double maxAbsTrust = calcMaxAbsTrust();
         double absTrust = 0;
         for(TrustedEconomicActor actor : actors) {
-            absTrust += actor.getTrust() * actor.getConfidence(transaction);
+            absTrust += actor.getTrust() * actor.getConfidence(transactionHash);
         }
         return absTrust / maxAbsTrust;
     }
@@ -69,6 +69,7 @@ public class EconomicCluster implements GossipListener, PropertiesUser {
 
         Bundle possiblyMarker = new Bundle(transaction);
         possiblyMarker.tryToComplete(ict);
+
         if(!possiblyMarker.isComplete() || !possiblyMarker.isStructureValid())
             return; // TODO if not complete, try again later
 

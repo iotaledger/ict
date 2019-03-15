@@ -35,8 +35,8 @@ public class Properties implements Cloneable {
     protected int port = 1337;
     protected int guiPort = 2187;
     protected long roundDuration = 60000;
-    protected List<String> neighbors = new LinkedList<>();
-    protected List<String> economicCluster = new LinkedList<>();
+    protected Set<String> neighbors = new HashSet<>();
+    protected Set<String> economicCluster = new HashSet<>();
 
     public static Properties fromFile(String path) {
         java.util.Properties propObject = new java.util.Properties();
@@ -80,11 +80,11 @@ public class Properties implements Cloneable {
         name = propObject.getProperty(Property.name.name(), DEFAULT_PROPERTIES.name);
         port = (int) readLongProperty(propObject, Property.port, 1, 65535, DEFAULT_PROPERTIES.port);
         roundDuration = readLongProperty(propObject, Property.round_duration, 100, Long.MAX_VALUE, DEFAULT_PROPERTIES.roundDuration);
-        neighbors = stringListFromString(propObject.getProperty(Property.neighbors.name(), ""));
+        neighbors = new HashSet<>(stringListFromString(propObject.getProperty(Property.neighbors.name(), "")));
         guiEnabled = propObject.getProperty(Property.gui_enabled.name(), DEFAULT_PROPERTIES.guiEnabled + "").toLowerCase().equals("true");
         guiPort = (int) readLongProperty(propObject, Property.gui_port, 1, 65535, DEFAULT_PROPERTIES.guiPort);
         guiPassword = propObject.getProperty(Property.gui_password.name(), DEFAULT_PROPERTIES.guiPassword);
-        economicCluster = stringListFromString(propObject.getProperty(Property.economic_cluster.name(), ""));
+        economicCluster = new HashSet<>(stringListFromString(propObject.getProperty(Property.economic_cluster.name(), "")));
     }
 
     private static List<String> stringListFromString(String string) {
@@ -215,7 +215,7 @@ public class Properties implements Cloneable {
         propObject.setProperty(Property.gui_enabled.name(), guiEnabled + "");
         propObject.setProperty(Property.gui_port.name(), guiPort + "");
         propObject.setProperty(Property.gui_password.name(), guiPassword + "");
-        propObject.setProperty(Property.economic_cluster.name(), stringListToString(economicCluster));
+        propObject.setProperty(Property.economic_cluster.name(), stringListToString(new LinkedList<>(economicCluster)));
         return propObject;
     }
 
@@ -264,8 +264,8 @@ public class Properties implements Cloneable {
         return guiEnabled;
     }
 
-    public List<String> neighbors() {
-        return new LinkedList<>(neighbors);
+    public Set<String> neighbors() {
+        return new HashSet<>(neighbors);
     }
 
     public long antiSpamAbs() {
@@ -300,8 +300,8 @@ public class Properties implements Cloneable {
         return maxHeapSize;
     }
 
-    public List<String> economicCluster() {
-        return new LinkedList<>(economicCluster);
+    public Set<String> economicCluster() {
+        return new HashSet<>(economicCluster);
     }
 
     public enum Property {
@@ -325,7 +325,8 @@ public class Properties implements Cloneable {
     public Properties clone() {
         try {
             Properties clone = (Properties) super.clone();
-            clone.neighbors = new LinkedList<>(neighbors);
+            clone.neighbors = new HashSet<>(neighbors);
+            clone.economicCluster = new HashSet<>(economicCluster);
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);

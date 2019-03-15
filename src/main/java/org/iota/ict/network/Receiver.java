@@ -12,6 +12,7 @@ import org.iota.ict.utils.Trytes;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.util.*;
 
 /**
  * This class receives transactions from neighbors. Together with the {@link Sender}, they are the two important gateways
@@ -23,6 +24,7 @@ import java.net.DatagramPacket;
  */
 public class Receiver extends RestartableThread {
 
+    protected static final Map<String, Set<String>> transactionHashesByNonce = new HashMap<>();
     protected static final Logger LOGGER = LogManager.getLogger("Receiver");
     protected Node node;
 
@@ -75,15 +77,36 @@ public class Receiver extends RestartableThread {
             return;
         }
 
+        rememberTransactionByNonce(transaction);
         updateTransactionLog(sender, transaction);
 
         String requestedHash = Trytes.fromBytes(packet.getData(), Constants.TRANSACTION_SIZE_BYTES, Transaction.Field.BRANCH_HASH.byteLength);
         processRequest(sender, requestedHash);
     }
 
+    private void rememberTransactionByNonce(Transaction transaction) {
+        if(transactionHashesByNonce.containsKey(transaction.nonce())) {
+            Set<String> transactionsWithNonce = transactionHashesByNonce.get(transaction.nonce());
+            transactionsWithNonce.add(transaction.hash);
+        } else {
+            transactionHashesByNonce.put(transaction.nonce(), new HashSet<>(Arrays.asList(transaction.hash)));
+        }
+    }
+
     private Transaction unpack(DatagramPacket packet) {
+        byte[] bytes = packet.getData();
+
+        String nonce = Trytes.fromBytes(bytes, Transaction.Field.NONCE.byteOffset, Transaction.Field.NONCE.byteLength);
+        if(transactionHashesByNonce.containsKey(nonce)) {
+            for(String hash : transactionHashesByNonce.get(nonce)) {
+                Transaction candidate = node.ict.findTransactionByHash(hash);
+                if(candidate != null && candidate.equalBytes(bytes)) {
+                    return candidate;
+                }
+            }
+        }
+
         try {
-            byte[] bytes = packet.getData();
             return new Transaction(bytes);
         } catch (Throwable t) {
             return null;

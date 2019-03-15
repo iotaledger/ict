@@ -18,6 +18,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.Set;
 
 public class JsonIct {
 
@@ -123,7 +124,7 @@ public class JsonIct {
             throw new IllegalArgumentException("Address does not match required format 'host:port'.");
         EditableProperties properties = ict.getProperties().toEditable();
 
-        List<String> neighbors = properties.neighbors();
+        Set<String> neighbors = properties.neighbors();
         neighbors.add(address);
         properties.neighbors(neighbors);
         ict.updateProperties(properties.toFinal());
@@ -135,7 +136,7 @@ public class JsonIct {
 
     public JSONObject removeNeighbor(String address) {
         EditableProperties properties = ict.getProperties().toEditable();
-        List<String> neighbors = properties.neighbors();
+        Set<String> neighbors = properties.neighbors();
         for (String nb : neighbors) {
             if (nb.equals(address)) {
                 neighbors.remove(nb);

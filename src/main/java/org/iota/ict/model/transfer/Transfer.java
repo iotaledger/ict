@@ -37,7 +37,7 @@ public class Transfer {
 
     public Transfer(Bundle bundle) {
         bundleHash = bundle.getHash();
-        securityLevel = Constants.TESTING ? 1 : calcSecurityLevel(bundle.getHash());
+        securityLevel = Constants.RUN_MODUS != Constants.RunModus.MAIN ? 1 : calcSecurityLevel(bundle.getHash());
         BalanceChangeCollector collector = new BalanceChangeCollector(bundle);
         inputs = collector.inputs;
         outputs = collector.outputs;

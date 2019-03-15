@@ -14,9 +14,8 @@ import java.util.*;
  * */
 public class TrustedEconomicActor extends EconomicActor {
 
+    protected List<SubTangle> subTanglesOrderedByDescendingConfidence = new LinkedList<>();
     protected double trust;
-    protected final Map<String, SubTangle> latest = new HashMap<>();
-    protected final Map<String, Set<String>> missingChildren = new HashMap<>();
 
     public TrustedEconomicActor(String address, double trust) {
         super(address);
@@ -29,8 +28,12 @@ public class TrustedEconomicActor extends EconomicActor {
         this.trust = trust;
     }
 
-    public double getConfidence(Transaction transaction) {
-        return latest.containsKey(transaction.hash) ? latest.get(transaction.hash).confidence : 0;
+    public double getConfidence(String transactionHash) {
+        for(SubTangle subTangle : subTanglesOrderedByDescendingConfidence) {
+            if(subTangle.references(transactionHash))
+                return subTangle.getConfidence();
+        }
+        return 0;
     }
 
     public double getTrust() {
@@ -38,86 +41,130 @@ public class TrustedEconomicActor extends EconomicActor {
     }
 
     public void processTransaction(Transaction transaction) {
-        if(missingChildren.keySet().contains(transaction.hash))
-            missingChildFound(transaction);
-    }
-
-    private synchronized void missingChildFound(Transaction missingChild) {
-        Set<String> parents = missingChildren.get(missingChild.hash);
-        missingChildren.remove(missingChild.hash);
-        SubTangle latestSubTangleOfParents = null;
-        for(String parent : parents) {
-            SubTangle subTangleOfParent = latest.get(parent);
-            if(latestSubTangleOfParents == null || latestSubTangleOfParents.index < subTangleOfParent.index) {
-                latestSubTangleOfParents = subTangleOfParent;
-            }
-        }
-        markAsApprovedRecursively(latestSubTangleOfParents, missingChild);
-    }
-
-    private synchronized void reportMissingChildren(String parent, String child) {
-        if(!missingChildren.containsKey(child))
-            missingChildren.put(child, new HashSet<String>());
-        missingChildren.get(child).add(parent);
+        for(SubTangle subTangle : subTanglesOrderedByDescendingConfidence)
+            subTangle.processTransaction(transaction);
     }
 
     public void processMarker(Bundle marker) {
-
-        if(!marker.isComplete() || !marker.isStructureValid()) {
-            // incomplete or invalid bundle
-            return;
-        }
-
-        if(!isMarkerSignatureValid(marker)) {
-            // invalid signature
-            return;
-        }
-
-        Transaction tail = marker.getTail();
-        SubTangle subTangle = new SubTangle(0, 1); // TODO
-        markAsApprovedRecursively(subTangle, tail);
-    }
-
-    private void markAsApprovedRecursively(SubTangle subTangle, Transaction root) {
-        SubTangle before = latest.get(root.hash);
-        if(latest.get(root.hash) == null || before.index < subTangle.index) {
-            latest.put(root.hash, subTangle);
-            markAsApprovedRecursivelyOrReportMissing(subTangle, root.getTrunk(), root.trunkHash(), root.hash);
-            markAsApprovedRecursivelyOrReportMissing(subTangle, root.getBranch(), root.branchHash(), root.hash);
+        try {
+            SubTangle existingSubTangle = findSubTangleDirectlyReferencedBy(marker.getTail());
+            if(existingSubTangle != null) {
+                existingSubTangle.update(marker);
+            } else {
+                subTanglesOrderedByDescendingConfidence.add(new SubTangle(marker));
+            }
+            Collections.sort(subTanglesOrderedByDescendingConfidence);
+        } catch (Throwable t) {
+            t.printStackTrace();
         }
     }
 
-    private void markAsApprovedRecursivelyOrReportMissing(SubTangle subTangle, Transaction childOrNull, String childHash, String parentHash) {
-        if(childOrNull != null) {
-            markAsApprovedRecursively(subTangle, childOrNull);
-        } else {
-            reportMissingChildren(parentHash, childHash);
+    private SubTangle findSubTangleDirectlyReferencedBy(Transaction transaction) {
+        for(SubTangle subTangle : subTanglesOrderedByDescendingConfidence) {
+            if(subTangle.isDirectlyReferencedBy(transaction)) {
+                return subTangle;
+            }
         }
+        return null;
     }
 
-    protected boolean isMarkerSignatureValid(Bundle marker) {
+    private static double decodeConfidence(String trytes) {
+        return Trytes.TRYTES.indexOf(trytes.charAt(0)) / 26.0;
+    }
+
+    protected MerkleTree.Signature getMarkerSignature(Bundle marker) {
         Transfer transfer = new Transfer(marker);
         List<BalanceChange> listOfSingleOutput = new LinkedList<>(transfer.getOutputs());
         if(listOfSingleOutput.size() != 1)
-            return false;
+            return null;
         BalanceChange output = listOfSingleOutput.get(0);
         if(!output.address.equals(address))
-            return false;
+            return null;
         String messageToSign = messageToSign(marker.getTail().trunkHash(), marker.getTail().branchHash());
 
         String signatureTrytesConcatenatedWithMerklePath = output.getSignatureOrMessage().replace(Trytes.NULL_HASH, "");
-        MerkleTree.Signature signature = MerkleTree.Signature.fromTrytesConcatenatedWithMerklePath(signatureTrytesConcatenatedWithMerklePath, messageToSign);
-
-        return address.equals(signature.deriveAddress());
+        return MerkleTree.Signature.fromTrytesConcatenatedWithMerklePath(signatureTrytesConcatenatedWithMerklePath, messageToSign);
     }
 
-    private class SubTangle {
-        public final int index;
-        public final double confidence;
+    protected class SubTangle implements Comparable<SubTangle> {
 
-        public SubTangle(int index, double confidence) {
-            this.index = index;
-            this.confidence = confidence;
+        protected int index = -1;
+        protected double confidence;
+        protected final String referencedTransaction1, referencedTransaction2;
+        protected final Set<String> referenced = new HashSet<>();
+        protected final Set<String> missing = new HashSet<>();
+
+        protected SubTangle(Bundle marker) {
+            Transaction tail = marker.getTail();
+            referencedTransaction1 = tail.branchHash();
+            referencedTransaction2 = tail.trunkHash();
+            update(marker);
+            markAsApprovedRecursively(tail.getBranch());
+            markAsApprovedRecursively(tail.getTrunk());
+        }
+
+        protected int getIndex() {
+            return index;
+        }
+
+        protected double getConfidence() {
+            return confidence;
+        }
+
+        protected void update(Bundle marker) {
+
+            Transaction tail = marker.getTail();
+            if(!isDirectlyReferencedBy(tail))
+                throw new IllegalArgumentException("Marker does not belong this subtangle.");
+
+            MerkleTree.Signature markerSignature = getMarkerSignature(marker);
+            if(markerSignature == null || !address.equals(markerSignature.deriveAddress()))
+                throw new IllegalArgumentException("Marker signature is invalid.");
+
+            if(this.index < markerSignature.deriveIndex()) {
+                this.index = markerSignature.deriveIndex();
+                this.confidence = decodeConfidence(tail.tag());
+            }
+        }
+
+        private boolean isDirectlyReferencedBy(Transaction transaction) {
+            return (transaction.branchHash().equals(referencedTransaction1) || transaction.branchHash().equals(referencedTransaction2))
+                    && (transaction.trunkHash().equals(referencedTransaction1) || transaction.trunkHash().equals(referencedTransaction2));
+        }
+
+        protected boolean references(String transactionHash) {
+            return referenced.contains(transactionHash) || missing.contains(transactionHash);
+        }
+
+        protected void processTransaction(Transaction transaction) {
+            if(missing.contains(transaction.hash))
+                missingTransactionFound(transaction);
+        }
+
+        protected synchronized void missingTransactionFound(Transaction missingTransaction) {
+            missing.remove(missingTransaction.hash);
+            if(referenced.add(missingTransaction.hash))
+                markAsApprovedRecursively(missingTransaction);
+        }
+
+        protected void markAsApprovedRecursively(Transaction root) {
+            if(referenced.add(root.hash)) {
+                markAsApprovedRecursivelyOrReportMissing(root.getTrunk(), root.trunkHash());
+                markAsApprovedRecursivelyOrReportMissing(root.getBranch(), root.branchHash());
+            }
+        }
+
+        protected void markAsApprovedRecursivelyOrReportMissing(Transaction transactionOrNull, String transactionHash) {
+            if(transactionOrNull != null) {
+                markAsApprovedRecursively(transactionOrNull);
+            } else {
+                missing.add(transactionHash);
+            }
+        }
+
+        @Override
+        public int compareTo(SubTangle subTangle) {
+            return Integer.compare(index, subTangle.index);
         }
     }
 }

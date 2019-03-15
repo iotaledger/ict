@@ -1,10 +1,12 @@
 package org.iota.ict.ec;
 
 import org.iota.ict.model.bundle.*;
+import org.iota.ict.model.transaction.Transaction;
 import org.iota.ict.model.transfer.InputBuilder;
 import org.iota.ict.model.transfer.OutputBuilder;
 import org.iota.ict.model.transfer.TransferBuilder;
 import org.iota.ict.model.transaction.TransactionBuilder;
+import org.iota.ict.utils.Trytes;
 import org.iota.ict.utils.crypto.MerkleTree;
 import org.iota.ict.utils.crypto.SignatureSchemeImplementation;
 
@@ -28,7 +30,7 @@ public class ControlledEconomicActor extends EconomicActor {
         this.keyIndex = keyIndex;
     }
 
-    public Bundle issueMarker(String trunk, String branch, int securityLevel) {
+    public Bundle issueMarker(String trunk, String branch, int securityLevel, double confidence) {
 
         Set<OutputBuilder> outputs = new HashSet<>();
 
@@ -43,7 +45,13 @@ public class ControlledEconomicActor extends EconomicActor {
         List<TransactionBuilder> tailToHead = bundleBuilder.getTailToHead();
         tailToHead.get(0).branchHash = branch;
         tailToHead.get(0).trunkHash = trunk;
+        tailToHead.get(0).tag = encodeConfidence(confidence, Transaction.Field.TAG.tryteLength);
         Bundle bundle = bundleBuilder.build();
         return bundle;
+    }
+
+    private static String encodeConfidence(double confidence, int trytesLength) {
+        int discreteConfidence = (int)Math.round(confidence * 26);
+        return Trytes.padRight(Trytes.TRYTE_CHARS[discreteConfidence]+"", trytesLength);
     }
 }

@@ -13,9 +13,7 @@ import org.json.JSONObject;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class Node extends RestartableThread implements PropertiesUser {
 
@@ -147,7 +145,7 @@ public class Node extends RestartableThread implements PropertiesUser {
 
     private void addNeighborsWhoAreNew(Properties oldProp, Properties newProp) {
         // add neighbors who are new
-        List<String> newNeighbors = new LinkedList<>();
+        Set<String> newNeighbors = new HashSet<>();
         if(oldProp == null) {
             newNeighbors = newProp.neighbors();
         } else {

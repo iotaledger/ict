@@ -70,7 +70,7 @@ public abstract class RestartableThread implements Restartable, Runnable {
 
         @Override
         public void start() {
-            if (!Constants.TESTING && logger != null)
+            if (Constants.RUN_MODUS == Constants.RunModus.MAIN && logger != null)
                 logger.debug("starting ...");
             state = new StateStarting();
             onStart();
@@ -80,7 +80,7 @@ public abstract class RestartableThread implements Restartable, Runnable {
             runningThread = new Thread(RestartableThread.this, RestartableThread.this.getClass().getName());
             runningThread.start();
             onStarted();
-            if (!Constants.TESTING && logger != null)
+            if (Constants.RUN_MODUS == Constants.RunModus.MAIN && logger != null)
                 logger.debug("started");
         }
     }
@@ -98,7 +98,7 @@ public abstract class RestartableThread implements Restartable, Runnable {
 
         @Override
         public void terminate() {
-            if (!Constants.TESTING && logger != null)
+            if (Constants.RUN_MODUS == Constants.RunModus.MAIN && logger != null)
                 logger.debug("terminating ...");
             state = new StateTerminating();
             onTerminate();
@@ -108,7 +108,7 @@ public abstract class RestartableThread implements Restartable, Runnable {
                 subWorker.terminate();
             state = new StateTerminated();
             onTerminated();
-            if (!Constants.TESTING && logger != null)
+            if (Constants.RUN_MODUS == Constants.RunModus.MAIN && logger != null)
                 logger.debug("terminated");
         }
 
