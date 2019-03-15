@@ -72,7 +72,7 @@ public class BalanceChange implements BalanceChangeInterface {
     public boolean equals(Object o) {
         if (o instanceof BalanceChange) {
             BalanceChange bc = (BalanceChange) o;
-            return address.equals(bc.address) && value.equals(bc.value) && signatureOrMessage.equals(bc.signatureOrMessage);
+            return address.equals(bc.address) && value.compareTo(bc.value) == 0 && signatureOrMessage.equals(bc.signatureOrMessage);
         }
         return false;
     }
