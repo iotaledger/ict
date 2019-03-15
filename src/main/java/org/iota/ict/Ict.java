@@ -4,24 +4,28 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.api.RestApi;
 import org.iota.ict.ec.EconomicCluster;
+import org.iota.ict.inter_ixi.EffectListener;
+import org.iota.ict.inter_ixi.EffectListenerHolder;
 import org.iota.ict.ixi.IxiModuleHolder;
 import org.iota.ict.model.tangle.RingTangle;
 import org.iota.ict.model.tangle.Tangle;
+import org.iota.ict.model.transaction.Transaction;
 import org.iota.ict.network.Neighbor;
 import org.iota.ict.network.Node;
 import org.iota.ict.network.gossip.GossipEvent;
 import org.iota.ict.network.gossip.GossipEventDispatcher;
 import org.iota.ict.network.gossip.GossipListener;
-import org.iota.ict.model.transaction.Transaction;
 import org.iota.ict.network.gossip.GossipPreprocessor;
 import org.iota.ict.std.BundleCollector;
 import org.iota.ict.utils.Constants;
+import org.iota.ict.utils.RestartableThread;
 import org.iota.ict.utils.Updater;
 import org.iota.ict.utils.properties.FinalProperties;
-import org.iota.ict.utils.RestartableThread;
 
 import java.net.InetSocketAddress;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * This class is the central component of the project. Each instance is an independent Ict node that can communicate with
@@ -33,6 +37,7 @@ public class Ict extends RestartableThread implements IctInterface {
     // services
     protected final GossipEventDispatcher eventDispatcher = new GossipEventDispatcher();
     protected final IxiModuleHolder moduleHolder = new IxiModuleHolder(Ict.this);
+    protected final EffectListenerHolder effectListenerHolder = new EffectListenerHolder();
     protected final RestApi restApi;
     protected final EconomicCluster cluster;
     protected final Tangle tangle;
@@ -201,4 +206,15 @@ public class Ict extends RestartableThread implements IctInterface {
     public double determineApprovalConfidence(String transactionHash) {
         return cluster.determineApprovalConfidence(transactionHash);
     }
+
+    @Override
+    public void submitEffect(String environment, String effectTrytes) {
+        effectListenerHolder.submitEffect(environment, effectTrytes);
+    }
+
+    @Override
+    public void addEffectListener(EffectListener effectListener) {
+        effectListenerHolder.addEffectListner(effectListener);
+    }
+
 }

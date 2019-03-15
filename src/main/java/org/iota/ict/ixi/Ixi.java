@@ -1,6 +1,7 @@
 package org.iota.ict.ixi;
 
 import org.iota.ict.model.transaction.Transaction;
+import org.iota.ict.inter_ixi.EffectListener;
 import org.iota.ict.network.gossip.GossipEvent;
 import org.iota.ict.network.gossip.GossipListener;
 import org.iota.ict.network.gossip.GossipPreprocessor;
@@ -85,4 +86,20 @@ public interface Ixi {
      * @return Determined approval confidence for the transaction in the economic cluster.
      * */
     double determineApprovalConfidence(String transactionHash);
+
+    /**
+     * Adds an effect to a specific environment queue.
+     *
+     * @param environment the environment to which the effect should be sent
+     * @param effectTrytes the effect encoded as trytes
+     */
+    void submitEffect(String environment, String effectTrytes);
+
+    /**
+     * Registers a new EffectListener.
+     *
+     * @param effectListener the EffectListner to that is to be registrated.
+     */
+    void addEffectListener(EffectListener effectListener);
+
 }
