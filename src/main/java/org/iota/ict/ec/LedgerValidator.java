@@ -29,20 +29,24 @@ public class LedgerValidator {
     }
 
     protected boolean isTangleValid(String hash, Transaction root) {
-        if(root == null)
+
+        if(root == null) {
             throw new IncompleteTangleException(hash);
-        if(root.isBundleHead) {
-            if(validTransfers.contains(root.hash))
-                return true;
-            if(invalidTransfers.contains(root.hash))
-                return false;
-            checkForMissingDependency(root.hash);
-            boolean isValid = isBundleValid(root);
-            (isValid ? validTransfers : invalidTransfers).add(root.hash);
-            return isValid;
-        } else {
-            return isTangleValid(root.branchHash(), root.getBranch()) && isTangleValid(root.trunkHash(), root.getTrunk());
         }
+
+        if(validTransfers.contains(root.hash))
+            return true;
+        if(invalidTransfers.contains(root.hash))
+            return false;
+        checkForMissingDependency(root.hash);
+
+        boolean isValid = (!root.isBundleHead || (root.isBundleTail && root.value.compareTo(BigInteger.ZERO) == 0))
+                ? isTangleValid(root.branchHash(), root.getBranch()) && isTangleValid(root.trunkHash(), root.getTrunk())
+                : isBundleValid(root);
+
+        (isValid ? validTransfers : invalidTransfers).add(root.hash);
+
+        return isValid;
     }
 
     protected void checkForMissingDependency(String rootHash) {
@@ -57,9 +61,12 @@ public class LedgerValidator {
     }
 
     protected boolean isBundleValid(Transaction head) {
+
         Transfer transfer = new Transfer(new Bundle(head));
-        if(!transfer.areSignaturesValid())
+        if(!transfer.areSignaturesValid()) {
             return false;
+        }
+
         try {
             return isTangleValid(head.trunkHash(), head.getTrunk()) && isTangleValid(head.branchHash(), head.getBranch()) && verifyFunds(transfer);
         } catch (IncompleteTangleException incompleteTangleException) {
