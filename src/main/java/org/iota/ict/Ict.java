@@ -4,8 +4,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.api.RestApi;
 import org.iota.ict.ec.EconomicCluster;
-import org.iota.ict.inter_ixi.EffectListener;
-import org.iota.ict.inter_ixi.EffectListenerHolder;
+import org.iota.ict.eee.EffectListener;
+import org.iota.ict.eee.EventDispatcher;
 import org.iota.ict.ixi.IxiModuleHolder;
 import org.iota.ict.model.tangle.RingTangle;
 import org.iota.ict.model.tangle.Tangle;
@@ -35,9 +35,9 @@ import java.util.Set;
 public class Ict extends RestartableThread implements IctInterface {
 
     // services
-    protected final GossipEventDispatcher eventDispatcher = new GossipEventDispatcher();
+    protected final GossipEventDispatcher gossipEventDispatcher = new GossipEventDispatcher();
     protected final IxiModuleHolder moduleHolder = new IxiModuleHolder(Ict.this);
-    protected final EffectListenerHolder effectListenerHolder = new EffectListenerHolder();
+    protected final EventDispatcher eventDispatcher = new EventDispatcher();
     protected final RestApi restApi;
     protected final EconomicCluster cluster;
     protected final Tangle tangle;
@@ -64,7 +64,7 @@ public class Ict extends RestartableThread implements IctInterface {
         this.restApi = new RestApi(this);
         this.cluster = new EconomicCluster(this);
 
-        subWorkers.add(eventDispatcher);
+        subWorkers.add(gossipEventDispatcher);
         subWorkers.add(node);
         subWorkers.add(moduleHolder);
         subWorkers.add(restApi);
@@ -89,7 +89,7 @@ public class Ict extends RestartableThread implements IctInterface {
                 LOGGER.debug("memory: " + Runtime.getRuntime().totalMemory() / 1024 / 1024 + "MB / " + Runtime.getRuntime().maxMemory() / 1024 / 1024 + "MB (total/max)");
                 LOGGER.debug("tangle size: " + tangle.size() + " (" + Transaction.getAmountOfInstances() + " transaction instances alive)");
                 node.log();
-                eventDispatcher.log();
+                gossipEventDispatcher.log();
                 roundStart = System.currentTimeMillis();
             }
         }
@@ -108,11 +108,11 @@ public class Ict extends RestartableThread implements IctInterface {
      * @param gossipListener The listener to add.
      */
     public void addGossipListener(GossipListener gossipListener) {
-        eventDispatcher.listeners.add(gossipListener);
+        gossipEventDispatcher.listeners.add(gossipListener);
     }
 
     public void removeGossipListener(GossipListener gossipListener) {
-        eventDispatcher.listeners.remove(gossipListener);
+        gossipEventDispatcher.listeners.remove(gossipListener);
     }
 
     /**
@@ -189,17 +189,17 @@ public class Ict extends RestartableThread implements IctInterface {
 
     @Override
     public void onGossipEvent(GossipEvent event) {
-        eventDispatcher.notifyListeners(event);
+        gossipEventDispatcher.notifyListeners(event);
     }
 
     @Override
     public void addGossipPreprocessor(GossipPreprocessor gossipPreprocessor) {
-        eventDispatcher.addGossipPreprocessor(gossipPreprocessor);
+        gossipEventDispatcher.addGossipPreprocessor(gossipPreprocessor);
     }
 
     @Override
     public void removeGossipPreprocessor(GossipPreprocessor gossipPreprocessor) {
-        eventDispatcher.removeGossipPreprocessor(gossipPreprocessor);
+        gossipEventDispatcher.removeGossipPreprocessor(gossipPreprocessor);
     }
 
     @Override
@@ -209,12 +209,12 @@ public class Ict extends RestartableThread implements IctInterface {
 
     @Override
     public void submitEffect(String environment, String effectTrytes) {
-        effectListenerHolder.submitEffect(environment, effectTrytes);
+        eventDispatcher.submitEffect(environment, effectTrytes);
     }
 
     @Override
-    public void addEffectListener(EffectListener effectListener) {
-        effectListenerHolder.addEffectListner(effectListener);
+    public void addEffectListener(EffectListener listener) {
+        eventDispatcher.addListener(listener);
     }
 
 }

@@ -1,7 +1,7 @@
 package org.iota.ict.ixi;
 
 import org.iota.ict.model.transaction.Transaction;
-import org.iota.ict.inter_ixi.EffectListener;
+import org.iota.ict.eee.EffectListener;
 import org.iota.ict.network.gossip.GossipEvent;
 import org.iota.ict.network.gossip.GossipListener;
 import org.iota.ict.network.gossip.GossipPreprocessor;
@@ -91,9 +91,9 @@ public interface Ixi {
      * Adds an effect to a specific environment queue.
      *
      * @param environment the environment to which the effect should be sent
-     * @param effectTrytes the effect encoded as trytes
+     * @param effectString g the effect
      */
-    void submitEffect(String environment, String effectTrytes);
+    void submitEffect(String environment, String effectString);
 
     /**
      * Registers a new EffectListener.
