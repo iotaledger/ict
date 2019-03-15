@@ -7,10 +7,7 @@ import org.iota.ict.model.transaction.Transaction;
 import org.iota.ict.model.transfer.Transfer;
 
 import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class LedgerValidator {
 
@@ -68,22 +65,18 @@ public class LedgerValidator {
         }
 
         try {
-            return isTangleValid(head.trunkHash(), head.getTrunk()) && isTangleValid(head.branchHash(), head.getBranch()) && verifyFunds(transfer);
+            return isTangleValid(head.trunkHash(), head.getTrunk()) && isTangleValid(head.branchHash(), head.getBranch()) && verifyFunds(head, transfer);
         } catch (IncompleteTangleException incompleteTangleException) {
             dependencyByTransfer.put(head.hash, incompleteTangleException.unavailableTransactionHash);
             throw incompleteTangleException;
         }
     }
 
-    protected boolean verifyFunds(Transfer transfer) {
+    protected boolean verifyFunds(Transaction root, Transfer transfer) {
         for(BalanceChange input : transfer.getInputs())
-            if(!verifyFunds(input.getAddress(), input.getValue()))
+            if(sumBalanceOfAddress(root, input.getAddress()).compareTo(BigInteger.ZERO) < 0)
                 return false;
         return true;
-    }
-
-    protected boolean verifyFunds(String address, BigInteger value) {
-        return true; // TODO
     }
 
     protected static class IncompleteTangleException extends RuntimeException {
@@ -92,5 +85,26 @@ public class LedgerValidator {
         IncompleteTangleException(String unavailableTransactionHash) {
             this.unavailableTransactionHash = unavailableTransactionHash;
         }
+    }
+
+    public static BigInteger sumBalanceOfAddress(Transaction root, String address) {
+        BigInteger sum = BigInteger.ZERO;
+
+        Set<Transaction> traversed = new HashSet<>();
+        LinkedList<Transaction> toTraverse = new LinkedList<>();
+        toTraverse.add(root);
+
+        Transaction current;
+        while ((current = toTraverse.poll()) != null) {
+            if(!traversed.add(current))
+                continue;
+            toTraverse.add(current.getBranch());
+            toTraverse.add(current.getTrunk());
+
+            if(current.address().equals(address))
+                sum = sum.add(current.value);
+        }
+
+        return sum;
     }
 }
