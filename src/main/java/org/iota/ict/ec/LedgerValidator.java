@@ -26,13 +26,58 @@ public class LedgerValidator {
         initialBalances.put(address, initialBalances.containsKey(address) ? initialBalances.get(address).add(toAdd) : toAdd);
     }
 
-    public boolean isTangleValid(String hash) {
-        return isTangleValid(hash, ixi.findTransactionByHash(hash));
+    public boolean isTangleSolid(String rootHash) {
+        try {
+            return isTangleValid(rootHash) && noNegativeBalanceInTangle(rootHash);
+        } catch (IncompleteTangleException e) {
+            return false;
+        }
     }
 
-    protected boolean isTangleValid(String hash, Transaction root) {
+    protected boolean noNegativeBalanceInTangle(String rootHash) {
+        Map<String, BigInteger> balances = calcBalances(rootHash);
+        for (Map.Entry<String, BigInteger> entry : balances.entrySet()) {
+            if(entry.getValue().compareTo(BigInteger.ZERO) < 0)
+                return false;}
+        return true;
+    }
+
+    protected Map<String, BigInteger> calcBalances(String rootHash) {
+
+        Transaction root = ixi.findTransactionByHash(rootHash);
+        Map<String, BigInteger> balances = new HashMap<>(initialBalances);
+        LinkedList<Transaction> toTraverse = new LinkedList<>();
+        Set<String> traversed = new HashSet<>();
+        toTraverse.add(root);
+
+        while (toTraverse.size() > 0) {
+            Transaction current = toTraverse.poll();
+
+            if(traversed.add(current.hash)) {
+                if(!current.value.equals(BigInteger.ZERO)) {
+                    String address = current.address();
+                    balances.put(address, balances.containsKey(address) ? balances.get(address).add(current.value) : current.value);
+                }
+
+                Transaction branch = current.getBranch();
+                Transaction trunk = current.getTrunk();
+                if(branch == null || trunk == null)
+                    throw new IncompleteTangleException(branch == null ? current.branchHash() : current.trunkHash());
+                toTraverse.add(branch);
+                toTraverse.add(trunk);
+            }
+        }
+
+        return balances;
+    }
+
+    public boolean isTangleValid(String rootHash) {
+        return isTangleValid(rootHash, ixi.findTransactionByHash(rootHash));
+    }
+
+    protected boolean isTangleValid(String rootHash, Transaction root) {
         if(root == null)
-            throw new IncompleteTangleException(hash);
+            throw new IncompleteTangleException(rootHash);
         if(validTransfers.contains(root.hash))
             return true;
         if(invalidTransfers.contains(root.hash))
@@ -69,18 +114,11 @@ public class LedgerValidator {
         }
 
         try {
-            return isTangleValid(head.trunkHash(), head.getTrunk()) && isTangleValid(head.branchHash(), head.getBranch()) && verifyFunds(head, transfer);
+            return isTangleValid(head.trunkHash(), head.getTrunk()) && isTangleValid(head.branchHash(), head.getBranch());
         } catch (IncompleteTangleException incompleteTangleException) {
             dependencyByTransfer.put(head.hash, incompleteTangleException.unavailableTransactionHash);
             throw incompleteTangleException;
         }
-    }
-
-    protected boolean verifyFunds(Transaction root, Transfer transfer) {
-        for(BalanceChange input : transfer.getInputs())
-            if(sumBalanceOfAddress(root, input.getAddress()).compareTo(BigInteger.ZERO) < 0)
-                return false;
-        return true;
     }
 
     protected static class IncompleteTangleException extends RuntimeException {
