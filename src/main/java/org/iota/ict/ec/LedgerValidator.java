@@ -4,6 +4,7 @@ import org.iota.ict.ixi.Ixi;
 import org.iota.ict.model.bc.BalanceChange;
 import org.iota.ict.model.bundle.Bundle;
 import org.iota.ict.model.transaction.Transaction;
+import org.iota.ict.model.transaction.TransactionBuilder;
 import org.iota.ict.model.transfer.Transfer;
 
 import java.math.BigInteger;
@@ -26,25 +27,38 @@ public class LedgerValidator {
         initialBalances.put(address, initialBalances.containsKey(address) ? initialBalances.get(address).add(toAdd) : toAdd);
     }
 
+    public boolean areTanglesCompatible(String rootAHash, String rootBHash) {
+        TransactionBuilder builder = new TransactionBuilder();
+        builder.trunkHash = rootAHash;
+        builder.branchHash = rootBHash;
+        Transaction merge = builder.build();
+        merge.setTrunk(ixi.findTransactionByHash(rootAHash));
+        merge.setBranch(ixi.findTransactionByHash(rootBHash));
+        return isTangleSolid(merge);
+    }
+
     public boolean isTangleSolid(String rootHash) {
+        return isTangleSolid(ixi.findTransactionByHash(rootHash));
+    }
+
+    protected boolean isTangleSolid(Transaction root) {
         try {
-            return isTangleValid(rootHash) && noNegativeBalanceInTangle(rootHash);
+            return isTangleValid(root.hash, root) && noNegativeBalanceInTangle(root);
         } catch (IncompleteTangleException e) {
             return false;
         }
     }
 
-    protected boolean noNegativeBalanceInTangle(String rootHash) {
-        Map<String, BigInteger> balances = calcBalances(rootHash);
+    protected boolean noNegativeBalanceInTangle(Transaction root) {
+        Map<String, BigInteger> balances = calcBalances(root);
         for (Map.Entry<String, BigInteger> entry : balances.entrySet()) {
             if(entry.getValue().compareTo(BigInteger.ZERO) < 0)
                 return false;}
         return true;
     }
 
-    protected Map<String, BigInteger> calcBalances(String rootHash) {
+    protected Map<String, BigInteger> calcBalances(Transaction root) {
 
-        Transaction root = ixi.findTransactionByHash(rootHash);
         Map<String, BigInteger> balances = new HashMap<>(initialBalances);
         LinkedList<Transaction> toTraverse = new LinkedList<>();
         Set<String> traversed = new HashSet<>();

@@ -79,9 +79,11 @@ public class LedgerValidatorTest extends IctTestTemplate {
         Assert.assertTrue("Solid Tangle was recognized as not solid.", validator.isTangleSolid(spend1));
         Assert.assertTrue("Solid Tangle was recognized as not solid.", validator.isTangleSolid(spend2));
         Assert.assertFalse("Double spend: funds of an address were spent twice.", validator.isTangleSolid(doubleSpend));
+        Assert.assertFalse("Double spend: funds of an address were spent twice.", validator.areTanglesCompatible(spend1, spend2));
 
         validator.changeInitialBalance(privateKey.deriveAddress(), value);
         Assert.assertTrue("Double spend failed despite sufficient funds.", validator.isTangleSolid(doubleSpend));
+        Assert.assertTrue("Double spend failed despite sufficient funds.", validator.areTanglesCompatible(spend1, spend2));
     }
 
     private static String mergeTangles(Ict ict, String branch, String trunk) {
