@@ -43,13 +43,19 @@ public class Transfer {
         outputs = collector.outputs;
     }
 
-    private static void ensureSumIsZero(Iterable<BalanceChange> changes) {
+    public boolean isValid() {
+        return areSignaturesValid() && isSumZero();
+    }
+
+    private boolean isSumZero() {
         BigInteger sum = BigInteger.ZERO;
-        for (BalanceChange change : changes) {
+        for (BalanceChange change : inputs) {
             sum = sum.add(change.value);
         }
-        if (sum.compareTo(BigInteger.ZERO) != 0)
-            throw new IllegalArgumentException("Total sum of changes must be 0 but is '" + sum.toString() + "'.");
+        for (BalanceChange change : outputs) {
+            sum = sum.add(change.value);
+        }
+        return sum.compareTo(BigInteger.ZERO) == 0;
     }
 
     public boolean areSignaturesValid() {

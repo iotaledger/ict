@@ -1,7 +1,7 @@
 package org.iota.ict.ixi;
 
 import org.iota.ict.ixi.context.IxiContext;
-import org.iota.ict.ixi.context.NotConfigurableIxiContext;
+import org.iota.ict.ixi.context.SimpleIxiContext;
 import org.iota.ict.utils.interfaces.Installable;
 import org.iota.ict.utils.RestartableThread;
 
@@ -29,6 +29,6 @@ public abstract class IxiModule extends RestartableThread implements Runnable, I
      * @see org.iota.ict.ixi.context.ConfigurableIxiContext if you want to make your IXI configurable.
      * */
     public IxiContext getContext() {
-        return NotConfigurableIxiContext.INSTANCE;
+        return SimpleIxiContext.INSTANCE;
     }
 }

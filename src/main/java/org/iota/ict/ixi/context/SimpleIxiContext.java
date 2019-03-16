@@ -2,9 +2,14 @@ package org.iota.ict.ixi.context;
 
 import org.json.JSONObject;
 
-public class NotConfigurableIxiContext implements IxiContext {
+public class SimpleIxiContext implements IxiContext {
 
-    public static final NotConfigurableIxiContext INSTANCE = new NotConfigurableIxiContext();
+    public static final SimpleIxiContext INSTANCE = new SimpleIxiContext();
+
+    @Override
+    public String respondToRequest(String request) {
+        return "This module has not implemented a response mechanism.";
+    }
 
     @Override
     public void tryToUpdateConfiguration(JSONObject newConfiguration) {

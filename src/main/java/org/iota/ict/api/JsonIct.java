@@ -164,14 +164,24 @@ public class JsonIct {
         return modules;
     }
 
-    protected JSONObject getModuleConfig(String path) {
+    protected IxiModule getModule(String path) {
         IxiModule module = ict.getModuleHolder().getModule(path);
         if(module == null)
             throw new RuntimeException("No module '"+path+"'.");
+        return module;
+    }
 
+    protected JSONObject getModuleConfig(String path) {
+
+        IxiModule module = getModule(path);
         return new JSONObject()
                 .put("default_config", module.getContext().getDefaultConfiguration())
                 .put("config", module.getContext().getConfiguration());
+    }
+
+    protected JSONObject getModuleResponse(String path, String request) {
+        IxiModule module = getModule(path);
+        return new JSONObject().put("response", module.getContext().respondToRequest(request));
     }
 
     protected JSONObject setModuleConfig(String path, JSONObject config) {

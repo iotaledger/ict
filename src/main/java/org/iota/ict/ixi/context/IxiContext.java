@@ -10,8 +10,9 @@ import org.iota.ict.utils.interfaces.Configurable;
  * Implementations:
  *
  * @see ConfigurableIxiContext
- * @see NotConfigurableIxiContext
+ * @see SimpleIxiContext
  */
 public interface IxiContext extends Configurable {
 
+    String respondToRequest(String request);
 }

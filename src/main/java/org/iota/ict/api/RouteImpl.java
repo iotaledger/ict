@@ -947,6 +947,17 @@ class RouteGetModuleConfig extends RouteImpl {
     }
 }
 
+class RouteGetModuleResponse extends RouteImpl {
+
+    protected RouteGetModuleResponse(JsonIct jsonIct) { super(jsonIct, "/getModuleResponse"); }
+
+    public JSONObject execute(Request request) {
+        String requestString = request.queryParams("request");
+        String path = request.queryParams("path");
+        return jsonIct.getModuleResponse(path, requestString);
+    }
+}
+
 /**
  * @api {post} /setModuleConfig/ setModuleConfig
  * @apiUse modulePathParam
