@@ -42,7 +42,6 @@ public class LedgerValidatorTest extends IctTestTemplate {
         }
 
         ict.submit(transaction1);
-        saveSleep(50);
         boolean isTangleValid = validator.isTangleValid(transaction2.hash);
         Assert.assertTrue("Tangle was not recognized as valid after missing dependency was added.", isTangleValid);
     }
@@ -60,6 +59,51 @@ public class LedgerValidatorTest extends IctTestTemplate {
         Assert.assertTrue("Valid Tangle was recognized as invalid.", isTangleValid);
         Assert.assertTrue("Transfer was not added to valid transfer set.", validator.validTransfers.contains(transfer1));
         Assert.assertTrue("Transfer was not added to valid transfer set.", validator.validTransfers.contains(transfer2));
+    }
+
+    @Test
+    public void testDoubleSpend() {
+
+        Ict ict = createIct();
+        LedgerValidator validator = new LedgerValidator(ict);
+        BigInteger value = BigInteger.valueOf(1000);
+
+        SignatureSchemeImplementation.PrivateKey privateKey = SignatureSchemeImplementation.derivePrivateKeyFromSeed(Trytes.randomSequenceOfLength(81), 0, 1);
+        validator.changeInitialBalance(privateKey.deriveAddress(), value);
+
+        String spend1 = spendFunds(ict, privateKey, value, Trytes.randomSequenceOfLength(Transaction.Field.ADDRESS.tryteLength));
+        String spend2 = spendFunds(ict, privateKey, value, Trytes.randomSequenceOfLength(Transaction.Field.ADDRESS.tryteLength));
+        String doubleSpend = mergeTangles(ict, spend1, spend2);
+        saveSleep(50);
+
+        Assert.assertTrue("Solid Tangle was recognized as not solid.", validator.isTangleSolid(spend1));
+        Assert.assertTrue("Solid Tangle was recognized as not solid.", validator.isTangleSolid(spend2));
+        Assert.assertFalse("Double spend: funds of an address were spent twice.", validator.isTangleSolid(doubleSpend));
+
+        validator.changeInitialBalance(privateKey.deriveAddress(), value);
+        Assert.assertTrue("Double spend failed despite sufficient funds.", validator.isTangleSolid(doubleSpend));
+    }
+
+    private static String mergeTangles(Ict ict, String branch, String trunk) {
+        TransactionBuilder builder = new TransactionBuilder();
+        builder.branchHash = branch;
+        builder.trunkHash = trunk;
+        Transaction merge = builder.build();
+        ict.submit(merge);
+        saveSleep(50);
+        return merge.hash;
+    }
+
+    private static String spendFunds(Ict ict, SignatureSchemeImplementation.PrivateKey privateKey, BigInteger value, String receiverAddress) {
+        InputBuilder inputBuilder = new InputBuilder(privateKey, BigInteger.ZERO.subtract(value));
+        OutputBuilder outputBuilder = new OutputBuilder(receiverAddress, value, "HELLOWORLD");
+
+        TransferBuilder transferBuilder = new TransferBuilder(Collections.singleton(inputBuilder), Collections.singleton(outputBuilder), 1);
+        BundleBuilder bundleBuilder = transferBuilder.build();
+        Bundle bundle = bundleBuilder.build();
+        submitBundle(ict, bundle);
+
+        return bundle.getHead().hash;
     }
 
     @Test
@@ -100,6 +144,13 @@ public class LedgerValidatorTest extends IctTestTemplate {
 
         boolean isTangleValid = validator.isTangleValid(bundleReattach.getHead().hash);
         Assert.assertTrue("Valid Tangle was recognized as invalid.", isTangleValid);
+
+        boolean isTangleSolid = validator.isTangleSolid(bundleReattach.getHead().hash);
+        Assert.assertTrue("Solid Tangle was recognized as not solid.", isTangleSolid);
+
+        validator.changeInitialBalance(privateKey.deriveAddress(), BigInteger.ZERO.subtract(value.add(BigInteger.ONE)));
+        isTangleSolid = validator.isTangleSolid(bundleReattach.getHead().hash);
+        Assert.assertFalse("Tangle was recognized as solid despite missing funds.", isTangleSolid);
     }
 
     private static Bundle buildBundleWithInvalidSignature(String inputAddress, BigInteger value) {
