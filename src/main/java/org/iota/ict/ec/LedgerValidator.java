@@ -13,6 +13,7 @@ public class LedgerValidator {
 
     protected final Ixi ixi;
 
+    protected final Map<String, BigInteger> initialBalances = new HashMap<>();
     protected final Map<String, String> dependencyByTransfer = new HashMap<>();
     protected final Set<String> invalidTransfers = new HashSet<>(), validTransfers = new HashSet<>();
 
@@ -21,26 +22,29 @@ public class LedgerValidator {
         validTransfers.add(Transaction.NULL_TRANSACTION.hash);
     }
 
+    public void changeInitialBalance(String address, BigInteger toAdd) {
+        initialBalances.put(address, initialBalances.containsKey(address) ? initialBalances.get(address).add(toAdd) : toAdd);
+    }
+
     public boolean isTangleValid(String hash) {
         return isTangleValid(hash, ixi.findTransactionByHash(hash));
     }
 
     protected boolean isTangleValid(String hash, Transaction root) {
-
-        if(root == null) {
+        if(root == null)
             throw new IncompleteTangleException(hash);
-        }
-
         if(validTransfers.contains(root.hash))
             return true;
         if(invalidTransfers.contains(root.hash))
             return false;
         checkForMissingDependency(root.hash);
+        return validateTangle(root);
+    }
 
+    protected boolean validateTangle(Transaction root) {
         boolean isValid = (!root.isBundleHead || (root.isBundleTail && root.value.compareTo(BigInteger.ZERO) == 0))
                 ? isTangleValid(root.branchHash(), root.getBranch()) && isTangleValid(root.trunkHash(), root.getTrunk())
                 : isBundleValid(root);
-
         (isValid ? validTransfers : invalidTransfers).add(root.hash);
 
         return isValid;
@@ -60,7 +64,7 @@ public class LedgerValidator {
     protected boolean isBundleValid(Transaction head) {
 
         Transfer transfer = new Transfer(new Bundle(head));
-        if(!transfer.areSignaturesValid()) {
+        if(!transfer.isValid()) {
             return false;
         }
 
@@ -83,6 +87,7 @@ public class LedgerValidator {
         protected final String unavailableTransactionHash;
 
         IncompleteTangleException(String unavailableTransactionHash) {
+            super(unavailableTransactionHash);
             this.unavailableTransactionHash = unavailableTransactionHash;
         }
     }

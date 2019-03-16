@@ -10,6 +10,7 @@ import org.iota.ict.model.transfer.InputBuilder;
 import org.iota.ict.model.transfer.OutputBuilder;
 import org.iota.ict.model.transfer.TransferBuilder;
 import org.iota.ict.utils.Trytes;
+import org.iota.ict.utils.crypto.SignatureSchemeImplementation;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -51,17 +52,77 @@ public class LedgerValidatorTest extends IctTestTemplate {
         Ict ict = createIct();
         LedgerValidator validator = new LedgerValidator(ict);
 
-        String transfer1 = buildRandomTransferAndPublish(ict, Collections.singleton(Transaction.NULL_TRANSACTION.hash));
-        String transfer2 = buildRandomTransferAndPublish(ict, Collections.singleton(transfer1));
+        String transfer1 = buildRandomTransferAndSubmit(ict, Collections.singleton(Transaction.NULL_TRANSACTION.hash));
+        String transfer2 = buildRandomTransferAndSubmit(ict, Collections.singleton(transfer1));
 
-        boolean isTangleValid = validator.isTangleValid(transfer2, ict.findTransactionByHash(transfer2));
+        boolean isTangleValid = validator.isTangleValid(transfer2);
 
         Assert.assertTrue("Valid Tangle was recognized as invalid.", isTangleValid);
         Assert.assertTrue("Transfer was not added to valid transfer set.", validator.validTransfers.contains(transfer1));
         Assert.assertTrue("Transfer was not added to valid transfer set.", validator.validTransfers.contains(transfer2));
     }
 
-    private static String buildRandomTransferAndPublish(Ict ict, Set<String> references) {
+    @Test
+    public void testInvalidSignature() {
+        Ict ict = createIct();
+        LedgerValidator validator = new LedgerValidator(ict);
+        String inputAddress = Trytes.randomSequenceOfLength(81);
+        BigInteger value = BigInteger.valueOf(1000);
+        validator.changeInitialBalance(inputAddress, value);
+
+        Bundle bundleWithInvalidSignature = buildBundleWithInvalidSignature(inputAddress, value);
+        submitBundle(ict, bundleWithInvalidSignature);
+
+        boolean isTangleValid = validator.isTangleValid(bundleWithInvalidSignature.getHead().hash);
+        Assert.assertFalse("Inalid Tangle was recognized as valid.", isTangleValid);
+    }
+
+    @Test
+    public void testValidSignature() {
+        Ict ict = createIct();
+        LedgerValidator validator = new LedgerValidator(ict);
+        BigInteger value = BigInteger.valueOf(1000);
+
+        SignatureSchemeImplementation.PrivateKey privateKey = SignatureSchemeImplementation.derivePrivateKeyFromSeed(Trytes.randomSequenceOfLength(81), 0, 1);
+        validator.changeInitialBalance(privateKey.deriveAddress(), value);
+
+        InputBuilder inputBuilder = new InputBuilder(privateKey, BigInteger.ZERO.subtract(value));
+        OutputBuilder outputBuilder = new OutputBuilder(privateKey.deriveAddress(), value, "HELLOWORLD");
+
+        TransferBuilder transferBuilder = new TransferBuilder(Collections.singleton(inputBuilder), Collections.singleton(outputBuilder), 1);
+        BundleBuilder bundleBuilder = transferBuilder.build();
+        Bundle bundleOriginal = bundleBuilder.build();
+        submitBundle(ict, bundleOriginal);
+
+        bundleBuilder.getTailToHead().get(0).branchHash = bundleOriginal.getHead().hash;
+        Bundle bundleReattach = bundleBuilder.build();
+        submitBundle(ict, bundleReattach);
+
+        boolean isTangleValid = validator.isTangleValid(bundleReattach.getHead().hash);
+        Assert.assertTrue("Valid Tangle was recognized as invalid.", isTangleValid);
+    }
+
+    private static Bundle buildBundleWithInvalidSignature(String inputAddress, BigInteger value) {
+        BundleBuilder bundleBuilder = new BundleBuilder();
+        TransactionBuilder inputBuilder = new TransactionBuilder();
+        TransactionBuilder outputBuilder = new TransactionBuilder();
+        inputBuilder.address = inputAddress;
+        outputBuilder.address = Trytes.randomSequenceOfLength(Transaction.Field.ADDRESS.tryteLength);
+        inputBuilder.signatureFragments = Trytes.randomSequenceOfLength(Transaction.Field.SIGNATURE_FRAGMENTS.tryteLength);
+        inputBuilder.value = BigInteger.ZERO.subtract(value);
+        outputBuilder.value = value;
+        bundleBuilder.append(inputBuilder);
+        bundleBuilder.append(outputBuilder);
+        return bundleBuilder.build();
+    }
+
+    private static void submitBundle(Ict ict, Bundle bundle) {
+        for(Transaction transaction : bundle.getTransactions())
+            ict.submit(transaction);
+        saveSleep(50);
+    }
+
+    private static String buildRandomTransferAndSubmit(Ict ict, Set<String> references) {
         Bundle randomTransfer = buildRandomTransfer(references);
         for(Transaction transaction : randomTransfer.getTransactions())
             ict.submit(transaction);
