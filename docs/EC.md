@@ -34,6 +34,12 @@ We care directly if we depend on this actor. The value of our tokens only result
 
 We care indirectly if an actor who is relevant to us heavily relies on another actor. For example, we might not plan to interact with the bank of our supermarket ourselves. However, that bank is certainly relevant to our supermarket and as such it is relevant to us as well, even though in a smaller degree.
 
+### Neighbor Clusters
+
+> Each cluster processes its own transactions and transactions of the neighbor clusters, all the other transactions are ignored because they simply don’t reach the cluster.
+
+(to be continued ...)
+
 # Economics of EC
 
 ## Inter-Cluster Token Exchange
@@ -110,7 +116,18 @@ p(T) = Σ[∀A∈Actors] relevance(A) ⋅ p(T|A)
 
 ### Definition
 
-Ledger validation describes the problem of determining whether a tangle complies to certain validity rules in which case it is called "valid". Validity is a necessary requirement for confirmation. While confirmation is the result of consensus and describes the acceptance of a tangle, validity is a technical property which can be checked deterministically and describes the absence of inconsistencies within the tangle.
+Ledger validation describes the problem of determining whether a tangle complies to certain validity rules in which case
+it is called "valid". Validity is a necessary requirement for confirmation. While confirmation is the result of consensus
+and describes the acceptance of a tangle, validity is a technical property which can be checked deterministically and
+describes the absence of inconsistencies within the tangle.
+
+**Note that ledger validation is only done by Economic Actors. Weaker devices rely on their results so they don't have to
+do perform these heavy computations themselves.**
+
+In invalid ledger will have a confidence of zero. If the smallest merge of two tangles is invalid (e.g. because both include a
+spend of the same funds - a *double spend*), we define these tangles as *conflicting*. They cannot be merged without
+additional transfers and therefore we assume that at most one of both will confirm. Based on the conflict relation we can
+model the probability of a Tangle confirming. This is the basis to calculate the confidence.
 
 ### General Validity Rules
 
@@ -119,14 +136,10 @@ A tangle `S` is valid if all transfers within are valid. A transfer `T` is valid
 * no tokens are created or destroyed by `T` (input value = output value)
 * when combining all transfers **in `S`**, no address being used as input for `T` is left with a negative balance (inputs exist)
 
-### Additional Restriction for Efficiency
-
-The last condition makes ledger validation a computationally expensive process. We will now introduce an additional restriction to increase efficiency:
-* when combining all transfers **in the sub-tangle defined by `T`**, no address is left with a negative balance (inputs exist)
-
-Without that restriction we allowed `S` to be valid if it contained all previous transfers sending sufficient funds to the input addresses of `T`. With that restriction, these previous transactions must be part of the sub-tangle of `T`. This frees the validity of `T` from the context of any tangle `S`. We can validate whether `T` is itself valid. If and only if T is valid, the sub-tangle of `T` is valid. As a result, no valid super-tangle can contain an invalid sub-tangle. If a super-tangle S is valid, all its sub-tangles are valid as well. If a sub-tangle is invalid, all it's super-tangles are invalid.
-
-Instead of having to validate the entire ledger from scratch for every tangle `S`, we can now validate it by checking its sub-tangles `S'`. For every sub-tangle we can store whether it is valid or invalid. This way we will never have to check whether a transfer which is valid/invalid in some tangle `X` is valid/invalid in another tangle `Y`.
+The first two conditions can be checked efficiently for each transfer once without the context of S (complexity `O(1)` for each new transfer). The third condition
+on the other hand must be validated from scratch for each tangle S (complexity `O(S)` for each ledger validation). In practice we will
+keep a snapshot of all balances from a certain point of history we consider confirmed with high probability. This reduces the complexity
+from validating the entire ledger since genesis to validating only the new part of the ledger since that snapshot.
 
 # References
 
