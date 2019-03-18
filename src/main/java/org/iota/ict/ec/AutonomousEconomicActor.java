@@ -3,6 +3,7 @@ package org.iota.ict.ec;
 import org.iota.ict.ixi.Ixi;
 import org.iota.ict.model.bundle.Bundle;
 import org.iota.ict.model.transaction.Transaction;
+import org.iota.ict.utils.crypto.AutoIndexedMerkleTree;
 import org.iota.ict.utils.crypto.MerkleTree;
 
 import java.math.BigInteger;
@@ -17,8 +18,8 @@ public class AutonomousEconomicActor extends ControlledEconomicActor {
     private Set<String> validTangles = new HashSet<>();
     private Set<String> invalidTangles = new HashSet<>();
 
-    public AutonomousEconomicActor(Ixi ixi, EconomicCluster economicCluster, Map<String, BigInteger> initialBalances, MerkleTree merkleTree, int keyIndex) {
-        super(merkleTree, keyIndex);
+    public AutonomousEconomicActor(Ixi ixi, EconomicCluster economicCluster, Map<String, BigInteger> initialBalances, AutoIndexedMerkleTree merkleTree) {
+        super(merkleTree);
         this.ixi = ixi;
         this.economicCluster = economicCluster;
         this.ledgerValidator = new LedgerValidator(ixi, initialBalances);
