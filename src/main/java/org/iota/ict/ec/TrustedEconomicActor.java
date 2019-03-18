@@ -68,6 +68,13 @@ public class TrustedEconomicActor extends EconomicActor {
         return null;
     }
 
+    public Set<String> getMarkedTangles() {
+        Set<String> markedTangles = new HashSet<>();
+        for(SubTangle subTangle : subTanglesOrderedByDescendingConfidence)
+            markedTangles.add(subTangle.getID());
+        return markedTangles;
+    }
+
     private static double decodeConfidence(String trytes) {
         return Trytes.TRYTES.indexOf(trytes.charAt(0)) / 26.0;
     }
@@ -128,8 +135,11 @@ public class TrustedEconomicActor extends EconomicActor {
         }
 
         private boolean isDirectlyReferencedBy(Transaction transaction) {
-            return (transaction.branchHash().equals(referencedTransaction1) || transaction.branchHash().equals(referencedTransaction2))
-                    && (transaction.trunkHash().equals(referencedTransaction1) || transaction.trunkHash().equals(referencedTransaction2));
+            return tangleID(transaction.branchHash(), transaction.trunkHash()).equals(getID());
+        }
+
+        protected String getID() {
+            return tangleID(referencedTransaction1, referencedTransaction2);
         }
 
         protected boolean references(String transactionHash) {

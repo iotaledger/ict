@@ -12,7 +12,7 @@ import java.math.BigInteger;
 public class OutputBuilder extends BalanceChangeBuilder {
 
     public OutputBuilder(String address, BigInteger value, String message) {
-        super(address, value, (int)Math.ceil(message.length() * 1.0 / Transaction.Field.SIGNATURE_FRAGMENTS.tryteLength));
+        super(address, value, (int)Math.max(1, Math.ceil(message.length() * 1.0 / Transaction.Field.SIGNATURE_FRAGMENTS.tryteLength)));
         message = Trytes.padRight(message, buildersFromTailToHead.length * Transaction.Field.SIGNATURE_FRAGMENTS.tryteLength);
         if(value.compareTo(BigInteger.ZERO) < 0)
             throw new IllegalArgumentException("Value must be positive or zero in output.");

@@ -24,7 +24,7 @@ public class EconomicClusterTest extends IctTestTemplate {
         ict.submit(transaction);
 
         // this marker will be created first to ensure the index is zero
-        Bundle markerWithIndex0 = ca.issueMarker(transaction.hash, transaction.hash, 1, 3/26.0);
+        Bundle markerWithIndex0 = ca.buildMarker(transaction.hash, transaction.hash, 3/26.0);
 
         assertApprovalRate(cluster, transaction, 0);
         sendMarker(ict, ca, transaction.hash, 22/26.0);
@@ -130,7 +130,7 @@ public class EconomicClusterTest extends IctTestTemplate {
     }
 
     private void sendMarker(Ict ict, ControlledEconomicActor actor, String referencedHash, double confidence) {
-        Bundle marker = actor.issueMarker(referencedHash, referencedHash, 1, confidence);
+        Bundle marker = actor.buildMarker(referencedHash, referencedHash, confidence);
         sendMarker(ict, marker);
     }
 

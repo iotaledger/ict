@@ -132,16 +132,11 @@ public class LedgerValidatorTest extends IctTestTemplate {
         SignatureSchemeImplementation.PrivateKey privateKey = SignatureSchemeImplementation.derivePrivateKeyFromSeed(Trytes.randomSequenceOfLength(81), 0, 1);
         validator.changeInitialBalance(privateKey.deriveAddress(), value);
 
-        InputBuilder inputBuilder = new InputBuilder(privateKey, BigInteger.ZERO.subtract(value));
-        OutputBuilder outputBuilder = new OutputBuilder(privateKey.deriveAddress(), value, "HELLOWORLD");
 
-        TransferBuilder transferBuilder = new TransferBuilder(Collections.singleton(inputBuilder), Collections.singleton(outputBuilder), 1);
-        BundleBuilder bundleBuilder = transferBuilder.build();
-        Bundle bundleOriginal = bundleBuilder.build();
+        Bundle bundleOriginal = buildValidTransfer(privateKey, value, privateKey.deriveAddress(), new HashSet<String>());
         submitBundle(ict, bundleOriginal);
 
-        bundleBuilder.getTailToHead().get(0).branchHash = bundleOriginal.getHead().hash;
-        Bundle bundleReattach = bundleBuilder.build();
+        Bundle bundleReattach = buildValidTransfer(privateKey, value, privateKey.deriveAddress(), Collections.singleton(bundleOriginal.getHead().hash));
         submitBundle(ict, bundleReattach);
 
         boolean isTangleValid = validator.isTangleValid(bundleReattach.getHead().hash);
@@ -167,12 +162,6 @@ public class LedgerValidatorTest extends IctTestTemplate {
         bundleBuilder.append(inputBuilder);
         bundleBuilder.append(outputBuilder);
         return bundleBuilder.build();
-    }
-
-    private static void submitBundle(Ict ict, Bundle bundle) {
-        for(Transaction transaction : bundle.getTransactions())
-            ict.submit(transaction);
-        saveSleep(50);
     }
 
     private static String buildRandomTransferAndSubmit(Ict ict, Set<String> references) {

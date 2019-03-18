@@ -27,14 +27,28 @@ public class LedgerValidator {
         initialBalances.put(address, initialBalances.containsKey(address) ? initialBalances.get(address).add(toAdd) : toAdd);
     }
 
-    public boolean areTanglesCompatible(String rootAHash, String rootBHash) {
+    public boolean areTanglesCompatible(String hashA, String hashB, String hashC, String hashD) {
+        Transaction refA = ixi.findTransactionByHash(hashA);
+        Transaction refB = ixi.findTransactionByHash(hashB);
+        Transaction refC = ixi.findTransactionByHash(hashC);
+        Transaction refD = ixi.findTransactionByHash(hashD);
+        return isTangleSolid(merge(merge(refA, refB), merge(refC, refD)));
+    }
+
+    public boolean areTanglesCompatible(String hashA, String hashB) {
+        Transaction refA = ixi.findTransactionByHash(hashA);
+        Transaction refB = ixi.findTransactionByHash(hashB);
+        return isTangleSolid(merge(refA, refB));
+    }
+
+    private Transaction merge(Transaction refA, Transaction refB) {
         TransactionBuilder builder = new TransactionBuilder();
-        builder.trunkHash = rootAHash;
-        builder.branchHash = rootBHash;
+        builder.trunkHash = refA.hash;
+        builder.branchHash = refB.hash;
         Transaction merge = builder.build();
-        merge.setTrunk(ixi.findTransactionByHash(rootAHash));
-        merge.setBranch(ixi.findTransactionByHash(rootBHash));
-        return isTangleSolid(merge);
+        merge.setTrunk(refA);
+        merge.setBranch(refB);
+        return merge;
     }
 
     public boolean isTangleSolid(String rootHash) {

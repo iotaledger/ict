@@ -30,7 +30,7 @@ public class ControlledEconomicActor extends EconomicActor {
         this.keyIndex = keyIndex;
     }
 
-    public Bundle issueMarker(String trunk, String branch, int securityLevel, double confidence) {
+    public Bundle buildMarker(String trunk, String branch, double confidence) {
 
         Set<OutputBuilder> outputs = new HashSet<>();
 
@@ -39,19 +39,22 @@ public class ControlledEconomicActor extends EconomicActor {
         assert signature.deriveAddress().equals(address);
         outputs.add(new OutputBuilder(address, BigInteger.ZERO, signature.toString()));
 
-        TransferBuilder transferBuilder =  new TransferBuilder(new HashSet<InputBuilder>(), outputs, securityLevel);
+        TransferBuilder transferBuilder =  new TransferBuilder(new HashSet<InputBuilder>(), outputs, merkleTree.getSecurityLevel());
         BundleBuilder bundleBuilder = transferBuilder.build();
 
         List<TransactionBuilder> tailToHead = bundleBuilder.getTailToHead();
         tailToHead.get(0).branchHash = branch;
         tailToHead.get(0).trunkHash = trunk;
         tailToHead.get(0).tag = encodeConfidence(confidence, Transaction.Field.TAG.tryteLength);
-        Bundle bundle = bundleBuilder.build();
-        return bundle;
+        return bundleBuilder.build();
     }
 
-    private static String encodeConfidence(double confidence, int trytesLength) {
+    protected static String encodeConfidence(double confidence, int padLength) {
+        return Trytes.padRight(encodeConfidence(confidence), padLength);
+    }
+
+    protected static String encodeConfidence(double confidence) {
         int discreteConfidence = (int)Math.round(confidence * 26);
-        return Trytes.padRight(Trytes.TRYTE_CHARS[discreteConfidence]+"", trytesLength);
+        return Trytes.TRYTE_CHARS[discreteConfidence]+"";
     }
 }
