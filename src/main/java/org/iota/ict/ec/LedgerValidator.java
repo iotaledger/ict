@@ -14,13 +14,20 @@ public class LedgerValidator {
 
     protected final Ixi ixi;
 
-    protected final Map<String, BigInteger> initialBalances = new HashMap<>();
+    protected final Map<String, BigInteger> initialBalances;
     protected final Map<String, String> dependencyByTransfer = new HashMap<>();
     protected final Set<String> invalidTransfers = new HashSet<>(), validTransfers = new HashSet<>();
 
     LedgerValidator(Ixi ixi) {
         this.ixi = ixi;
         validTransfers.add(Transaction.NULL_TRANSACTION.hash);
+        initialBalances = new HashMap<>();
+    }
+
+    LedgerValidator(Ixi ixi, Map<String, BigInteger> initialBalances) {
+        this.ixi = ixi;
+        validTransfers.add(Transaction.NULL_TRANSACTION.hash);
+        this.initialBalances = new HashMap<>(initialBalances);
     }
 
     public void changeInitialBalance(String address, BigInteger toAdd) {
