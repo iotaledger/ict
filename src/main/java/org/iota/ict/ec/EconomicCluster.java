@@ -31,26 +31,6 @@ public class EconomicCluster implements GossipListener, PropertiesUser {
         filter.watchAddress(actor.getAddress());
     }
 
-    public String findMostControversTangle() {
-
-        String mostControversTangle = null;
-        double controversyOfMostControversTangle = -1;
-
-        for(String tangle : getAllTangles()) {
-            String ref1 = tangle.substring(0, 81);
-            String ref2 = tangle.substring(81);
-            double tangleConfidence = Math.min(determineApprovalConfidence(ref1), determineApprovalConfidence(ref2));
-            double controversy = 1-Math.abs(tangleConfidence-0.5);
-
-            if(controversy > controversyOfMostControversTangle) {
-                mostControversTangle = tangle;
-                controversyOfMostControversTangle = controversy;
-            }
-        }
-
-        return mostControversTangle;
-    }
-
     public Set<String> getAllTangles() {
         Set<String> allTangles = new HashSet<>();
         for(TrustedEconomicActor actor : actors)

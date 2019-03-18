@@ -132,22 +132,30 @@ public class LedgerValidatorTest extends IctTestTemplate {
         SignatureSchemeImplementation.PrivateKey privateKey = SignatureSchemeImplementation.derivePrivateKeyFromSeed(Trytes.randomSequenceOfLength(81), 0, 1);
         validator.changeInitialBalance(privateKey.deriveAddress(), value);
 
+        String bundleOriginal = submitBundle(ict, buildValidTransfer(privateKey, value, privateKey.deriveAddress(), new HashSet<String>()));
+        String bundleReattach = submitBundle(ict, buildValidTransfer(privateKey, value, privateKey.deriveAddress(), Collections.singleton(bundleOriginal)));
 
-        Bundle bundleOriginal = buildValidTransfer(privateKey, value, privateKey.deriveAddress(), new HashSet<String>());
-        submitBundle(ict, bundleOriginal);
-
-        Bundle bundleReattach = buildValidTransfer(privateKey, value, privateKey.deriveAddress(), Collections.singleton(bundleOriginal.getHead().hash));
-        submitBundle(ict, bundleReattach);
-
-        boolean isTangleValid = validator.isTangleValid(bundleReattach.getHead().hash);
-        Assert.assertTrue("Valid Tangle was recognized as invalid.", isTangleValid);
-
-        boolean isTangleSolid = validator.isTangleSolid(bundleReattach.getHead().hash);
-        Assert.assertTrue("Solid Tangle was recognized as not solid.", isTangleSolid);
+        Assert.assertTrue("Valid Tangle was recognized as invalid.", validator.isTangleValid(bundleReattach));
+        Assert.assertTrue("Solid Tangle was recognized as not solid.", validator.isTangleSolid(bundleReattach));
 
         validator.changeInitialBalance(privateKey.deriveAddress(), BigInteger.ZERO.subtract(value.add(BigInteger.ONE)));
-        isTangleSolid = validator.isTangleSolid(bundleReattach.getHead().hash);
-        Assert.assertFalse("Tangle was recognized as solid despite missing funds.", isTangleSolid);
+        Assert.assertFalse("Tangle was recognized as solid despite missing funds.", validator.isTangleSolid(bundleReattach));
+    }
+
+
+    @Test
+    public void testSelfCompatibility() {
+        Ict ict = createIct();
+        LedgerValidator validator = new LedgerValidator(ict);
+        BigInteger value = BigInteger.valueOf(1000);
+
+        SignatureSchemeImplementation.PrivateKey privateKey = SignatureSchemeImplementation.derivePrivateKeyFromSeed(Trytes.randomSequenceOfLength(81), 0, 1);
+        validator.changeInitialBalance(privateKey.deriveAddress(), value);
+
+        String bundle = submitBundle(ict, buildValidTransfer(privateKey, value, privateKey.deriveAddress(), new HashSet<String>()));
+
+        Assert.assertTrue("Valid Tangle was recognized as invalid.", validator.isTangleValid(bundle));
+        Assert.assertTrue("Tangle is self-conflicting.", validator.areTanglesCompatible(bundle, bundle));
     }
 
     private static Bundle buildBundleWithInvalidSignature(String inputAddress, BigInteger value) {

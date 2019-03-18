@@ -11,8 +11,10 @@ public class AutonomousEconomicActor extends ControlledEconomicActor {
 
     private final Ixi ixi;
     private final LedgerValidator ledgerValidator;
-    private Map<String, Double> confidenceByMarkedTangle = new HashMap<>();
+    private Map<String, Double> publishedConfidenceByMarkedTangle = new HashMap<>();
     private final EconomicCluster economicCluster;
+    private Set<String> validTangles = new HashSet<>();
+    private Set<String> invalidTangles = new HashSet<>();
 
     public AutonomousEconomicActor(Ixi ixi, EconomicCluster economicCluster, MerkleTree merkleTree, int keyIndex) {
         super(merkleTree, keyIndex);
@@ -22,26 +24,28 @@ public class AutonomousEconomicActor extends ControlledEconomicActor {
     }
 
     protected void tick() {
-        String mostContriversTangle = economicCluster.findMostControversTangle();
-        if(mostContriversTangle != null) {
-            adjustConfidence(mostContriversTangle, determineConfidence(mostContriversTangle));
+        // TODO do not consider all which is too computationally expensive
+        List<String> tangles = new LinkedList<>(economicCluster.getAllTangles());
+        ConfidenceCalculator confidenceCalculator = createConfidenceCalculator(tangles);
+        Map<String, Double> newConfidenceByMarkedTangle = new HashMap<>();
+        for(String tangle : tangles) {
+            newConfidenceByMarkedTangle.put(tangle, isTangleValid(tangle) ? confidenceCalculator.confidenceOf(tangle) : 0);
         }
+
+        for(Map.Entry<String, Double> entry : newConfidenceByMarkedTangle.entrySet())
+            adjustConfidence(entry.getKey(), entry.getValue());
     }
 
-    protected double determineConfidence(String tangle) {
-
-        if(!confidenceByMarkedTangle.containsKey(tangle)) {
-            String ref1 = tangle.substring(0, 81);
-            String ref2 = tangle.substring(81);
-            if(ledgerValidator.areTanglesCompatible(ref1, ref2)) {
-                // tangle invalid
-                return 0;
-            }
-        }
-
-        // TODO: do not consider ALL tangles, does not scale well
-        List<String> tangles = new LinkedList<>(economicCluster.getAllTangles());
-        return createConfidenceCalculator(tangles).confidenceOf(tangle);
+    protected boolean isTangleValid(String tangle) {
+        if(validTangles.contains(tangle))
+            return true;
+        if(invalidTangles.contains(tangle))
+            return false;
+        String ref1 = tangle.substring(0, 81);
+        String ref2 = tangle.substring(81);
+        boolean isValid = ledgerValidator.areTanglesCompatible(ref1, ref2);
+        (isValid ? validTangles : invalidTangles).add(tangle);
+        return isValid;
     }
 
     protected ConfidenceCalculator createConfidenceCalculator(List<String> tangles) {
@@ -79,9 +83,9 @@ public class AutonomousEconomicActor extends ControlledEconomicActor {
 
     protected void adjustConfidence(String tangle, double newConfidence) {
         System.err.println("adjusting confidence for " + tangle + " to " + newConfidence);
-        boolean shouldIssueNewMarker = !confidenceByMarkedTangle.containsKey(tangle) || shouldIssueMarkerToUpdateConfidence(confidenceByMarkedTangle.get(tangle), newConfidence);
+        boolean shouldIssueNewMarker = !publishedConfidenceByMarkedTangle.containsKey(tangle) || shouldIssueMarkerToUpdateConfidence(publishedConfidenceByMarkedTangle.get(tangle), newConfidence);
         if(shouldIssueNewMarker) {
-            confidenceByMarkedTangle.put(tangle, newConfidence);
+            publishedConfidenceByMarkedTangle.put(tangle, newConfidence);
             String trunk = tangle.substring(0, 81);
             String branch = tangle.substring(81);
             Bundle marker = buildMarker(trunk, branch, newConfidence);

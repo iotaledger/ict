@@ -9,7 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.math.BigInteger;
-import java.util.HashSet;
+import java.util.Collections;
 
 public class AutonomousEconomicActorTest extends IctTestTemplate {
 
@@ -31,17 +31,31 @@ public class AutonomousEconomicActorTest extends IctTestTemplate {
         SignatureSchemeImplementation.PrivateKey key2 = SignatureSchemeImplementation.derivePrivateKeyFromSeed(Trytes.randomSequenceOfLength(81), 0, 1);
         BigInteger value = BigInteger.valueOf(10);
 
-        String transfer1 = submitBundle(ict, buildValidTransfer(key1, value, key2.deriveAddress(), new HashSet<String>()));
+        String transfer1 = submitBundle(ict, buildValidTransfer(key1, value, key2.deriveAddress(), Collections.<String>emptySet()));
+        String transfer2 = submitBundle(ict, buildValidTransfer(key2, value, key1.deriveAddress(), Collections.singleton(transfer1)));
 
         Assert.assertEquals(0, cluster.determineApprovalConfidence(transfer1), 1E-3);
+        Assert.assertEquals(0, cluster.determineApprovalConfidence(transfer2), 1E-3);
 
         submitBundle(ict, otherA.buildMarker(transfer1, transfer1, 0.5));
         saveSleep(50);
-        Assert.assertEquals(0.5 * 0.3, cluster.determineApprovalConfidence(transfer1), 1E-3);
+        Assert.assertEquals(0.3*0.5, cluster.determineApprovalConfidence(transfer1), 1E-3);
+
+        // transfer1 is not valid
+        underTest.tick();
+        saveSleep(100);
+        Assert.assertEquals(0.5*0 + 0.3*0.5, cluster.determineApprovalConfidence(transfer1), 1E-2);
+        Assert.assertEquals(0, cluster.determineApprovalConfidence(transfer2), 1E-2);
+
+
+        submitBundle(ict, otherB.buildMarker(transfer2, transfer2, 0.7));
+        saveSleep(50);
+        Assert.assertEquals(0.2*0.7, cluster.determineApprovalConfidence(transfer2), 1E-2);
 
         underTest.tick();
         saveSleep(100);
-        Assert.assertEquals(0.5 * 1 + 0.5 * 0.3, cluster.determineApprovalConfidence(transfer1), 1E-3);
+        Assert.assertEquals(0.5*1 + 0.3*0.5 + 0.2*0.7, cluster.determineApprovalConfidence(transfer1), 1E-2);
+        Assert.assertEquals(0.5*1 + 0.2*0.7, cluster.determineApprovalConfidence(transfer2), 1E-2);
     }
 
     private MerkleTree randomMerkleTree() {

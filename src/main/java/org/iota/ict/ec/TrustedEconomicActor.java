@@ -174,7 +174,7 @@ public class TrustedEconomicActor extends EconomicActor {
 
         @Override
         public int compareTo(SubTangle subTangle) {
-            return Integer.compare(index, subTangle.index);
+            return -Integer.compare(index, subTangle.index);
         }
     }
 }
