@@ -1,6 +1,14 @@
 package org.iota.ict.network.gossip;
 
-public interface GossipListener {
+import org.iota.ict.eee.EffectListener;
+import org.iota.ict.utils.Constants;
 
-    void onGossipEvent(GossipEvent event);
+public interface GossipListener extends EffectListener<GossipEvent> {
+
+    abstract class Implementation implements GossipListener {
+        @Override
+        public String getEnvironment() {
+            return Constants.Environments.GOSSIP;
+        }
+    }
 }

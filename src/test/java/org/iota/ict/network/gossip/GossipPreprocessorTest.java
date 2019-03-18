@@ -41,12 +41,12 @@ public class GossipPreprocessorTest extends IctTestTemplate {
         Assert.assertNotNull(gossipListener.lastEvent);
     }
 
-    private class CustomGossipListener implements GossipListener {
+    private class CustomGossipListener extends GossipListener.Implementation {
 
         private GossipEvent lastEvent;
 
         @Override
-        public void onGossipEvent(GossipEvent event) {
+        public void onReceive(GossipEvent event) {
             lastEvent = event;
         }
     }

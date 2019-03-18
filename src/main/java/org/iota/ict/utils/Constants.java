@@ -45,6 +45,10 @@ public class Constants {
         public static final int BUNDLE_TAIL_FLAG = 2;
     }
 
+    public static final class Environments {
+        public static final String GOSSIP = "gossip";
+    }
+
     public enum RunModus {
         MAIN, TESTING, TESTING_BUT_WITH_REAL_MWM
     }

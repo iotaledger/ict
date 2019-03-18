@@ -7,6 +7,7 @@ import org.iota.ict.model.transaction.Transaction;
 import org.iota.ict.network.gossip.GossipEvent;
 import org.iota.ict.network.gossip.GossipFilter;
 import org.iota.ict.network.gossip.GossipListener;
+import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.properties.FinalProperties;
 import org.iota.ict.utils.properties.PropertiesUser;
 
@@ -70,7 +71,7 @@ public class EconomicCluster implements GossipListener, PropertiesUser {
     }
 
     @Override
-    public void onGossipEvent(GossipEvent event) {
+    public void onReceive(GossipEvent event) {
         Transaction transaction = event.getTransaction();
 
         if(filter.passes(transaction)) {
@@ -88,6 +89,11 @@ public class EconomicCluster implements GossipListener, PropertiesUser {
         for(TrustedEconomicActor actor : actors) {
             actor.processTransaction(transaction);
         }
+    }
+
+    @Override
+    public String getEnvironment() {
+        return Constants.Environments.GOSSIP;
     }
 
     private class ECGossipFilter extends GossipFilter {

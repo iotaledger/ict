@@ -8,6 +8,7 @@ import org.iota.ict.model.transaction.Transaction;
 import org.iota.ict.model.transaction.TransactionBuilder;
 import org.iota.ict.network.gossip.GossipEvent;
 import org.iota.ict.network.gossip.GossipListener;
+import org.iota.ict.utils.Constants;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -88,14 +89,19 @@ public class BundleCollectorTest extends IctTestTemplate {
         return bundleBuilder.build();
     }
 
-    private static class CustomGossipListener implements GossipListener {
+    private static class CustomGossipListener extends GossipListener.Implementation {
 
         private List<GossipEvent> receivedHeadEvents = new LinkedList<>();
 
         @Override
-        public void onGossipEvent(GossipEvent event) {
+        public void onReceive(GossipEvent event) {
             if(!event.isOwnTransaction() && event.getTransaction().isBundleHead)
                 receivedHeadEvents.add(event);
+        }
+
+        @Override
+        public String getEnvironment() {
+            return Constants.Environments.GOSSIP;
         }
     }
 }

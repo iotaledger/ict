@@ -37,9 +37,9 @@ class TestIxiModule extends IxiModule {
 
     public TestIxiModule(Ixi ixi) {
         super(ixi);
-        ixi.addGossipListener(new GossipListener() {
+        ixi.addGossipListener(new GossipListener.Implementation() {
             @Override
-            public void onGossipEvent(GossipEvent event) {
+            public void onReceive(GossipEvent event) {
                 gossipEvent = event;
             }
         });

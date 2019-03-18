@@ -19,9 +19,9 @@ public class GossipEventDispatcherTest extends IctTestTemplate {
         eventReceived = false;
         long start = System.currentTimeMillis();
 
-        ict.addGossipListener(new GossipListener() {
+        ict.addGossipListener(new GossipListener.Implementation() {
             @Override
-            public void onGossipEvent(GossipEvent e) {
+            public void onReceive(GossipEvent e) {
                 eventReceived = true;
                 // try to block for a few second
                 saveSleep(5000);
@@ -51,9 +51,9 @@ public class GossipEventDispatcherTest extends IctTestTemplate {
 
         final GossipEventDispatcher eventDispatcher = new GossipEventDispatcher();
 
-        eventDispatcher.listeners.add(new GossipListener() {
+        eventDispatcher.listeners.add(new GossipListener.Implementation() {
             @Override
-            public void onGossipEvent(GossipEvent e) {
+            public void onReceive(GossipEvent e) {
                 throw new RuntimeException();
             }
         });

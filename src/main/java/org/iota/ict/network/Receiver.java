@@ -119,7 +119,7 @@ public class Receiver extends RestartableThread {
             log = node.ict.getTangle().createTransactionLogIfAbsent(transaction);
             sender.getStats().receivedNew++;
             log.senders.add(sender);
-            node.ict.onGossipEvent(new GossipEvent(transaction, false));
+            node.ict.onReceive(new GossipEvent(transaction, false));
         }
         log.senders.add(sender);
     }

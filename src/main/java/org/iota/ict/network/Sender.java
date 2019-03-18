@@ -44,12 +44,17 @@ public class Sender extends RestartableThread implements SenderInterface {
     }
 
     @Override
-    public void onGossipEvent(GossipEvent event) {
+    public void onReceive(GossipEvent event) {
         Tangle.TransactionLog log = node.ict.getTangle().createTransactionLogIfAbsent(event.getTransaction());
         if (!log.wasSent && log.senders.size() < node.neighbors.size()) {
             log.wasSent = true;
             queue(event.getTransaction());
         }
+    }
+
+    @Override
+    public String getEnvironment() {
+        return Constants.Environments.GOSSIP;
     }
 
     @Override

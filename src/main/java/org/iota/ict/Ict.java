@@ -152,7 +152,7 @@ public class Ict extends RestartableThread implements IctInterface {
      */
     public void submit(Transaction transaction) {
         tangle.createTransactionLogIfAbsent(transaction);
-        onGossipEvent(new GossipEvent(transaction, true));
+        onReceive(new GossipEvent(transaction, true));
     }
 
     public void request(String requestedHash) {
@@ -188,8 +188,13 @@ public class Ict extends RestartableThread implements IctInterface {
     }
 
     @Override
-    public void onGossipEvent(GossipEvent event) {
+    public void onReceive(GossipEvent event) {
         gossipEventDispatcher.notifyListeners(event);
+    }
+
+    @Override
+    public String getEnvironment() {
+        return Constants.Environments.GOSSIP;
     }
 
     @Override

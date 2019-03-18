@@ -33,7 +33,7 @@ public class GossipEventDispatcher extends RestartableThread {
                 GossipEvent event = eventQueue.take();
                 for (GossipListener listener : listeners)
                     try {
-                        listener.onGossipEvent(event);
+                        listener.onReceive(event);
                     } catch (Throwable t) {
                         LOGGER.error("An exception or error was thrown by a gossip listener.");
                         t.printStackTrace();
