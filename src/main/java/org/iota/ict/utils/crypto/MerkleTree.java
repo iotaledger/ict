@@ -2,10 +2,16 @@ package org.iota.ict.utils.crypto;
 
 public class MerkleTree {
 
+    private final int securityLevel;
     MerkleInnerNode root;
 
     public MerkleTree(String seed, int securityLevel, int depth) {
+        this.securityLevel = securityLevel;
         this.root = new MerkleInnerNode(seed, 0, securityLevel, depth);
+    }
+
+    public int getSecurityLevel() {
+        return securityLevel;
     }
 
     public int getDepth() {

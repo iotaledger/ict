@@ -16,10 +16,6 @@ import java.util.List;
  * Note that anything related to value transactions and signatures is not modelled by this class but by {@link Transfer}.
  * Instead, this classes scope is reduced to the core bundle structure, regardless of their content and interpretation.
  * <p>
- * Since it is not guaranteed that all transactions of a bundle become available at the same time, a bundle is not always
- * complete after instantiation. Whether it is can be checked with {@link #isComplete()}. To fetch missing parts of a bundle,
- * unknown transactions must be requested from neighbors - which can be done via {@link #tryToComplete(Ict)}.
- * <p>
  * Each transaction can be a bundle head or not (see {@link Transaction#isBundleHead}). The same applies to being a bundle
  * tail (see {@link Transaction#isBundleTail}). A bundle must always start with a bundle head and must end with a bundle
  * tail. Each inner transaction must be neither. If this principle is violated, the bundle structure is considered invalid.
@@ -80,19 +76,6 @@ public class Bundle {
         this.structureValid = structureValid;
         hash = calcHash();
         complete = true;
-    }
-
-    /**
-     * @param ict Ict to request transaction with.
-     *            Completes the bundle if all tranactions are already linked together by trunk. Otherwise requests the next transactions
-     *            that is still missing.
-     */
-    public void tryToComplete(Ict ict) {
-        build();
-        if (complete)
-            return;
-        Transaction fetchedLast = transactions.get(transactions.size() - 1);
-        ict.request(fetchedLast.trunkHash());
     }
 
     /**

@@ -1,6 +1,7 @@
 package org.iota.ict.ec;
 
 import org.iota.ict.Ict;
+import org.iota.ict.ixi.Ixi;
 import org.iota.ict.model.bundle.Bundle;
 import org.iota.ict.model.transaction.Transaction;
 import org.iota.ict.network.gossip.GossipEvent;
@@ -16,7 +17,7 @@ import java.util.Set;
 
 public class EconomicCluster implements GossipListener, PropertiesUser {
 
-    private final Ict ict;
+    private final Ixi ict;
     private Set<TrustedEconomicActor> actors = new HashSet<>();
     private final ECGossipFilter filter = new ECGossipFilter();
 
@@ -28,6 +29,13 @@ public class EconomicCluster implements GossipListener, PropertiesUser {
     public void addActor(TrustedEconomicActor actor) {
         actors.add(actor);
         filter.watchAddress(actor.getAddress());
+    }
+
+    public Set<String> getAllTangles() {
+        Set<String> allTangles = new HashSet<>();
+        for(TrustedEconomicActor actor : actors)
+            allTangles.addAll(actor.getMarkedTangles());
+        return allTangles;
     }
 
     @Override
@@ -64,18 +72,20 @@ public class EconomicCluster implements GossipListener, PropertiesUser {
     @Override
     public void onGossipEvent(GossipEvent event) {
         Transaction transaction = event.getTransaction();
-        if(!filter.passes(transaction))
-            return;
 
-        Bundle possiblyMarker = new Bundle(transaction);
-        possiblyMarker.tryToComplete(ict);
+        if(filter.passes(transaction)) {
 
-        if(!possiblyMarker.isComplete() || !possiblyMarker.isStructureValid())
-            return; // TODO if not complete, try again later
+            Bundle possiblyMarker = new Bundle(transaction);
+            if(!possiblyMarker.isStructureValid())
+                return;
+
+            for(TrustedEconomicActor actor : actors) {
+                if(actor.getAddress().equals(transaction.address()))
+                    actor.processMarker(possiblyMarker);
+            }
+        }
 
         for(TrustedEconomicActor actor : actors) {
-            if(actor.getAddress().equals(transaction.address()))
-                actor.processMarker(possiblyMarker);
             actor.processTransaction(transaction);
         }
     }

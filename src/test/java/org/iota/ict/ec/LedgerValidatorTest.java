@@ -79,9 +79,11 @@ public class LedgerValidatorTest extends IctTestTemplate {
         Assert.assertTrue("Solid Tangle was recognized as not solid.", validator.isTangleSolid(spend1));
         Assert.assertTrue("Solid Tangle was recognized as not solid.", validator.isTangleSolid(spend2));
         Assert.assertFalse("Double spend: funds of an address were spent twice.", validator.isTangleSolid(doubleSpend));
+        Assert.assertFalse("Double spend: funds of an address were spent twice.", validator.areTanglesCompatible(spend1, spend2));
 
         validator.changeInitialBalance(privateKey.deriveAddress(), value);
         Assert.assertTrue("Double spend failed despite sufficient funds.", validator.isTangleSolid(doubleSpend));
+        Assert.assertTrue("Double spend failed despite sufficient funds.", validator.areTanglesCompatible(spend1, spend2));
     }
 
     private static String mergeTangles(Ict ict, String branch, String trunk) {
@@ -130,27 +132,30 @@ public class LedgerValidatorTest extends IctTestTemplate {
         SignatureSchemeImplementation.PrivateKey privateKey = SignatureSchemeImplementation.derivePrivateKeyFromSeed(Trytes.randomSequenceOfLength(81), 0, 1);
         validator.changeInitialBalance(privateKey.deriveAddress(), value);
 
-        InputBuilder inputBuilder = new InputBuilder(privateKey, BigInteger.ZERO.subtract(value));
-        OutputBuilder outputBuilder = new OutputBuilder(privateKey.deriveAddress(), value, "HELLOWORLD");
+        String bundleOriginal = submitBundle(ict, buildValidTransfer(privateKey, value, privateKey.deriveAddress(), new HashSet<String>()));
+        String bundleReattach = submitBundle(ict, buildValidTransfer(privateKey, value, privateKey.deriveAddress(), Collections.singleton(bundleOriginal)));
 
-        TransferBuilder transferBuilder = new TransferBuilder(Collections.singleton(inputBuilder), Collections.singleton(outputBuilder), 1);
-        BundleBuilder bundleBuilder = transferBuilder.build();
-        Bundle bundleOriginal = bundleBuilder.build();
-        submitBundle(ict, bundleOriginal);
-
-        bundleBuilder.getTailToHead().get(0).branchHash = bundleOriginal.getHead().hash;
-        Bundle bundleReattach = bundleBuilder.build();
-        submitBundle(ict, bundleReattach);
-
-        boolean isTangleValid = validator.isTangleValid(bundleReattach.getHead().hash);
-        Assert.assertTrue("Valid Tangle was recognized as invalid.", isTangleValid);
-
-        boolean isTangleSolid = validator.isTangleSolid(bundleReattach.getHead().hash);
-        Assert.assertTrue("Solid Tangle was recognized as not solid.", isTangleSolid);
+        Assert.assertTrue("Valid Tangle was recognized as invalid.", validator.isTangleValid(bundleReattach));
+        Assert.assertTrue("Solid Tangle was recognized as not solid.", validator.isTangleSolid(bundleReattach));
 
         validator.changeInitialBalance(privateKey.deriveAddress(), BigInteger.ZERO.subtract(value.add(BigInteger.ONE)));
-        isTangleSolid = validator.isTangleSolid(bundleReattach.getHead().hash);
-        Assert.assertFalse("Tangle was recognized as solid despite missing funds.", isTangleSolid);
+        Assert.assertFalse("Tangle was recognized as solid despite missing funds.", validator.isTangleSolid(bundleReattach));
+    }
+
+
+    @Test
+    public void testSelfCompatibility() {
+        Ict ict = createIct();
+        LedgerValidator validator = new LedgerValidator(ict);
+        BigInteger value = BigInteger.valueOf(1000);
+
+        SignatureSchemeImplementation.PrivateKey privateKey = SignatureSchemeImplementation.derivePrivateKeyFromSeed(Trytes.randomSequenceOfLength(81), 0, 1);
+        validator.changeInitialBalance(privateKey.deriveAddress(), value);
+
+        String bundle = submitBundle(ict, buildValidTransfer(privateKey, value, privateKey.deriveAddress(), new HashSet<String>()));
+
+        Assert.assertTrue("Valid Tangle was recognized as invalid.", validator.isTangleValid(bundle));
+        Assert.assertTrue("Tangle is self-conflicting.", validator.areTanglesCompatible(bundle, bundle));
     }
 
     private static Bundle buildBundleWithInvalidSignature(String inputAddress, BigInteger value) {
@@ -165,12 +170,6 @@ public class LedgerValidatorTest extends IctTestTemplate {
         bundleBuilder.append(inputBuilder);
         bundleBuilder.append(outputBuilder);
         return bundleBuilder.build();
-    }
-
-    private static void submitBundle(Ict ict, Bundle bundle) {
-        for(Transaction transaction : bundle.getTransactions())
-            ict.submit(transaction);
-        saveSleep(50);
     }
 
     private static String buildRandomTransferAndSubmit(Ict ict, Set<String> references) {
