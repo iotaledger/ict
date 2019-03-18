@@ -1,6 +1,6 @@
 package org.iota.ict.ec;
 
-import java.util.HashSet;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -19,27 +19,49 @@ import java.util.Set;
  * */
 public class ConfidenceCalculator {
 
-    private List<String> tangles;
-    private Set<Conflict> conflicts;
-    private final double confidences[];
+    private final List<String> tangles;
+    private final Set<Conflict> conflicts;
+    private final double[] initialProbabilities;
 
-    public ConfidenceCalculator(List<String> tangles, Set<Conflict> conflicts) {
-        this.tangles = new LinkedList<>(tangles);
+    public ConfidenceCalculator(List<String> allTangles, Set<Conflict> conflicts, double[] initialProbabilitiesOfAllTangles) {
+        this.tangles = new LinkedList<>(allTangles);
         this.conflicts = conflicts;
+        removeConflictFreeTangles(allTangles);
 
-        for(String tangle : tangles)
+        this.initialProbabilities = new double[this.tangles.size()];
+        adoptProbabilitiesIfPossible(allTangles, initialProbabilitiesOfAllTangles);
+    }
+
+    private void removeConflictFreeTangles(List<String> allTangles) {
+        for(String tangle : allTangles)
             if(amountOfConflicts(tangle) == 0)
                 this.tangles.remove(tangle);
+    }
 
-        double pSum = 0;
-        confidences = new double[tangles.size()];
-        for(int i = 0; i < confidences.length; i++) {
-            confidences[i] = calcConfidence(tangles.get(i));
-            pSum += confidences[i];
+    private void adoptProbabilitiesIfPossible(List<String> allTangles, double[] initialProbabilitiesOfAllTangles) {
+        if(initialProbabilitiesOfAllTangles == null) {
+            // assume every tangle has same probability
+            Arrays.fill(this.initialProbabilities, 1.0 / allTangles.size());
+        } else {
+            adoptProbabilities(allTangles, initialProbabilitiesOfAllTangles);
         }
-        for(int i = 0; i < confidences.length; i++) {
-            confidences[i] /= pSum;
+    }
+
+    /**
+     * Adopts the initial probabilities specified of a superset of Tangles to the subset in {@link ConfidenceCalculator#tangles}.
+     * @param allTangles a superset of Tangles, can contain more Tangles than used in this {@link ConfidenceCalculator} instance.
+     * @param initialProbabilitiesOfAllTangles The probabilities belonging to the superset which shall be adopted. Must be positioned accordingly.
+     * */
+    private void adoptProbabilities(List<String> allTangles, double[] initialProbabilitiesOfAllTangles) {
+        // extract probabilities of tangles which were not deleted
+        double sum = 0;
+        for(int i = 0; i < this.initialProbabilities.length; i++) {
+            this.initialProbabilities[i] = initialProbabilitiesOfAllTangles[allTangles.indexOf(this.tangles.get(i))];
+            sum += this.initialProbabilities[i];
         }
+        // normalize: sum of probabilities must be 1
+        for(int i = 0; i < this.initialProbabilities.length; i++)
+            this.initialProbabilities[i] /= sum;
     }
 
     /**
@@ -47,22 +69,14 @@ public class ConfidenceCalculator {
      * @return initial probability of the respective Tangle confirming first.
      * */
     private double initialProbabilityOf(String tangle) {
-        return amountOfConflicts(tangle) / 2.0 / conflicts.size();
-    }
-
-    /**
-     * Accesses the confidence previously calculated when creating this {@link ConfidenceCalculator} object.
-     * @return the confidence of the Tangle under the assumptions made by this {@link ConfidenceCalculator} object.
-     * */
-    public double confidenceOf(String tangle) {
-        return confidences[tangles.indexOf(tangle)];
+        return initialProbabilities[tangles.indexOf(tangle)];
     }
 
     /**
      * @param tangle The Tangle for which to calculate the confidence.
      * @return the confidence of the Tangle under the assumptions made by this {@link ConfidenceCalculator} object.
      * */
-    private double calcConfidence(String tangle) {
+    public double confidenceOf(String tangle) {
 
         if(amountOfConflicts(tangle) == 0)
             // Tangle is compatible with all others -> can be merged with any of them.
@@ -71,8 +85,8 @@ public class ConfidenceCalculator {
         double p = 0;
 
         for (String otherTangle : compatible(tangle)) {
-            p += initialProbabilityOf(otherTangle) * (tangle.equals(otherTangle) ? 1 : new ConfidenceCalculator(compatible(otherTangle), conflicts).confidenceOf(tangle));
-        }
+            p += initialProbabilityOf(otherTangle) * (tangle.equals(otherTangle) ? 1 : new ConfidenceCalculator(compatible(otherTangle), conflicts, initialProbabilities).confidenceOf(tangle));
+         }
         return p;
     }
 
