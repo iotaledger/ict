@@ -33,6 +33,15 @@ public class TransactionTest {
     }
 
     @Test
+    public void testTransactionBuilderPadRightTAG() {
+        TransactionBuilder builder = new TransactionBuilder();
+        builder.tag = "UNICORN9FOR9PRESIDENT";
+        Transaction transaction = builder.build();
+        Assert.assertEquals(transaction.address(), builder.address);
+        Assert.assertEquals(transaction.tag(), "UNICORN9FOR9PRESIDENT999999");
+    }
+
+    @Test
     public void testTransactionEncodingDecoding() {
         Transaction original = new Transaction(Trytes.toBytes(TRYTES_VALID_FLAGS));
         Transaction copy = new Transaction(Trytes.toBytes(original.decodeBytesToTrytes()+Trytes.padRight("", 81)));
