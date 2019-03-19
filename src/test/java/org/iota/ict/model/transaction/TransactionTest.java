@@ -37,7 +37,6 @@ public class TransactionTest {
         TransactionBuilder builder = new TransactionBuilder();
         builder.tag = "UNICORN9FOR9PRESIDENT";
         Transaction transaction = builder.build();
-        Assert.assertEquals(transaction.address(), builder.address);
         Assert.assertEquals(transaction.tag(), "UNICORN9FOR9PRESIDENT999999");
     }
 
