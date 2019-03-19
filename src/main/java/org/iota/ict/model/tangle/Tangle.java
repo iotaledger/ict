@@ -52,13 +52,15 @@ public class Tangle implements PropertiesUser {
     }
 
     public Transaction findTransactionByHash(String hash) {
-        return transactionsByHash.containsKey(hash) ? transactionsByHash.get(hash).transaction : null;
+        Tangle.TransactionLog log = transactionsByHash.get(hash);
+        return log!=null ? log.transaction : null;
     }
 
     public Set<Transaction> findTransactionsByAddress(String address) {
         Set<Transaction> transactions = new HashSet<>();
-        if (transactionsByAddress.containsKey(address)) {
-            for (TransactionLog log : transactionsByAddress.get(address))
+        List<Tangle.TransactionLog> txByAddress = transactionsByAddress.get(address);
+        if (txByAddress!=null) {
+            for (TransactionLog log : txByAddress)
                 transactions.add(log.transaction);
         }
         return transactions;
@@ -66,8 +68,9 @@ public class Tangle implements PropertiesUser {
 
     public Set<Transaction> findTransactionsByTag(String tag) {
         Set<Transaction> transactions = new HashSet<>();
-        if (transactionsByTag.containsKey(tag)) {
-            for (TransactionLog log : transactionsByTag.get(tag))
+        List<Tangle.TransactionLog> txByTag = transactionsByTag.get(tag);
+        if (txByTag!=null) {
+            for (TransactionLog log : txByTag)
                 transactions.add(log.transaction);
         }
         return transactions;
