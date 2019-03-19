@@ -15,12 +15,9 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.Assert.fail;
-
 /**
  * Unit test for {@link Tangle}
  */
-@Ignore // Test occasionally. Takes too long.
 public class TangleTest {
     private final Ict ictMock = Mockito.mock(Ict.class);
 
@@ -30,7 +27,7 @@ public class TangleTest {
     public void when_construct_with_nullIct_then_throw_NPE() {
         try {
             new Tangle(null);
-            fail("NPE (\"'ict' must not null\") expected.");
+            Assert.fail("NPE (\"'ict' must not null\") expected.");
         } catch (Exception e) {
             Assert.assertTrue(e instanceof NullPointerException);
             Assert.assertEquals("'ict' must not null", e.getMessage());
@@ -51,6 +48,7 @@ public class TangleTest {
     }
 
     @Test
+    @Ignore // Test occasionally. Takes too long.
     public void when_remove_transaction_concurrently_no_error_occur() throws InterruptedException {
         // given
         final int transactionCountWhereConcurrentAccessExpected = 200;
@@ -82,7 +80,8 @@ public class TangleTest {
             public void run() {
                 for (Transaction aTransactionSet : transactionSet) {
                     try {
-                        underTest.deleteTransaction(aTransactionSet);
+                        Transaction next = aTransactionSet;
+                        underTest.deleteTransaction(next);
 
                         safeSleep(7);
                     } catch (Exception e) {
@@ -125,7 +124,6 @@ public class TangleTest {
                     } catch (Exception e) {
                         e.printStackTrace();
                         exceptionOccurred.set(true);
-                        fail("findTransactionsByAddress should never throw an exception");
                         break;
                     }
                 }
@@ -157,7 +155,7 @@ public class TangleTest {
 
         blocksUntilAllTransactionsRemoved.await();
         if(exceptionOccurred.get()){
-            fail("findTransactionsByAddress should not fail");
+            Assert.fail("findTransactionsByAddress should not fail");
         }
     }
 
