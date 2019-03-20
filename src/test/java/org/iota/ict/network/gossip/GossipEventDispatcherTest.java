@@ -2,8 +2,11 @@ package org.iota.ict.network.gossip;
 
 import org.iota.ict.Ict;
 import org.iota.ict.IctTestTemplate;
+import org.iota.ict.eee.IctEffectDispatcher;
+import org.iota.ict.eee.ThreadedEffectDispatcher;
 import org.iota.ict.model.transaction.Transaction;
 import org.iota.ict.model.transaction.TransactionBuilder;
+import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.IssueCollector;
 import org.junit.Assert;
 import org.junit.Test;
@@ -19,7 +22,7 @@ public class GossipEventDispatcherTest extends IctTestTemplate {
         eventReceived = false;
         long start = System.currentTimeMillis();
 
-        ict.addGossipListener(new GossipListener.Implementation() {
+        ict.addListener(new GossipListener.Implementation() {
             @Override
             public void onReceive(GossipEvent e) {
                 eventReceived = true;
@@ -49,16 +52,16 @@ public class GossipEventDispatcherTest extends IctTestTemplate {
             }
         });
 
-        final GossipEventDispatcher eventDispatcher = new GossipEventDispatcher();
+        final IctEffectDispatcher threadedEffectDispatcher = new IctEffectDispatcher();
 
-        eventDispatcher.listeners.add(new GossipListener.Implementation() {
+        threadedEffectDispatcher.addListener(new GossipListener.Implementation() {
             @Override
             public void onReceive(GossipEvent e) {
                 throw new RuntimeException();
             }
         });
-        eventDispatcher.start();
-        eventDispatcher.notifyListeners(new GossipEvent(Transaction.NULL_TRANSACTION, false));
+        threadedEffectDispatcher.start();
+        threadedEffectDispatcher.submitEffect(Constants.Environments.GOSSIP, new GossipEvent(Transaction.NULL_TRANSACTION, false));
 
         saveSleep(20);
 

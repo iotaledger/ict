@@ -24,7 +24,7 @@ public class EconomicCluster implements GossipListener, PropertiesUser {
 
     public EconomicCluster(Ict ict) {
         this.ict = ict;
-        ict.addGossipListener(this);
+        ict.addListener(this);
     }
 
     public void addActor(TrustedEconomicActor actor) {

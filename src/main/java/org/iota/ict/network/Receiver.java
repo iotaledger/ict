@@ -6,6 +6,7 @@ import org.iota.ict.Ict;
 import org.iota.ict.model.tangle.Tangle;
 import org.iota.ict.model.transaction.Transaction;
 import org.iota.ict.network.gossip.GossipEvent;
+import org.iota.ict.network.gossip.GossipPreprocessor;
 import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.RestartableThread;
 import org.iota.ict.utils.Trytes;
@@ -119,7 +120,7 @@ public class Receiver extends RestartableThread {
             log = node.ict.getTangle().createTransactionLogIfAbsent(transaction);
             sender.getStats().receivedNew++;
             log.senders.add(sender);
-            node.ict.onReceive(new GossipEvent(transaction, false));
+            node.ict.submitEffect(Constants.Environments.GOSSIP_PREPROCESSOR_OUTPUT, new GossipPreprocessor.Output(Long.MIN_VALUE, new GossipEvent(transaction, false)));
         }
         log.senders.add(sender);
     }

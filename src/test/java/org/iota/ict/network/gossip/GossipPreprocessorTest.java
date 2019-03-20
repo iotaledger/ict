@@ -10,34 +10,37 @@ public class GossipPreprocessorTest extends IctTestTemplate {
 
     @Test
     public void testInsertion() throws InterruptedException {
-        GossipPreprocessor preprocessor1 = new GossipPreprocessor(1);
-        GossipPreprocessor preprocessor2 = new GossipPreprocessor(2);
-        CustomGossipListener gossipListener = new CustomGossipListener();
         Ict ict = createIct();
 
-        ict.addGossipListener(gossipListener);
-        ict.addGossipPreprocessor(preprocessor1);
-        ict.addGossipPreprocessor(preprocessor2);
+        GossipPreprocessor preprocessor1 = new GossipPreprocessor(ict,1);
+        GossipPreprocessor preprocessor2 = new GossipPreprocessor(ict,2);
+        CustomGossipListener gossipListener = new CustomGossipListener();
+
+        ict.addListener(gossipListener);
+        ict.addListener(preprocessor1);
+        ict.addListener(preprocessor2);
 
         ict.submit(new TransactionBuilder().build());
         saveSleep(50);
 
-        Assert.assertEquals(1, preprocessor1.incoming.size());
-        Assert.assertEquals(0, preprocessor2.incoming.size());
+        GossipEvent effect = preprocessor1.pollEffect();
+        Assert.assertNotNull(effect);
+        Assert.assertNull(preprocessor2.pollEffect());
         Assert.assertNull(gossipListener.lastEvent);
 
-        preprocessor1.passOn(preprocessor1.incoming.take());
+        preprocessor1.passOn(effect);
         saveSleep(50);
 
-        Assert.assertEquals(0, preprocessor1.incoming.size());
-        Assert.assertEquals(1, preprocessor2.incoming.size());
+        Assert.assertNull(preprocessor1.pollEffect());
+        effect = preprocessor2.pollEffect();
+        Assert.assertNotNull(effect);
         Assert.assertNull(gossipListener.lastEvent);
 
-        preprocessor2.passOn(preprocessor2.incoming.take());
+        preprocessor2.passOn(effect);
         saveSleep(50);
 
-        Assert.assertEquals(0, preprocessor1.incoming.size());
-        Assert.assertEquals(0, preprocessor2.incoming.size());
+        Assert.assertNull(preprocessor1.pollEffect());
+        Assert.assertNull(preprocessor2.pollEffect());
         Assert.assertNotNull(gossipListener.lastEvent);
     }
 

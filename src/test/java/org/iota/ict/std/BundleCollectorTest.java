@@ -24,7 +24,7 @@ public class BundleCollectorTest extends IctTestTemplate {
         Ict ictB = createIct();
         connect(ictA, ictB);
         CustomGossipListener customGossipListener = new CustomGossipListener();
-        ictB.addGossipListener(customGossipListener);
+        ictB.addListener(customGossipListener);
         List<Bundle> bundles = new LinkedList<>();
 
         int amountOfTests = 100;
@@ -47,7 +47,7 @@ public class BundleCollectorTest extends IctTestTemplate {
         Ict ictB = createIct();
         connect(ictA, ictB);
         CustomGossipListener customGossipListener = new CustomGossipListener();
-        ictB.addGossipListener(customGossipListener);
+        ictB.addListener(customGossipListener);
 
         for(int amountOfTests = 100; amountOfTests > 0; amountOfTests--) {
             Bundle bundle = createBundleOfRandomLength();

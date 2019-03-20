@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.IctInterface;
 import org.iota.ict.model.transaction.Transaction;
+import org.iota.ict.network.gossip.GossipListener;
 import org.iota.ict.utils.*;
 import org.iota.ict.utils.properties.FinalProperties;
 import org.iota.ict.utils.properties.Properties;
@@ -37,7 +38,7 @@ public class Node extends RestartableThread implements PropertiesUser {
         this.receiver = new Receiver(this);
         this.sender = new Sender(this, properties);
 
-        ict.addGossipListener(sender);
+        ict.addListener(sender);
         subWorkers.add(receiver);
         subWorkers.add(sender);
 

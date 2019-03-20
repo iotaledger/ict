@@ -22,32 +22,29 @@ public class BundleCollector extends RestartableThread {
     private final Ict ict;
     private static final Logger LOGGER = LogManager.getLogger("BndlColl");
 
-    private GossipPreprocessor gossipPreprocessor = new GossipPreprocessor(-1000);
+    private GossipPreprocessor gossipPreprocessor;
     private Map<String, GossipEvent> existingTransactionsByHash = new HashMap<>();
     private Map<String, GossipEvent> existingTransactionsByTrunk = new HashMap<>();
 
     public BundleCollector(Ict ict) {
         super(LOGGER);
+        this.gossipPreprocessor = new GossipPreprocessor(ict, -1000);
         this.ict = ict;
     }
 
     @Override
     public void run() {
-        try {
-            while (isRunning()) {
-                GossipEvent gossipEvent = gossipPreprocessor.incoming.take();
-                //if(!gossipEvent.isOwnTransaction()) {
-                    addIncompleteBundleTransaction(gossipEvent);
-                    passOnBundleIfComplete(gossipEvent);
-                //} else {
-                //    gossipPreprocessor.passOn(gossipEvent);
-                //}
+        while (isRunning()) {
+            try {
+                GossipEvent gossipEvent = gossipPreprocessor.takeEffect();
+                addIncompleteBundleTransaction(gossipEvent);
+                passOnBundleIfComplete(gossipEvent);
+            } catch (InterruptedException e) {
+                if(isRunning())
+                    throw new RuntimeException(e);
             }
-        } catch (InterruptedException e) {
-            if(isRunning())
-                throw new RuntimeException(e);
         }
-        ict.removeGossipPreprocessor(gossipPreprocessor);
+        // TODO ict.removeListener(gossipPreprocessor);
     }
 
     private void addIncompleteBundleTransaction(GossipEvent event) {
@@ -93,7 +90,7 @@ public class BundleCollector extends RestartableThread {
 
     @Override
     public void onStart() {
-        ict.addGossipPreprocessor(gossipPreprocessor);
+        ict.addListener(gossipPreprocessor);
     }
 
     @Override

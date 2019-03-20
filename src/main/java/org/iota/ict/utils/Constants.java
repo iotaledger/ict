@@ -30,7 +30,6 @@ public class Constants {
 
     public static final int CURL_ROUNDS_TRANSACTION_HASH = 27;
     public static final int CURL_ROUNDS_BUNDLE_HASH = 27;
-    public static final int CURL_ROUNDS_EC_ADDRESS_DERIVATION = 27;
 
     public static RunModus RUN_MODUS = RunModus.TESTING;
     public static final int MIN_WEIGHT_MAGNITUDE = 3;
@@ -47,6 +46,8 @@ public class Constants {
 
     public static final class Environments {
         public static final String GOSSIP = "gossip";
+        public static final String GOSSIP_PREPROCESSOR_INPUT = "gossip_preprocessor_input";
+        public static final String GOSSIP_PREPROCESSOR_OUTPUT = "gossip_preprocessor_output";
     }
 
     public enum RunModus {
