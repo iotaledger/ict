@@ -56,15 +56,60 @@ Although tokens can be created out of thin air, value cannot. The value of a clu
 
 # Implementation
 
-## Sub-Tangle
+## Terminology
 
-A sub-tangle defined by a transaction (or a set of transactions) is the Tangle derived by looking only at this transaction and its entire history (all directly or indirectly referenced transactions). All other transactions are not part of this sub-tangle. In the context of markers (see next chapter), the sub-tangle of a marker bundle does not include the marker. So two different marker bundles can have the same sub-tangle while generally this does not hold between different bundles. A sub-tangle S' of a tangle S is a sub-tangle defined by a transaction in S (which we will call super-tangle). Thus S' is a subset of S. We will use this term throughout this chapter.
+### Span-Tangle
+
+A span-tangle `span(T)` of a transaction `T` (or a set of transactions) is the Tangle derived by looking only at this transaction and its entire history (all directly or indirectly referenced transactions). All other transactions are not part of this sub-tangle:
+
+```
+span(T1, T2, ... Tn) = span(T1) ⋃ span(T2) ⋃ ... ⋃ span(Tn)
+span(T) = T ⋃ span(T.branch, T.trunk) = T ⋃ span(T.branch) ⋃ span(T.trunk)
+```
+
+### Referenced Tangle
+
+The tangle referenced by a transaction `T` contains exactly those transactions which are directly or indirectly referenced by `T`.
+It does not contain `T` itself.
+
+```
+T ... transaction
+referenced(T) ... tangle referenced by T
+
+referenced(T) = span(T) ∖ T
+              = span(T.branch, T.trunk)
+              = span(T.branch) ⋃ span(T.trunk)
+  ```
+  
+### Sub- and Super-Tangle
+
+A sub-tangle S' of a tangle S is the span-tangle of a transaction T in S. Thus S' is a subset of S. S will be called the super-tangle of S'.
+
+```
+S ... tangle (super-tangle of S')
+T∈S ... transaction in S
+S' = span(T); S' ⊆ S ... (sub-tangle of S)
+```
 
 ## Confidence Markers
 
 ### Issuing
 
-Each economic actor regularly issues confidence markers to publish its current view of the ledger. These markers are signed bundles and reference a sub-tangle. Additionally, they specify a probability representing how confident the actor is that the referenced sub-tangle is confirmed. This confidence will be updated/overwritten whenever the actor issues a new marker referencing the same sub-tangle.
+Each economic actor regularly issues confidence markers to publish its current view of the ledger. These markers are signed
+bundles and reference a tangle. Additionally, they specify a probability representing how confident the actor is that the
+referenced tangle is confirmed. This confidence will be updated/overwritten whenever the actor issues a new marker
+referencing the same tangle.
+
+```
+M ... marker bundle
+M.tail ... tail of M, last transaction in the bundle
+referenced(M) ... tangle referenced by the marker M
+
+referenced(M) = referenced(M.tail)
+              = span(M.tail) ∖ M.tail
+              = span(M.tail.branch, M.tail.trunk)
+              = span(M.tail.branch) ⋃ span(M.tail.trunk)
+```
 
 ### Consensus
 
@@ -72,7 +117,7 @@ Economic actors publish such markers and adjust the probabilities depending on t
 
 ### Confidence
 
-Actors will be more confident in a sub-tangle the more other actors are confident in that same sub-tangle. Therefore their confidence levels of a certain sub-tangle quickly moves into the same direction (0% or 100%) which allows the cluster to come to consensus on a shared ledger.
+Actors will be more confident in a tangle the more other actors are confident in that same tangle. Therefore their confidence levels of a certain tangle quickly moves into the same direction (0% or 100%) which allows the cluster to come to consensus on a shared ledger.
 
 ### Cryptography
 
@@ -84,18 +129,18 @@ Since each actor can issue multiple markers, we need to determine which marker h
 
 **Overwriting:** The index of each signature within the merkle tree can be derived. To allow overwriting, a marker with a higher index will have priority over all markers with a lower index referencing the same tangle.
 
-**Locality:** Let `S` be the sub-tangle of a marker `M`, `S'` be the sub-tangle of a marker `M'`. `T` is an element of `S'` and `S'` is a sub-tangle of `S`. As the more specific marker, `M'` has priority over the more general marker `M` for `T`. On a side note, the confidence in `S` cannot be higher than that of `S'` because the former includes the latter and as such relies on its confidence.
+**Locality:** Let `S` be the referenced tangle of a marker `M` and `S'` be the referenced tangle of a marker `M'`. `T` is an element of `S'` and `S'` is a sub-tangle of `S`. As the more specific marker, `M'` has priority over the more general marker `M` for `T`. On a side note, the confidence in `S` cannot be higher than that of `S'` because the former includes the latter and as such relies on its confidence.
 
 ```
 === GIVEN ===
-M, M' ... Markers
-S = tangle(M) ... Tangle
-S' = tangle(M'); S' ⊆ S ... Tangle
-T∈S' ... Transaction
+M, M' ... markers
+S = referenced(M) ... tangle (super-tangle of S')
+S' = referenced(M') ... tangle (sub-tangle of S)
+T∈S' ... transaction in S'
 
 == THEN ===
 priority(M', T) ≥ priority(M, T)
-confidence(M') ≥ confidence(M)
+S' ⊆ S ⇒ confidence(M') ≥ confidence(M)
 ```
 
 ## Cluster Confidence
@@ -104,8 +149,8 @@ The confidence of a transaction specifies how likely we consider that transactio
 
 ```
 === GIVEN ===
-Actors ... Set of all economic actors
-T ... Transaction
+Actors ... set of all economic actors
+T ... transaction
 Σ[∀A∈Actors] relevance(A) = 1
 
 === THEN ===

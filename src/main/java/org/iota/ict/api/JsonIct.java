@@ -120,7 +120,7 @@ public class JsonIct {
     }
 
     public JSONObject addNeighbor(String address) {
-        if (!address.matches("^[a-zA-Z0-9\\-.]+:[0-9]{1,5}$"))
+        if (!address.matches("^[a-zA-Z0-9\\-.:]+:[0-9]{1,5}$"))
             throw new IllegalArgumentException("Address does not match required format 'host:port'.");
         EditableProperties properties = ict.getProperties().toEditable();
 

@@ -7,6 +7,7 @@ import org.iota.ict.model.transfer.OutputBuilder;
 import org.iota.ict.model.transfer.TransferBuilder;
 import org.iota.ict.model.transaction.TransactionBuilder;
 import org.iota.ict.utils.Trytes;
+import org.iota.ict.utils.crypto.AutoIndexedMerkleTree;
 import org.iota.ict.utils.crypto.MerkleTree;
 import org.iota.ict.utils.crypto.SignatureSchemeImplementation;
 
@@ -21,13 +22,11 @@ import java.util.Set;
  * */
 public class ControlledEconomicActor extends EconomicActor {
 
-    protected final MerkleTree merkleTree;
-    protected int keyIndex;
+    protected final AutoIndexedMerkleTree merkleTree;
 
-    public ControlledEconomicActor(MerkleTree merkleTree, int keyIndex) {
+    public ControlledEconomicActor(AutoIndexedMerkleTree merkleTree) {
         super(merkleTree.getAddress());
         this.merkleTree = merkleTree;
-        this.keyIndex = keyIndex;
     }
 
     public Bundle buildMarker(String trunk, String branch, double confidence) {
@@ -35,7 +34,7 @@ public class ControlledEconomicActor extends EconomicActor {
         Set<OutputBuilder> outputs = new HashSet<>();
 
         String messageToSign =  messageToSign(trunk, branch);
-        SignatureSchemeImplementation.Signature signature = merkleTree.sign(keyIndex++, messageToSign);
+        SignatureSchemeImplementation.Signature signature = merkleTree.sign(messageToSign);
         assert signature.deriveAddress().equals(address);
         outputs.add(new OutputBuilder(address, BigInteger.ZERO, signature.toString()));
 
