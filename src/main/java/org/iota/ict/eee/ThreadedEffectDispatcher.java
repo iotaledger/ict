@@ -42,6 +42,11 @@ public class ThreadedEffectDispatcher<T> extends RestartableThread implements Ef
     }
 
     @Override
+    public void removeListener(EffectListener<T> listener) {
+        implementation.removeListener(listener);
+    }
+
+    @Override
     public void submitEffect(String environment, T effect) {
         toDispatch.add(new DispatchItem(environment, effect));
     }

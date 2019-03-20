@@ -23,13 +23,25 @@ public class IctEffectDispatcher extends ThreadedEffectDispatcher {
         super.addListener(listener);
         if(listener instanceof GossipPreprocessor) {
             gossipPreprocessorsOrderedByPosition.add((GossipPreprocessor)listener);
-            Collections.sort(gossipPreprocessorsOrderedByPosition, new Comparator<GossipPreprocessor>() {
-                @Override
-                public int compare(GossipPreprocessor o1, GossipPreprocessor o2) {
-                    return Long.compare(o1.position, o2.position);
-                }
-            });
+            sortGossipPreprocessors();
         }
+    }
+
+    private void sortGossipPreprocessors() {
+        Collections.sort(gossipPreprocessorsOrderedByPosition, new Comparator<GossipPreprocessor>() {
+            @Override
+            public int compare(GossipPreprocessor o1, GossipPreprocessor o2) {
+                return Long.compare(o1.position, o2.position);
+            }
+        });
+    }
+
+    @Override
+    public void removeListener(EffectListener listener) {
+        if(listener instanceof GossipPreprocessor) {
+            gossipPreprocessorsOrderedByPosition.remove(listener);
+        }
+        super.removeListener(listener);
     }
 
     private GossipPreprocessor findGossipPreprocessorSuccessor(long position) {

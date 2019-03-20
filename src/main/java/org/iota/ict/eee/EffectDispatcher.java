@@ -9,6 +9,12 @@ public interface EffectDispatcher<T> {
     void addListener(EffectListener<T> listener);
 
     /**
+     * Unregisters a previously registered EffectListener.
+     * @param listener the EffectListener to unregister
+     */
+    void removeListener(EffectListener<T> listener);
+
+    /**
      * Adds an effect to a specific environment queue.
      *
      * @param environment the environment to which the effect should be sent

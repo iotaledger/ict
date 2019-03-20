@@ -3,6 +3,7 @@ package org.iota.ict.std;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.Ict;
+import org.iota.ict.eee.EffectListener;
 import org.iota.ict.model.transaction.Transaction;
 import org.iota.ict.network.gossip.GossipEvent;
 import org.iota.ict.network.gossip.GossipPreprocessor;
@@ -44,7 +45,7 @@ public class BundleCollector extends RestartableThread {
                     throw new RuntimeException(e);
             }
         }
-        // TODO ict.removeListener(gossipPreprocessor);
+        ict.removeListener(gossipPreprocessor);
     }
 
     private void addIncompleteBundleTransaction(GossipEvent event) {

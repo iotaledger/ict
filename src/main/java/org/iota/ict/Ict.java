@@ -106,6 +106,11 @@ public class Ict extends RestartableThread implements IctInterface {
     }
 
     @Override
+    public void removeListener(EffectListener listener) {
+        effectDispatcher.removeListener(listener);
+    }
+
+    @Override
     public void submitEffect(String environment, Object effect) {
         effectDispatcher.submitEffect(environment, effect);
     }

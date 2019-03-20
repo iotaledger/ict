@@ -18,6 +18,13 @@ public class SimpleEffectDispatcher<T> implements EffectDispatcher<T> {
         effectListenersOfEnvironment.add(listener);
     }
 
+    @Override
+    public void removeListener(EffectListener<T> listener) {
+        Set<EffectListener<T>> listeners = listenersByEnvironment.get(listener.getEnvironment());
+        if(listeners != null)
+            listeners.remove(listener);
+    }
+
     public void submitEffect(String environment, T effect) {
         Set<EffectListener<T>> listeners = listenersByEnvironment.get(environment);
         if (listeners != null)
