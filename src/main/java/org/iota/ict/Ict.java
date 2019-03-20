@@ -4,8 +4,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.api.RestApi;
 import org.iota.ict.ec.EconomicCluster;
+import org.iota.ict.eee.ChainedEffectListenerImplementation;
 import org.iota.ict.eee.EffectListener;
-import org.iota.ict.eee.IctEffectDispatcher;
+import org.iota.ict.eee.ThreadedEffectDispatcherWithChainSupport;
 import org.iota.ict.eee.ThreadedEffectDispatcher;
 import org.iota.ict.ixi.IxiModuleHolder;
 import org.iota.ict.model.tangle.RingTangle;
@@ -14,7 +15,6 @@ import org.iota.ict.model.transaction.Transaction;
 import org.iota.ict.network.Neighbor;
 import org.iota.ict.network.Node;
 import org.iota.ict.network.gossip.GossipEvent;
-import org.iota.ict.network.gossip.GossipPreprocessor;
 import org.iota.ict.std.BundleCollector;
 import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.RestartableThread;
@@ -35,7 +35,7 @@ public class Ict extends RestartableThread implements IctInterface {
 
     // services
     protected final IxiModuleHolder moduleHolder = new IxiModuleHolder(Ict.this);
-    protected final ThreadedEffectDispatcher effectDispatcher = new IctEffectDispatcher();
+    protected final ThreadedEffectDispatcherWithChainSupport effectDispatcher = new ThreadedEffectDispatcherWithChainSupport();
     protected final RestApi restApi;
     protected final EconomicCluster cluster;
     protected final Tangle tangle;
@@ -61,6 +61,8 @@ public class Ict extends RestartableThread implements IctInterface {
         this.tangle = new RingTangle(this);
         this.restApi = new RestApi(this);
         this.cluster = new EconomicCluster(this);
+
+        effectDispatcher.addChainedEnvironment(Constants.Environments.GOSSIP_PREPROCESSOR_CHAIN, Constants.Environments.GOSSIP);
 
         subWorkers.add(node);
         subWorkers.add(moduleHolder);
@@ -152,7 +154,7 @@ public class Ict extends RestartableThread implements IctInterface {
      */
     public void submit(Transaction transaction) {
         tangle.createTransactionLogIfAbsent(transaction);
-        submitEffect(Constants.Environments.GOSSIP_PREPROCESSOR_OUTPUT, new GossipPreprocessor.Output(Long.MIN_VALUE, new GossipEvent(transaction, true)));
+        submitEffect(Constants.Environments.GOSSIP_PREPROCESSOR_CHAIN, new ChainedEffectListenerImplementation.Output<>(Long.MIN_VALUE, new GossipEvent(transaction, true)));
     }
 
     public void request(String requestedHash) {

@@ -46,8 +46,7 @@ public class Constants {
 
     public static final class Environments {
         public static final String GOSSIP = "gossip";
-        public static final String GOSSIP_PREPROCESSOR_INPUT = "gossip_preprocessor_input";
-        public static final String GOSSIP_PREPROCESSOR_OUTPUT = "gossip_preprocessor_output";
+        public static final String GOSSIP_PREPROCESSOR_CHAIN = "gossip_preprocessor_chain";
     }
 
     public enum RunModus {

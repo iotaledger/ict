@@ -3,10 +3,10 @@ package org.iota.ict.network;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.Ict;
+import org.iota.ict.eee.ChainedEffectListenerImplementation;
 import org.iota.ict.model.tangle.Tangle;
 import org.iota.ict.model.transaction.Transaction;
 import org.iota.ict.network.gossip.GossipEvent;
-import org.iota.ict.network.gossip.GossipPreprocessor;
 import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.RestartableThread;
 import org.iota.ict.utils.Trytes;
@@ -120,7 +120,7 @@ public class Receiver extends RestartableThread {
             log = node.ict.getTangle().createTransactionLogIfAbsent(transaction);
             sender.getStats().receivedNew++;
             log.senders.add(sender);
-            node.ict.submitEffect(Constants.Environments.GOSSIP_PREPROCESSOR_OUTPUT, new GossipPreprocessor.Output(Long.MIN_VALUE, new GossipEvent(transaction, false)));
+            node.ict.submitEffect(Constants.Environments.GOSSIP_PREPROCESSOR_CHAIN, new ChainedEffectListenerImplementation.Output<>(Long.MIN_VALUE, new GossipEvent(transaction, false)));
         }
         log.senders.add(sender);
     }

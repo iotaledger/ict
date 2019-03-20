@@ -1,8 +1,6 @@
 package org.iota.ict.eee;
 
-import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class EffectListenerQueue<T> implements EffectListener<T> {

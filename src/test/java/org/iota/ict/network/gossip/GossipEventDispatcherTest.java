@@ -2,8 +2,7 @@ package org.iota.ict.network.gossip;
 
 import org.iota.ict.Ict;
 import org.iota.ict.IctTestTemplate;
-import org.iota.ict.eee.IctEffectDispatcher;
-import org.iota.ict.eee.ThreadedEffectDispatcher;
+import org.iota.ict.eee.ThreadedEffectDispatcherWithChainSupport;
 import org.iota.ict.model.transaction.Transaction;
 import org.iota.ict.model.transaction.TransactionBuilder;
 import org.iota.ict.utils.Constants;
@@ -52,7 +51,7 @@ public class GossipEventDispatcherTest extends IctTestTemplate {
             }
         });
 
-        final IctEffectDispatcher threadedEffectDispatcher = new IctEffectDispatcher();
+        final ThreadedEffectDispatcherWithChainSupport threadedEffectDispatcher = new ThreadedEffectDispatcherWithChainSupport();
 
         threadedEffectDispatcher.addListener(new GossipListener.Implementation() {
             @Override

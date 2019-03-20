@@ -9,7 +9,7 @@ import org.junit.Test;
 public class GossipPreprocessorTest extends IctTestTemplate {
 
     @Test
-    public void testInsertion() throws InterruptedException {
+    public void testInsertion() {
         Ict ict = createIct();
 
         GossipPreprocessor preprocessor1 = new GossipPreprocessor(ict,1);
