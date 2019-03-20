@@ -3,6 +3,7 @@ package org.iota.ict.network;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.Ict;
+import org.iota.ict.eee.Environment;
 import org.iota.ict.network.gossip.GossipEvent;
 import org.iota.ict.utils.*;
 import org.iota.ict.model.tangle.Tangle;
@@ -53,7 +54,7 @@ public class Sender extends RestartableThread implements SenderInterface {
     }
 
     @Override
-    public String getEnvironment() {
+    public Environment getEnvironment() {
         return Constants.Environments.GOSSIP;
     }
 

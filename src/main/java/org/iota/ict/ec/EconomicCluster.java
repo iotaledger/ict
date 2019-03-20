@@ -1,6 +1,7 @@
 package org.iota.ict.ec;
 
 import org.iota.ict.Ict;
+import org.iota.ict.eee.Environment;
 import org.iota.ict.ixi.Ixi;
 import org.iota.ict.model.bundle.Bundle;
 import org.iota.ict.model.transaction.Transaction;
@@ -92,7 +93,7 @@ public class EconomicCluster implements GossipListener, PropertiesUser {
     }
 
     @Override
-    public String getEnvironment() {
+    public Environment getEnvironment() {
         return Constants.Environments.GOSSIP;
     }
 

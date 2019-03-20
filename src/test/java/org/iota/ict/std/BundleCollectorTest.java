@@ -2,6 +2,7 @@ package org.iota.ict.std;
 
 import org.iota.ict.Ict;
 import org.iota.ict.IctTestTemplate;
+import org.iota.ict.eee.Environment;
 import org.iota.ict.model.bundle.Bundle;
 import org.iota.ict.model.bundle.BundleBuilder;
 import org.iota.ict.model.transaction.Transaction;
@@ -100,7 +101,7 @@ public class BundleCollectorTest extends IctTestTemplate {
         }
 
         @Override
-        public String getEnvironment() {
+        public Environment getEnvironment() {
             return Constants.Environments.GOSSIP;
         }
     }

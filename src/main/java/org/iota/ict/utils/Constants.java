@@ -1,5 +1,7 @@
 package org.iota.ict.utils;
 
+import org.iota.ict.eee.ChainedEnvironment;
+import org.iota.ict.eee.Environment;
 import org.iota.ict.model.transaction.Transaction;
 
 import java.io.File;
@@ -45,8 +47,8 @@ public class Constants {
     }
 
     public static final class Environments {
-        public static final String GOSSIP = "gossip";
-        public static final String GOSSIP_PREPROCESSOR_CHAIN = "gossip_preprocessor_chain";
+        public static final Environment GOSSIP = new Environment("gossip");
+        public static final ChainedEnvironment GOSSIP_PREPROCESSOR_CHAIN = new ChainedEnvironment("gossip_chain");
     }
 
     public enum RunModus {

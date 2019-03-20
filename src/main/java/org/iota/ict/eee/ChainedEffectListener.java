@@ -6,7 +6,7 @@ public interface ChainedEffectListener<T> extends EffectListener<T> {
 
     void passOn(T effect);
 
-    String getChainedEnvironment();
+    ChainedEnvironment getChainedEnvironment();
 
     interface Output<T> {
         T getEffect();

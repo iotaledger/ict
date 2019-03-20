@@ -1,5 +1,6 @@
 package org.iota.ict.eee;
 
+import com.sun.net.httpserver.Filter;
 import org.apache.logging.log4j.LogManager;
 import org.iota.ict.network.gossip.GossipPreprocessor;
 import org.iota.ict.utils.Constants;
@@ -8,14 +9,14 @@ import java.util.*;
 
 public class ThreadedEffectDispatcherWithChainSupport extends ThreadedEffectDispatcher {
 
-    private final Set<String> chainedEnvironments = new HashSet<>();
+    private final Set<ChainedEnvironment> chainedEnvironments = new HashSet<>();
     private final List<ChainedEffectListenerImplementation> chainedEffectListenersOrderedByPosition = new LinkedList<>();
 
     public ThreadedEffectDispatcherWithChainSupport() {
         super(LogManager.getLogger("TEDwCS"));
     }
 
-    public void addChainedEnvironment(String chainedEnvironment, String finalEnvironment) {
+    public void addChainedEnvironment(ChainedEnvironment chainedEnvironment, Environment finalEnvironment) {
         if(chainedEnvironments.contains(chainedEnvironment))
             throw new IllegalArgumentException("Chained environment " + chainedEnvironment + " is already registered.");
         addListener(new ChainedEnvironmentHandler(chainedEnvironment, finalEnvironment));
@@ -51,7 +52,7 @@ public class ThreadedEffectDispatcherWithChainSupport extends ThreadedEffectDisp
         super.removeListener(listener);
     }
 
-    private ChainedEffectListener findChainSuccessor(String environment, long position) {
+    private ChainedEffectListener findChainSuccessor(Environment environment, long position) {
         for(ChainedEffectListener chainedEffectListener : chainedEffectListenersOrderedByPosition)
             if(chainedEffectListener.getChainPosition() > position && chainedEffectListener.getChainedEnvironment().equals(environment))
                 return chainedEffectListener;
@@ -60,9 +61,10 @@ public class ThreadedEffectDispatcherWithChainSupport extends ThreadedEffectDisp
 
     private class ChainedEnvironmentHandler implements EffectListener<ChainedEffectListener.Output> {
 
-        private final String chainedEnvironment, finalEnvironment;
+        private final ChainedEnvironment chainedEnvironment;
+        private final Environment finalEnvironment;
 
-        private ChainedEnvironmentHandler(String chainedEnvironment, String finalEnvironment) {
+        private ChainedEnvironmentHandler(ChainedEnvironment chainedEnvironment, Environment finalEnvironment) {
             this.chainedEnvironment = chainedEnvironment;
             this.finalEnvironment = finalEnvironment;
         }
@@ -71,15 +73,15 @@ public class ThreadedEffectDispatcherWithChainSupport extends ThreadedEffectDisp
         public void onReceive(ChainedEffectListener.Output output) {
             ChainedEffectListener successor = findChainSuccessor(chainedEnvironment, output.getChainPosition());
             if(successor != null) {
-                submitEffect(chainedEnvironment + "#"+successor.getChainPosition(), output.getEffect());
+                submitEffect(successor.getEnvironment(), output.getEffect());
             } else if(finalEnvironment != null) {
                 submitEffect(finalEnvironment, output.getEffect());
             }
         }
 
         @Override
-        public String getEnvironment() {
-            return Constants.Environments.GOSSIP_PREPROCESSOR_CHAIN;
+        public Environment getEnvironment() {
+            return chainedEnvironment;
         }
     }
 }

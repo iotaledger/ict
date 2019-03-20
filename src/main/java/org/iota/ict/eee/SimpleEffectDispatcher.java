@@ -7,7 +7,7 @@ import java.util.Set;
 
 public class SimpleEffectDispatcher<T> implements EffectDispatcher<T> {
 
-    protected Map<String, Set<EffectListener<T>>> listenersByEnvironment = new HashMap<>();
+    protected Map<Environment, Set<EffectListener<T>>> listenersByEnvironment = new HashMap<>();
 
     public void addListener(EffectListener listener) {
         Set<EffectListener<T>> effectListenersOfEnvironment = listenersByEnvironment.get(listener.getEnvironment());
@@ -25,7 +25,7 @@ public class SimpleEffectDispatcher<T> implements EffectDispatcher<T> {
             listeners.remove(listener);
     }
 
-    public void submitEffect(String environment, T effect) {
+    public void submitEffect(Environment environment, T effect) {
         Set<EffectListener<T>> listeners = listenersByEnvironment.get(environment);
         if (listeners != null)
             for (EffectListener<T> listener : listeners)

@@ -4,10 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.api.RestApi;
 import org.iota.ict.ec.EconomicCluster;
-import org.iota.ict.eee.ChainedEffectListenerImplementation;
-import org.iota.ict.eee.EffectListener;
-import org.iota.ict.eee.ThreadedEffectDispatcherWithChainSupport;
-import org.iota.ict.eee.ThreadedEffectDispatcher;
+import org.iota.ict.eee.*;
 import org.iota.ict.ixi.IxiModuleHolder;
 import org.iota.ict.model.tangle.RingTangle;
 import org.iota.ict.model.tangle.Tangle;
@@ -113,7 +110,7 @@ public class Ict extends RestartableThread implements IctInterface {
     }
 
     @Override
-    public void submitEffect(String environment, Object effect) {
+    public void submitEffect(Environment environment, Object effect) {
         effectDispatcher.submitEffect(environment, effect);
     }
 

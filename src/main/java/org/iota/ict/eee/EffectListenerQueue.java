@@ -5,10 +5,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class EffectListenerQueue<T> implements EffectListener<T> {
 
-    private final String environment;
+    private final Environment environment;
     private final BlockingQueue<T> effectQueue = new LinkedBlockingQueue<>();
 
-    public EffectListenerQueue(String environment) {
+    public EffectListenerQueue(Environment environment) {
         this.environment = environment;
     }
 
@@ -26,7 +26,7 @@ public class EffectListenerQueue<T> implements EffectListener<T> {
     }
 
     @Override
-    public String getEnvironment() {
+    public Environment getEnvironment() {
         return environment;
     }
 

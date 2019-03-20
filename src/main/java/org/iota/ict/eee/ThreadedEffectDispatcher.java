@@ -47,13 +47,13 @@ public class ThreadedEffectDispatcher<T> extends RestartableThread implements Ef
     }
 
     @Override
-    public void submitEffect(String environment, T effect) {
+    public void submitEffect(Environment environment, T effect) {
         toDispatch.add(new DispatchItem(environment, effect));
     }
 
     public void log() {
         int amountOfListeners = 0;
-        for(Map.Entry<String, Set<EffectListener<T>>> entry : implementation.listenersByEnvironment.entrySet())
+        for(Map.Entry<Environment, Set<EffectListener<T>>> entry : implementation.listenersByEnvironment.entrySet())
             amountOfListeners += entry.getValue().size();
 
         int undispatched = toDispatch.size();
@@ -73,10 +73,10 @@ public class ThreadedEffectDispatcher<T> extends RestartableThread implements Ef
     }
 
     private class DispatchItem {
-        private final String environment;
+        private final Environment environment;
         private final T effect;
 
-        DispatchItem(String environment, T effect) {
+        DispatchItem(Environment environment, T effect) {
             this.environment = environment;
             this.effect = effect;
         }

@@ -20,5 +20,5 @@ public interface EffectDispatcher<T> {
      * @param environment the environment to which the effect should be sent
      * @param effect the effect
      */
-    void submitEffect(String environment, T effect);
+    void submitEffect(Environment environment, T effect);
 }
