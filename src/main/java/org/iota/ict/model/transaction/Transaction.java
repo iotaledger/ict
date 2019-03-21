@@ -100,7 +100,7 @@ public class Transaction {
         bundleNonce = builder.bundleNonce;
         trunkHash = builder.trunkHash;
         branchHash = builder.branchHash;
-        tag = builder.tag;
+        tag = Trytes.padRight(builder.tag,Transaction.Field.TAG.tryteLength);
         attachmentTimestamp = builder.attachmentTimestamp;
         attachmentTimestampLowerBound = builder.attachmentTimestampLowerBound;
         attachmentTimestampUpperBound = builder.attachmentTimestampUpperBound;
