@@ -18,7 +18,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Unit test for {@link Tangle}
  */
-@Ignore // Test occasionally. Takes too long.
 public class TangleTest {
     private final Ict ictMock = Mockito.mock(Ict.class);
 
@@ -49,6 +48,7 @@ public class TangleTest {
     }
 
     @Test
+    @Ignore // Test occasionally. Takes too long.
     public void when_remove_transaction_concurrently_no_error_occur() throws InterruptedException {
         // given
         final int transactionCountWhereConcurrentAccessExpected = 200;
@@ -98,6 +98,65 @@ public class TangleTest {
         // - its no 100 % test case because the test can also success in error case.
         // - it depends if the test threads really access the transaction-list at the same time
         Assert.assertFalse("Expect no concurrent modification exception.", concurrentModifcationObserver.get());
+    }
+
+
+    @Test
+    public void findTransactionsByAddressThreadSafety() throws InterruptedException {
+        // first thread : call findTransactionByAddress for a given address in a loop
+        // second thread : create a transaction to that address, then delete it
+
+        // given
+        final Transaction aTransaction = randomTransaction();
+        final String transactionAddress = aTransaction.address();
+        underTest.createTransactionLogIfAbsent(aTransaction);
+
+        final AtomicBoolean exceptionOccurred = new AtomicBoolean(false);
+        // when
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                while (true) {
+                    try {
+                        Set<Transaction> currentSet = underTest.findTransactionsByAddress(transactionAddress);
+                        //safeSleep(1);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        exceptionOccurred.set(true);
+                        break;
+                    }
+                }
+            }
+        }, "Break-on-first-conccurent-exception-thread").start();
+
+        final CountDownLatch blocksUntilAllTransactionsRemoved = new CountDownLatch(1);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i=0;i<50;i++) {
+                    try {
+                        underTest.deleteTransaction(aTransaction);
+                        safeSleep(1);
+                        underTest.createTransactionLogIfAbsent(aTransaction);
+                        safeSleep(1);
+                    } catch (Exception e) {
+                        // Should never occur
+                        e.printStackTrace();
+                    }
+                    if(exceptionOccurred.get()){
+                        System.err.println("Saw exception after "+i+" loops");
+                        break;
+                    }
+                }
+                blocksUntilAllTransactionsRemoved.countDown();
+            }
+        },"Delete-all-transactions-thread").start();
+
+        blocksUntilAllTransactionsRemoved.await();
+        if(exceptionOccurred.get()){
+            Assert.fail("findTransactionsByAddress should not fail");
+        }
     }
 
     /*
