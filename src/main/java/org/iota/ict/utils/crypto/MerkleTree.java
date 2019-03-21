@@ -23,6 +23,8 @@ public class MerkleTree {
     }
 
     public Signature sign(int index, String toSign) {
+        if(index < 0 || index >= Math.pow(2, root.depth))
+            throw new IllegalArgumentException("index: " + index + " not in interval [0,"+(int)(Math.pow(2, root.depth)-1)+"]");
         String[] merklePath = new String[root.depth];
         root.writeMerklePath(merklePath, index);
         MerkleLeave leave = root.getLeave(index);

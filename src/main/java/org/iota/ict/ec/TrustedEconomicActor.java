@@ -75,10 +75,6 @@ public class TrustedEconomicActor extends EconomicActor {
         return markedTangles;
     }
 
-    private static double decodeConfidence(String trytes) {
-        return Trytes.TRYTES.indexOf(trytes.charAt(0)) / 26.0;
-    }
-
     protected MerkleTree.Signature getMarkerSignature(Bundle marker) {
         Transfer transfer = new Transfer(marker);
         List<BalanceChange> listOfSingleOutput = new LinkedList<>(transfer.getOutputs());
@@ -174,7 +170,7 @@ public class TrustedEconomicActor extends EconomicActor {
 
         @Override
         public int compareTo(SubTangle subTangle) {
-            return -Integer.compare(index, subTangle.index);
+            return -Double.compare(confidence, subTangle.confidence);
         }
     }
 }

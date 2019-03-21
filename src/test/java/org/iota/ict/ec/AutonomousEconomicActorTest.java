@@ -2,6 +2,8 @@ package org.iota.ict.ec;
 
 import org.iota.ict.Ict;
 import org.iota.ict.IctTestTemplate;
+import org.iota.ict.model.transaction.Transaction;
+import org.iota.ict.model.transaction.TransactionBuilder;
 import org.iota.ict.utils.Trytes;
 import org.iota.ict.utils.crypto.AutoIndexedMerkleTree;
 import org.iota.ict.utils.crypto.MerkleTree;
@@ -22,9 +24,9 @@ public class AutonomousEconomicActorTest extends IctTestTemplate {
         Ict ict = createIct();
         EconomicCluster cluster = new EconomicCluster(ict);
 
-        AutonomousEconomicActor underTest = new AutonomousEconomicActor(ict, cluster, new HashMap<String, BigInteger>(), randomMerkleTree());
-        ControlledEconomicActor otherA = new ControlledEconomicActor(randomMerkleTree());
-        ControlledEconomicActor otherB = new ControlledEconomicActor(randomMerkleTree());
+        AutonomousEconomicActor underTest = new AutonomousEconomicActor(ict, cluster, new HashMap<String, BigInteger>(), randomMerkleTree(3));
+        ControlledEconomicActor otherA = new ControlledEconomicActor(randomMerkleTree(3));
+        ControlledEconomicActor otherB = new ControlledEconomicActor(randomMerkleTree(3));
 
         cluster.addActor(new TrustedEconomicActor(underTest.getAddress(), 0.5));
         cluster.addActor(new TrustedEconomicActor(otherA.getAddress(), 0.3));
@@ -73,9 +75,9 @@ public class AutonomousEconomicActorTest extends IctTestTemplate {
         Map<String, BigInteger> initialBalances = new HashMap<>();
         initialBalances.put(key.deriveAddress(), value);
 
-        AutonomousEconomicActor auto1 = new AutonomousEconomicActor(ict, cluster, initialBalances, randomMerkleTree());
-        AutonomousEconomicActor auto2 = new AutonomousEconomicActor(ict, cluster, initialBalances, randomMerkleTree());
-        AutonomousEconomicActor auto3 = new AutonomousEconomicActor(ict, cluster, initialBalances, randomMerkleTree());
+        AutonomousEconomicActor auto1 = new AutonomousEconomicActor(ict, cluster, initialBalances, randomMerkleTree(5));
+        AutonomousEconomicActor auto2 = new AutonomousEconomicActor(ict, cluster, initialBalances, randomMerkleTree(5));
+        AutonomousEconomicActor auto3 = new AutonomousEconomicActor(ict, cluster, initialBalances, randomMerkleTree(5));
 
         cluster.addActor(new TrustedEconomicActor(auto1.getAddress(), 0.5));
         cluster.addActor(new TrustedEconomicActor(auto2.getAddress(), 0.3));
@@ -97,6 +99,10 @@ public class AutonomousEconomicActorTest extends IctTestTemplate {
         assertConfidence(cluster, transfer1, 0.3*0.5);
         assertConfidence(cluster, transfer2, 0.2*0.5);
 
+        auto1.setAggressivity(2);
+        auto2.setAggressivity(2);
+        auto3.setAggressivity(2);
+
         for(int iteration = 0; iteration < 10; iteration++) {
             auto1.tick();
             auto2.tick();
@@ -112,7 +118,7 @@ public class AutonomousEconomicActorTest extends IctTestTemplate {
         Assert.assertEquals("Unexpected confidence of " + transaction, expected, cluster.determineApprovalConfidence(transaction), 1E-2);
     }
 
-    private AutoIndexedMerkleTree randomMerkleTree() {
-        return new AutoIndexedMerkleTree(Trytes.randomSequenceOfLength(81), 3, 3);
+    private AutoIndexedMerkleTree randomMerkleTree(int depth) {
+        return new AutoIndexedMerkleTree(Trytes.randomSequenceOfLength(81), 3, depth);
     }
 }

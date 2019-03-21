@@ -134,7 +134,7 @@ public class TangleTest {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i=0;i<50;i++) {
+                for (int i=0;i<5000;i++) {
                     try {
                         underTest.deleteTransaction(aTransaction);
                         safeSleep(1);

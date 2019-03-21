@@ -47,13 +47,4 @@ public class ControlledEconomicActor extends EconomicActor {
         tailToHead.get(0).tag = encodeConfidence(confidence, Transaction.Field.TAG.tryteLength);
         return bundleBuilder.build();
     }
-
-    protected static String encodeConfidence(double confidence, int padLength) {
-        return Trytes.padRight(encodeConfidence(confidence), padLength);
-    }
-
-    protected static String encodeConfidence(double confidence) {
-        int discreteConfidence = (int)Math.round(confidence * 26);
-        return Trytes.TRYTE_CHARS[discreteConfidence]+"";
-    }
 }

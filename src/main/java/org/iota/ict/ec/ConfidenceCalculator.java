@@ -60,8 +60,9 @@ public class ConfidenceCalculator {
             sum += this.initialProbabilities[i];
         }
         // normalize: sum of probabilities must be 1
-        for(int i = 0; i < this.initialProbabilities.length; i++)
-            this.initialProbabilities[i] /= sum;
+        if(sum > 0)
+            for(int i = 0; i < this.initialProbabilities.length; i++)
+                this.initialProbabilities[i] /= sum;
     }
 
     /**

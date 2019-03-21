@@ -57,8 +57,8 @@ public class EconomicClusterTest extends IctTestTemplate {
         double markerAConfidence = 14/26.0;
         double markerBConfidence = 17/26.0;
 
-        sendMarker(ict, ca, childB.hash, markerBConfidence);
         sendMarker(ict, ca, childA.hash, markerAConfidence);
+        sendMarker(ict, ca, childB.hash, markerBConfidence);
         assertApprovalRate(cluster, transaction, Math.max(markerAConfidence, markerBConfidence));
 
         markerBConfidence = 11/26.0;
@@ -144,6 +144,6 @@ public class EconomicClusterTest extends IctTestTemplate {
 
     private void assertApprovalRate(EconomicCluster cluster, Transaction transaction, double expected) {
         double approvalConfidence = cluster.determineApprovalConfidence(transaction.hash);
-        Assert.assertEquals("Unexpected transaction approval confidence for "+transaction.hash+".", expected, approvalConfidence, 1E-10);
+        Assert.assertEquals("Unexpected transaction approval confidence for "+transaction.hash+".", expected, approvalConfidence, 1E-3);
     }
 }
