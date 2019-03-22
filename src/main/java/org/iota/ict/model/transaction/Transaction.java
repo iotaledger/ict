@@ -118,7 +118,7 @@ public class Transaction {
         isBundleHead = isFlagSet(hashTrits, Constants.HashFlags.BUNDLE_HEAD_FLAG);
         isBundleTail = isFlagSet(hashTrits, Constants.HashFlags.BUNDLE_TAIL_FLAG);
         assertMinWeightMagnitude(hashTrits);
-        compress(); // compress so fields will be right padded upon decompression
+        compress(); // compress so fields will be right padded upon decompressiongit lo
     }
 
     /**
@@ -365,8 +365,8 @@ public class Transaction {
     }
 
     public void setTrunk(Transaction trunk) {
-        if(trunk != null && !trunk.hash.equals(trunkHash))
-            throw new IllegalArgumentException("incorrect trunk");
+        if(trunk != null && !trunk.hash.equals(trunkHash()))
+            throw new IllegalArgumentException("incorrect trunk (expected: '" + trunk.hash + "' given: '" + trunkHash+"')");
         this.trunk = trunk;
     }
 }
