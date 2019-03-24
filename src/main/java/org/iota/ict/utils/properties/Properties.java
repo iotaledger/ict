@@ -36,7 +36,6 @@ public class Properties implements Cloneable {
     protected int guiPort = 2187;
     protected long roundDuration = 60000;
     protected Set<String> neighbors = new HashSet<>();
-    protected Set<String> economicCluster = new HashSet<>();
 
     public static Properties fromFile(String path) {
         java.util.Properties propObject = new java.util.Properties();
@@ -84,7 +83,6 @@ public class Properties implements Cloneable {
         guiEnabled = propObject.getProperty(Property.gui_enabled.name(), DEFAULT_PROPERTIES.guiEnabled + "").toLowerCase().equals("true");
         guiPort = (int) readLongProperty(propObject, Property.gui_port, 1, 65535, DEFAULT_PROPERTIES.guiPort);
         guiPassword = propObject.getProperty(Property.gui_password.name(), DEFAULT_PROPERTIES.guiPassword);
-        economicCluster = new HashSet<>(stringListFromString(propObject.getProperty(Property.economic_cluster.name(), "")));
     }
 
     private static List<String> stringListFromString(String string) {
@@ -215,7 +213,6 @@ public class Properties implements Cloneable {
         propObject.setProperty(Property.gui_enabled.name(), guiEnabled + "");
         propObject.setProperty(Property.gui_port.name(), guiPort + "");
         propObject.setProperty(Property.gui_password.name(), guiPassword + "");
-        propObject.setProperty(Property.economic_cluster.name(), stringListToString(new LinkedList<>(economicCluster)));
         return propObject;
     }
 
@@ -234,7 +231,6 @@ public class Properties implements Cloneable {
         json.put(Property.gui_enabled.name(), guiEnabled);
         json.put(Property.gui_port.name(), guiPort);
         json.put(Property.gui_password.name(), guiPassword);
-        json.put(Property.economic_cluster.name(), new JSONArray(economicCluster));
         return json;
     }
 
@@ -300,10 +296,6 @@ public class Properties implements Cloneable {
         return maxHeapSize;
     }
 
-    public Set<String> economicCluster() {
-        return new HashSet<>(economicCluster);
-    }
-
     public enum Property {
         max_heap_size,
         name,
@@ -326,7 +318,6 @@ public class Properties implements Cloneable {
         try {
             Properties clone = (Properties) super.clone();
             clone.neighbors = new HashSet<>(neighbors);
-            clone.economicCluster = new HashSet<>(economicCluster);
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);

@@ -36,7 +36,6 @@ public class MainCmdlineTest {
         DEFAULT_PROPERTIES_MAP.put(Properties.Property.gui_port.name(), hardcoded.guiPort());
         DEFAULT_PROPERTIES_MAP.put(Properties.Property.gui_password.name(), hardcoded.guiPassword());
         DEFAULT_PROPERTIES_MAP.put(Properties.Property.max_heap_size.name(), hardcoded.maxHeapSize());
-        DEFAULT_PROPERTIES_MAP.put(Properties.Property.economic_cluster.name(),listAsString(new LinkedList<>(hardcoded.economicCluster())));
 
         // Check that default properties map contains all property keys
         Properties.Property[] values = Properties.Property.values();

@@ -3,7 +3,6 @@ package org.iota.ict;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.api.RestApi;
-import org.iota.ict.ec.EconomicCluster;
 import org.iota.ict.eee.*;
 import org.iota.ict.ixi.IxiModuleHolder;
 import org.iota.ict.model.tangle.RingTangle;
@@ -34,7 +33,6 @@ public class Ict extends RestartableThread implements IctInterface {
     protected final IxiModuleHolder moduleHolder = new IxiModuleHolder(Ict.this);
     protected final ThreadedEffectDispatcherWithChainSupport effectDispatcher = new ThreadedEffectDispatcherWithChainSupport();
     protected final RestApi restApi;
-    protected final EconomicCluster cluster;
     protected final Tangle tangle;
 
     // network
@@ -57,7 +55,6 @@ public class Ict extends RestartableThread implements IctInterface {
         this.node = new Node(this);
         this.tangle = new RingTangle(this);
         this.restApi = new RestApi(this);
-        this.cluster = new EconomicCluster(this);
 
         effectDispatcher.addChainedEnvironment(Constants.Environments.GOSSIP_PREPROCESSOR_CHAIN, Constants.Environments.GOSSIP);
 
@@ -184,10 +181,5 @@ public class Ict extends RestartableThread implements IctInterface {
     @Override
     public Tangle getTangle() {
         return tangle;
-    }
-
-    @Override
-    public double determineApprovalConfidence(String transactionHash) {
-        return cluster.determineApprovalConfidence(transactionHash);
     }
 }

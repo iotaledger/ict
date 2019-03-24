@@ -43,11 +43,6 @@ public class EditableProperties extends Properties {
         return this;
     }
 
-    public EditableProperties economicCluster(Set<String> economicCluster) {
-        this.economicCluster = new HashSet<>(economicCluster);
-        return this;
-    }
-
     public EditableProperties antiSpamAbs(long antiSpamAbs) {
         this.antiSpamAbs = antiSpamAbs;
         return this;
