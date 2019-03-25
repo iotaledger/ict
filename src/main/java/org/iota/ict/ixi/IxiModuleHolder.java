@@ -9,6 +9,7 @@ import org.iota.ict.ixi.context.IxiContext;
 import org.iota.ict.utils.Constants;
 import org.iota.ict.utils.IOHelper;
 import org.iota.ict.utils.RestartableThread;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -96,7 +97,7 @@ public class IxiModuleHolder extends RestartableThread {
             Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
         }
         LOGGER.info("Download of " + target.toString() + " complete. Installing ...");
-        IxiModule module = initModule(target);
+        IxiModule module = initModuleFromJar(target);
         module.install();
         LOGGER.info("Installation of " + target.toString() + " complete.");
         return module;
@@ -126,43 +127,56 @@ public class IxiModuleHolder extends RestartableThread {
             if (!jar.toString().endsWith(".jar"))
                 continue;
             try {
-                initModule(jar);
+                initModuleFromJar(jar);
             } catch (Throwable t) {
                 LOGGER.error("could not load module " + jar, t);
             }
         }
     }
 
-    private IxiModule initModule(Path jar) throws Exception {
+    private IxiModule initModuleFromJar(Path jar) throws Exception {
         LOGGER.info("loading IXI module " + jar.getFileName() + "...");
         String path = MODULE_DIRECTORY.toURI().relativize(jar.toUri()).toString();
         URLClassLoader classLoader = new URLClassLoader(new URL[]{jar.toFile().toURI().toURL()}, Main.class.getClassLoader());
         IxiModuleInfo info = readModuleInfoFromJar(classLoader, path);
         if (!info.supportsCurrentVersion())
             LOGGER.warn("IXI module '" + info.name + "' does not specify your Ict's version '" + Constants.ICT_VERSION + "' as supported in module.json.");
-        IxiModule module = createInstance(classLoader, info.mainClass);
 
+        Class ixiClass = getIxiClass(classLoader, info.mainClass);
+        return initModule(ixiClass, info);
+    }
+
+    public void loadVirtualModule(Class moduleClass, String name) throws Exception {
+        JSONObject infoJSON = new JSONObject()
+                    .put("version", "1.0")
+                    .put("repository", "virtual/module")
+                    .put("description", "A virtual module.")
+                    .put("gui_port", "-1")
+                    .put("name", name)
+                    .put("main_class", moduleClass.toString())
+                    .put("supported_versions", new JSONArray().put(Constants.ICT_VERSION));
+        IxiModuleInfo info = new IxiModuleInfo(infoJSON, "virtual/"+name);
+        IxiModule module = initModule(moduleClass, info);
+        module.install();
+    }
+
+    private IxiModule initModule(Class moduleClass, IxiModuleInfo info) throws Exception {
+        Constructor<?> c = moduleClass.getConstructor(Ixi.class);
+        IxiModule module =  (IxiModule) c.newInstance(ict);
         modulesWithInfo.put(module, info);
-        modulesByPath.put(path, module);
+        modulesByPath.put(info.path, module);
         subWorkers.add(module);
 
         try {
-            File configFile = new File(MODULE_DIRECTORY, path+".cfg");
+            File configFile = new File(MODULE_DIRECTORY, info.path+".cfg");
             if(configFile.exists()) {
                 JSONObject config = new JSONObject(IOHelper.readFile(configFile));
                 module.getContext().tryToUpdateConfiguration(config);
             }
         } catch (Throwable t) {
-            LOGGER.warn("Failed to read configuration of module '"+path+"'.");
+            LOGGER.warn("Failed to read configuration of module '"+info.path+"'.");
         }
-
         return module;
-    }
-
-    private IxiModule createInstance(URLClassLoader classLoader, String mainClassName) throws Exception {
-        Class ixiClass = getIxiClass(classLoader, mainClassName);
-        Constructor<?> c = ixiClass.getConstructor(Ixi.class);
-        return (IxiModule) c.newInstance(ict);
     }
 
     private static Class getIxiClass(URLClassLoader classLoader, String mainClassName) {
