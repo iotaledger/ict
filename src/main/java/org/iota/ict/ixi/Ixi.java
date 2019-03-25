@@ -1,11 +1,7 @@
 package org.iota.ict.ixi;
 
-import org.iota.ict.eee.EffectDispatcher;
+import org.iota.ict.eee.dispatch.EffectDispatcher;
 import org.iota.ict.model.transaction.Transaction;
-import org.iota.ict.eee.EffectListener;
-import org.iota.ict.network.gossip.GossipEvent;
-import org.iota.ict.network.gossip.GossipListener;
-import org.iota.ict.network.gossip.GossipPreprocessor;
 
 import java.util.Set;
 

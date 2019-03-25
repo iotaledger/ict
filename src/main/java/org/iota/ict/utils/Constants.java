@@ -1,6 +1,6 @@
 package org.iota.ict.utils;
 
-import org.iota.ict.eee.ChainedEnvironment;
+import org.iota.ict.eee.chain.ChainedEnvironment;
 import org.iota.ict.eee.Environment;
 import org.iota.ict.model.transaction.Transaction;
 

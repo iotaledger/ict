@@ -1,4 +1,4 @@
-package org.iota.ict.eee;
+package org.iota.ict.eee.chain;
 
 public class ChainedEnvironment extends Environment {
 

@@ -4,6 +4,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.api.RestApi;
 import org.iota.ict.eee.*;
+import org.iota.ict.eee.chain.ChainedEffectListenerImplementation;
+import org.iota.ict.eee.dispatch.ThreadedEffectDispatcherWithChainSupport;
 import org.iota.ict.ixi.IxiModuleHolder;
 import org.iota.ict.model.tangle.RingTangle;
 import org.iota.ict.model.tangle.Tangle;

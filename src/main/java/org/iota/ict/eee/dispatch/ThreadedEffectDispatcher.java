@@ -1,6 +1,8 @@
-package org.iota.ict.eee;
+package org.iota.ict.eee.dispatch;
 
 import org.apache.logging.log4j.Logger;
+import org.iota.ict.eee.EffectListener;
+import org.iota.ict.eee.Environment;
 import org.iota.ict.utils.RestartableThread;
 
 import java.util.Map;

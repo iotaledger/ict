@@ -2,7 +2,7 @@ package org.iota.ict.network.gossip;
 
 import org.iota.ict.Ict;
 import org.iota.ict.IctTestTemplate;
-import org.iota.ict.eee.ThreadedEffectDispatcherWithChainSupport;
+import org.iota.ict.eee.dispatch.ThreadedEffectDispatcherWithChainSupport;
 import org.iota.ict.model.transaction.Transaction;
 import org.iota.ict.model.transaction.TransactionBuilder;
 import org.iota.ict.utils.Constants;
