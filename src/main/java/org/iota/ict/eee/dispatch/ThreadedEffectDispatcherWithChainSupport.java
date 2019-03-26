@@ -1,9 +1,11 @@
-package org.iota.ict.eee;
+package org.iota.ict.eee.dispatch;
 
-import com.sun.net.httpserver.Filter;
 import org.apache.logging.log4j.LogManager;
+import org.iota.ict.eee.*;
+import org.iota.ict.eee.chain.ChainedEffectListener;
+import org.iota.ict.eee.chain.ChainedEffectListenerImplementation;
+import org.iota.ict.eee.chain.ChainedEnvironment;
 import org.iota.ict.network.gossip.GossipPreprocessor;
-import org.iota.ict.utils.Constants;
 
 import java.util.*;
 

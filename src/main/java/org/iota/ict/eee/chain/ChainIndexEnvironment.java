@@ -1,4 +1,6 @@
-package org.iota.ict.eee;
+package org.iota.ict.eee.chain;
+
+import org.iota.ict.eee.Environment;
 
 public class ChainIndexEnvironment extends Environment {
 

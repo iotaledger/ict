@@ -19,7 +19,7 @@ public class IxiModuleInfo {
     public final String description;
     private String update = null;
     public int guiPort;
-    private final String path;
+    public final String path;
     public final JSONArray supportedVersions;
 
     private static final Logger LOGGER = LogManager.getLogger("ModuleInfo");

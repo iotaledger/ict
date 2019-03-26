@@ -1,4 +1,6 @@
-package org.iota.ict.eee;
+package org.iota.ict.eee.chain;
+
+import org.iota.ict.eee.EffectListener;
 
 public interface ChainedEffectListener<T> extends EffectListener<T> {
 

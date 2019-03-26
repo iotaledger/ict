@@ -1,4 +1,7 @@
-package org.iota.ict.eee;
+package org.iota.ict.eee.dispatch;
+
+import org.iota.ict.eee.EffectListener;
+import org.iota.ict.eee.Environment;
 
 public interface EffectDispatcher<T> {
 
