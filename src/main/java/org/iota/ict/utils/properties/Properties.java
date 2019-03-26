@@ -309,8 +309,7 @@ public class Properties implements Cloneable {
         neighbors,
         gui_enabled,
         gui_port,
-        gui_password,
-        economic_cluster;
+        gui_password
     }
 
     @Override

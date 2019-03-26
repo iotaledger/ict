@@ -41,7 +41,7 @@ public final class SignatureSchemeImplementation extends SignatureScheme {
     }
 
     public static String hash(String data) {
-        String hash = IotaCurlHash.iotaCurlHash(data, data.length(), 9);
+        String hash = IotaCurlHash.iotaCurlHash(data, data.length(), 18);
         assert hash.length() == HASH_LENGTH;
         return hash;
     }

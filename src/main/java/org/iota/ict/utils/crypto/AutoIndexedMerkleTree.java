@@ -22,4 +22,8 @@ public class AutoIndexedMerkleTree extends MerkleTree {
     public Signature sign(String toSign) {
         return super.sign(index++, toSign);
     }
+
+    public int getIndex() {
+        return index;
+    }
 }
