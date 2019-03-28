@@ -1,5 +1,6 @@
 package org.iota.ict.api;
 
+import com.iota.curl.IotaCurlHash;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.Ict;
 import org.iota.ict.IctInterface;
@@ -48,8 +49,7 @@ public class JsonIct {
         EditableProperties newConfig = Properties.fromJSON(configJson).toEditable();
         FinalProperties currentConfig = ict.getProperties();
         newConfig.neighbors(currentConfig.neighbors());
-        if (newConfig.guiPassword().length() == 0)
-            newConfig.guiPassword(currentConfig.guiPassword());
+        newConfig.guiPassword(newConfig.guiPassword().length() == 0 ? currentConfig.guiPassword() : RestApi.hashPassword(newConfig.guiPassword()));
         ict.updateProperties(newConfig.toFinal());
         newConfig.store(Main.getConfigFilePath());
         return success();

@@ -2,6 +2,7 @@ package org.iota.ict.utils.properties;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.iota.ict.api.RestApi;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -31,7 +32,7 @@ public class Properties implements Cloneable {
     protected long maxForwardDelay = 200;
     protected String name = "ict";
     protected String host = "0.0.0.0";
-    protected String guiPassword = "change_me_now";
+    protected String guiPassword = RestApi.hashPassword("change_me_now");
     protected int port = 1337;
     protected int guiPort = 2187;
     protected long roundDuration = 60000;

@@ -1,5 +1,6 @@
 package org.iota.ict.api;
 
+import com.iota.curl.IotaCurlHash;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.IctInterface;
@@ -19,6 +20,7 @@ import java.util.Set;
 public class RestApi extends RestartableThread implements PropertiesUser {
 
     protected static final Logger LOGGER = LogManager.getLogger("RestAPI");
+    protected static Map<String, String> passwordHashes = new HashMap<>();
     protected Service service;
     protected final JsonIct jsonIct;
     protected FinalProperties properties;
@@ -29,12 +31,17 @@ public class RestApi extends RestartableThread implements PropertiesUser {
 
     static {
         try {
-            if (Constants.RUN_MODUS == Constants.RunModus.MAIN && !new File(Constants.WEB_GUI_PATH).exists())
+            if (Constants.RUN_MODUS == Constants.RunModus.MAIN && !new File(Constants.WEB_GUI_PATH).exists() && startedFromJar())
                 IOHelper.extractDirectoryFromJarFile(RestApi.class, "web/", Constants.WEB_GUI_PATH);
         } catch (IOException e) {
             LOGGER.error("Failed to extract Web GUI into " + new File(Constants.WEB_GUI_PATH).getAbsolutePath(), e);
             throw new RuntimeException(e);
         }
+    }
+
+    private static boolean startedFromJar() {
+        String path = RestApi.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        return path.endsWith(".jar");
     }
 
     public RestApi(IctInterface ict) {
@@ -98,7 +105,7 @@ public class RestApi extends RestartableThread implements PropertiesUser {
                 if(request.requestMethod().equals("GET") && !request.pathInfo().matches("^[/]?$") && !request.pathInfo().startsWith("/modules/")) {
                     response.redirect("/");
                 }
-                String queryPassword = request.queryParams("password");
+                String queryPassword = hashPassword(request.queryParams("password"));
                 if (!queryPassword.equals(properties.guiPassword())) {
                     timeoutsByIP.put(request.ip(), System.currentTimeMillis()+5000);
                     service.halt(401, "Access denied: password incorrect.");
@@ -142,5 +149,14 @@ public class RestApi extends RestartableThread implements PropertiesUser {
             terminate();
             start();
         }
+    }
+
+    public static String hashPassword(String plain) {
+        if(!passwordHashes.containsKey(plain)) {
+            String trytes = Trytes.fromAscii(plain);
+            String hash = IotaCurlHash.iotaCurlHash(trytes, trytes.length(), 27);
+            passwordHashes.put(plain, hash);
+        }
+        return passwordHashes.get(plain);
     }
 }
