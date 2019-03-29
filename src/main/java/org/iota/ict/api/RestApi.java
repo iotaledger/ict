@@ -102,13 +102,15 @@ public class RestApi extends RestartableThread implements PropertiesUser {
                 if(timeoutsByIP.containsKey(request.ip()) && System.currentTimeMillis() < timeoutsByIP.get(request.ip()))
                     service.halt(429, "Authentication failed, try again in "+( timeoutsByIP.get(request.ip())-System.currentTimeMillis())/1000+" seconds.");
 
-                if(request.requestMethod().equals("GET") && !request.pathInfo().matches("^[/]?$") && !request.pathInfo().startsWith("/modules/")) {
-                    response.redirect("/");
-                }
-                String queryPassword = hashPassword(request.queryParams("password"));
-                if (!queryPassword.equals(properties.guiPassword())) {
-                    timeoutsByIP.put(request.ip(), System.currentTimeMillis()+5000);
-                    service.halt(401, "Access denied: password incorrect.");
+                if(request.requestMethod().equals("GET")) {
+                    if(!request.pathInfo().matches("^[/]?$") && !request.pathInfo().startsWith("/modules/"))
+                        response.redirect("/");
+                } else {
+                    String queryPassword = hashPassword(request.queryParams("password"));
+                    if (!queryPassword.equals(properties.guiPassword())) {
+                        timeoutsByIP.put(request.ip(), System.currentTimeMillis()+5000);
+                        service.halt(401, "Access denied: password incorrect.");
+                    }
                 }
             }
         });
