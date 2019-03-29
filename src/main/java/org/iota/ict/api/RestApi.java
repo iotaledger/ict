@@ -152,6 +152,8 @@ public class RestApi extends RestartableThread implements PropertiesUser {
     }
 
     public static String hashPassword(String plain) {
+        if(plain == null)
+            return "";
         if(!passwordHashes.containsKey(plain)) {
             String trytes = Trytes.fromAscii(plain);
             String hash = IotaCurlHash.iotaCurlHash(trytes, trytes.length(), 27);
