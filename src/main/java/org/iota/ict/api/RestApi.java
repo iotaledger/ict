@@ -12,10 +12,7 @@ import spark.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class RestApi extends RestartableThread implements PropertiesUser {
 
@@ -27,7 +24,7 @@ public class RestApi extends RestartableThread implements PropertiesUser {
     protected Set<RouteImpl> routes = new HashSet<>();
     protected boolean initialized = false;
 
-    private Map<String, Long> timeoutsByIP = new HashMap<>();
+    private Map<String, List<Long>> timestampsOfFailedAuthenticationsByIP = new HashMap<>();
 
     static {
         try {
@@ -99,8 +96,10 @@ public class RestApi extends RestartableThread implements PropertiesUser {
             @Override
             public void handle(Request request, Response response) {
 
-                if(timeoutsByIP.containsKey(request.ip()) && System.currentTimeMillis() < timeoutsByIP.get(request.ip()))
-                    service.halt(429, "Authentication failed, try again in "+( timeoutsByIP.get(request.ip())-System.currentTimeMillis())/1000+" seconds.");
+                List<Long> timestampsOfFailedAuthentifications = getTimestampsOfFailedAuthenticationsFor(request.ip());
+                long timeout = getTimeoutForFailedAuthentications(timestampsOfFailedAuthentifications);
+                if(timeout > 0)
+                    service.halt(429, "Too many authentication failed: Try again in "+(timeout/1000)+" seconds.");
 
                 if(request.requestMethod().equals("GET")) {
                     if(!request.pathInfo().matches("^[/]?$") && !request.pathInfo().startsWith("/modules/"))
@@ -108,7 +107,7 @@ public class RestApi extends RestartableThread implements PropertiesUser {
                 } else {
                     String queryPassword = hashPassword(request.queryParams("password"));
                     if (!queryPassword.equals(properties.guiPassword())) {
-                        timeoutsByIP.put(request.ip(), System.currentTimeMillis()+5000);
+                        timestampsOfFailedAuthentifications.add(System.currentTimeMillis());
                         service.halt(401, "Access denied: password incorrect.");
                     }
                 }
@@ -126,6 +125,38 @@ public class RestApi extends RestartableThread implements PropertiesUser {
         service.init();
         service.awaitInitialization();
         LOGGER.info("Started Web GUI on port " + guiPort + ". Access it by visiting '{HOST}:" + guiPort + "' from your web browser.");
+    }
+
+    private long getTimeoutForFailedAuthentications(List<Long> timestampsOfFailedAuthentications) {
+        if(countFailedAuthentications(timestampsOfFailedAuthentications, 3600000) >= 50)
+            return timestampsOfFailedAuthentications.get(timestampsOfFailedAuthentications.size()-50)+3600000-System.currentTimeMillis();
+        if(countFailedAuthentications(timestampsOfFailedAuthentications, 600000) >= 30)
+            return timestampsOfFailedAuthentications.get(timestampsOfFailedAuthentications.size()-30)+600000-System.currentTimeMillis();
+        if(countFailedAuthentications(timestampsOfFailedAuthentications, 180000) >= 20)
+            return timestampsOfFailedAuthentications.get(timestampsOfFailedAuthentications.size()-20)+180000-System.currentTimeMillis();
+        if(countFailedAuthentications(timestampsOfFailedAuthentications, 30000) >= 10)
+            return timestampsOfFailedAuthentications.get(timestampsOfFailedAuthentications.size()-10)+30000-System.currentTimeMillis();
+        if(countFailedAuthentications(timestampsOfFailedAuthentications, 5000) >= 5)
+            return timestampsOfFailedAuthentications.get(timestampsOfFailedAuthentications.size()-5)+5000-System.currentTimeMillis();
+        return 0;
+    }
+
+    private List<Long> getTimestampsOfFailedAuthenticationsFor(String ip) {
+        List<Long> timestampsOfFailedAuthentications = timestampsOfFailedAuthenticationsByIP.get(ip);
+        if(timestampsOfFailedAuthentications == null) {
+            timestampsOfFailedAuthentications = new LinkedList<>();
+            timestampsOfFailedAuthenticationsByIP.put(ip, timestampsOfFailedAuthentications);
+        }
+        while (timestampsOfFailedAuthentications.size() > 0 && timestampsOfFailedAuthentications.get(0) < System.currentTimeMillis() - 3600000)
+            timestampsOfFailedAuthentications.remove(0);
+        return timestampsOfFailedAuthentications;
+    }
+
+    private int countFailedAuthentications(List<Long> timestampsOfFailedAuthentifications, long intervalInMillis) {
+        long minTimestamp = System.currentTimeMillis() - intervalInMillis;
+        int i;
+        for(i = timestampsOfFailedAuthentifications.size()-1; i >= 0 && timestampsOfFailedAuthentifications.get(i) > minTimestamp; i--) { }
+        return timestampsOfFailedAuthentifications.size()-i-1;
     }
 
     @Override
