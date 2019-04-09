@@ -11,15 +11,15 @@ const Module = ({ match }) => {
 	const [defaultConfig, setDefault] = useState({});
 	const [request, setRequest] = useState({ error: null, loading: false, shouldConfirm: false });
 
-	useEffect(() => {
-		init();
-	}, [match]);
-
 	const init = async () => {
 		const response = await get('moduleConfig', null, { path: match.params.path });
 		setConfig(response.config);
 		setDefault(response.default_config);
 	};
+
+	useEffect(() => {
+		init();
+	}, [match]);
 
 	const updateEntry = (name) => (e) => {
 		setConfig({

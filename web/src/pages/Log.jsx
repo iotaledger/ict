@@ -21,7 +21,7 @@ class Log extends Component {
 
 	parseLog = () => {
 		const { logs } = this.state;
-		const log = logs.reverse().map(({ timestamp, level, message }) => `${toDate(timestamp, true)} ${message}`);
+		const log = logs.reverse().map(({ timestamp, message }) => `${toDate(timestamp, true)} ${message}`);
 		return log.join('\n');
 	};
 
@@ -42,8 +42,8 @@ class Log extends Component {
 								Export
 							</button>
 						</nav>
-						{logs.map(({ timestamp, level, message }, index) => (
-							<p key={index} className={level.toLowerCase()}>
+						{logs.map(({ timestamp, level, message }) => (
+							<p key={`${timestamp}${message}`} className={level.toLowerCase()}>
 								<strong>{toDate(timestamp, true)}</strong>
 								<span>{message}</span>
 							</p>

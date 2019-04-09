@@ -94,11 +94,18 @@ class Neighbors extends Component {
 					{Object.keys(stats[0]).map(
 						(stat, index) =>
 							stat !== 'timestamp' && (
-								<Line key={stat} className={`line-${index}`} dot={false} isAnimationActive={false} strokeWidth={2} dataKey={stat} />
+								<Line
+									key={stat}
+									className={`line-${index}`}
+									dot={false}
+									isAnimationActive={false}
+									strokeWidth={2}
+									dataKey={stat}
+								/>
 							)
 					)}
 					<XAxis dataKey="timestamp" tickFormatter={toDate} />
-					<Tooltip content={this.renderTooltip}/>
+					<Tooltip content={this.renderTooltip} />
 					<Legend />
 				</LineChart>
 			</ResponsiveContainer>
@@ -167,8 +174,7 @@ class Neighbors extends Component {
 				)}
 				{neighbors &&
 					neighbors.map(({ address, stats }) => {
-					    if(stats.length > 0)
-					        stats.pop();
+						if (stats.length > 0) stats.pop();
 						if (!stats.length) {
 							stats.push({
 								all: 0,

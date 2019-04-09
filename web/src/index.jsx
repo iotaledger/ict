@@ -22,12 +22,21 @@ class Main extends PureComponent {
 	state = {
 		authorised: null,
 		loading: false,
-		password: ''
+		password: '',
+		modules: []
 	};
 
 	componentDidMount() {
 		this.authorise();
+		this.updateModules();
 	}
+
+	updateModules = async () => {
+		const { modules } = await get('modules');
+		if (modules) {
+			this.setState({ modules });
+		}
+	};
 
 	authorise = async (e) => {
 		const { password, authorised } = this.state;
@@ -65,9 +74,25 @@ class Main extends PureComponent {
 	};
 
 	render() {
-		const { authorised, password, loading } = this.state;
+		const { authorised, password, loading, modules } = this.state;
 
 		if (!authorised) return null;
+
+		const renderMergedProps = (component, ...rest) => {
+			const finalProps = Object.assign({}, ...rest);
+			return React.createElement(component, finalProps);
+		};
+
+		const ModulesRoute = ({ component, ...rest }) => {
+			return (
+				<Route
+					{...rest}
+					render={(routeProps) => {
+						return renderMergedProps(component, routeProps, rest);
+					}}
+				/>
+			);
+		};
 
 		if (authorised !== 'authorised') {
 			return (
@@ -100,13 +125,13 @@ class Main extends PureComponent {
 		return (
 			<Router>
 				<Fragment>
-					<Sidebar />
+					<Sidebar modules={modules} />
 					<Switch>
 						<Route exact path="/" component={Home} />
 						<Route exact path="/neighbors" component={Neighbors} />
 						<Route exact path="/configuration" component={Configuration} />
 						<Route exact path="/log" component={Log} />
-						<Route exact path="/modules" component={Modules} />
+						<ModulesRoute exact path="/modules" component={Modules} modules={modules} updateModules={this.updateModules} />
 						<Route exact path="/modules/:path" component={Module} />
 					</Switch>
 				</Fragment>
