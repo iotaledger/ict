@@ -18,35 +18,35 @@
 
 		.legend-item-0,
 		.legend-item-0 path,
-		.recharts-line:nth-of-type(1) path,
+		.recharts-line.line-0 path,
 		.tooltip p:nth-of-type(1) {
 			stroke: $color-primary;
 			color: $color-primary;
 		}
 		.legend-item-1,
 		.legend-item-1 path,
-		.recharts-line:nth-of-type(2) path,
+		.recharts-line.line-1 path,
 		.tooltip p:nth-of-type(2) {
 			stroke: $color-action;
 			color: $color-action;
 		}
 		.legend-item-2,
 		.legend-item-2 path,
-		.recharts-line:nth-of-type(3) path,
+		.recharts-line.line-3 path,
 		.tooltip p:nth-of-type(3) {
 			stroke: $color-secondary;
 			color: $color-secondary;
 		}
 		.legend-item-3,
 		.legend-item-3 path,
-		.recharts-line:nth-of-type(4) path,
+		.recharts-line.line-4 path,
 		.tooltip p:nth-of-type(4) {
 			stroke: $color-success;
 			color: $color-success;
 		}
 		.legend-item-4,
 		.legend-item-4 path,
-		.recharts-line:nth-of-type(5) path,
+		.recharts-line.line-5 path,
 		.tooltip p:nth-of-type(5) {
 			stroke: $color-warning;
 			color: $color-warning;

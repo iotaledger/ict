@@ -92,13 +92,13 @@ class Neighbors extends Component {
 			<ResponsiveContainer height="100%" width="100%">
 				<LineChart data={stats}>
 					{Object.keys(stats[0]).map(
-						(stat) =>
+						(stat, index) =>
 							stat !== 'timestamp' && (
-								<Line key={stat} dot={false} isAnimationActive={false} strokeWidth={2} dataKey={stat} />
+								<Line key={stat} className={`line-${index}`} dot={false} isAnimationActive={false} strokeWidth={2} dataKey={stat} />
 							)
 					)}
 					<XAxis dataKey="timestamp" tickFormatter={toDate} />
-					<Tooltip content={this.renderTooltip} />
+					<Tooltip content={this.renderTooltip}/>
 					<Legend />
 				</LineChart>
 			</ResponsiveContainer>
