@@ -5,7 +5,7 @@ import { get } from '../lib/api';
 const Home = () => {
 	const [version, setVersion] = useState(null);
 
-	useEffect(async () => {
+	useEffect(() => {
 		const getConfig = async () => {
 			const info = await get('info');
 			setVersion(info.version);
