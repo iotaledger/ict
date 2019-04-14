@@ -112,12 +112,12 @@ submitEffect(environment, effect) | Submits an effect to a certain environment b
 
 # Logic and Utils
 ## Trytes
-*Transactions are stored in ternary format. They are not naturally represented by bytes (0, 1) but as trits (-, 0, 1). However, due to the lack of ternary hardware, we can only emulate trits on top of the binary hardware available. Further, because there are no ternary data types available in most programming languages, we have to use bytes to represent trits internally. In order to not waste an entire byte to represent only 3 states, we will encode trytes (triplets of trits) instead. A tryte can represent 27 different values. For readability purposes we chose to represent bytes in human readable form with the characters 27 consisting of the 26 letters from ‚A‘ to ‚Z‘ and the ‚9‘ character.*
+*Transactions are stored in ternary format. They are not naturally represented by bytes (`0`, `1`) but as trits (`-`, `0`, `1`). However, due to the lack of ternary hardware, we can only emulate trits on top of the binary hardware available. Further, because there are no ternary data types available in most programming languages, we have to use bytes to represent trits internally. In order to not waste an entire byte to represent only 3 states, we will encode trytes (triplets of trits) instead. A tryte can represent 27 different values. For readability purposes we chose to represent bytes in human readable form with the characters 27 consisting of the 26 letters from ‚A‘ to ‚Z‘ and the ‚9‘ character.*
 
 ### Conversion Trit – Integer
-In order to represent numbers with trits, we have to encode integers into trit sequences. We chose the balanced ternary format. In a trit sequence (t0,t1,…,tn) each trit ti encodes the coefficient for the respective potence of 3: 3i. The values are then summed up to calculate the resulting integer. For example: (-, 1, 0, 0) encodes -1x30 + 1x31 + 0x32 + 0x33 = -1x1 + 1x3 = -1 + 3 = 2.
+In order to represent numbers with trits, we have to encode integers into trit sequences. We chose the balanced ternary format. In a trit sequence (t0,t1,…,tn) each trit ti encodes the coefficient for the respective potence of 3: 3i. The values are then summed up to calculate the resulting integer. For example: `(-,1,0,0)` encodes `-1•3⁰ + 1•3¹ + 0•3² + 0•3³ = -1•1 + 1•3 = -1 + 3 = 2`.
 
-Note that this representation is bijective. Also note that the negative of any integer can simply be derived by inversing all trits (-→1, 0→0, 1→-). Further note that in contrast to binary (where 8 bits could encode all integers from -128 to +127), the smallest integer that can be encoded is the negative of the largest.
+Note that this representation is bijective. Also note that the negative of any integer can simply be derived by inversing all trits (`-`→`1`, `0`→`0`, `1`→`-`). Further note that in contrast to binary (where 8 bits could encode all integers from -128 to +127), the smallest integer that can be encoded is the negative of the largest.
 
 ### Conversion Trit – Trytes
 Since trytes are simply triplets of trits, technically no conversion is required. However, since we decided to use the characters ‚9‘ and ‚A‘-‚Z‘ for representation, we have to provide a mapping between the readable tryte string format and the raw trit representation.
@@ -136,7 +136,7 @@ The conversation used differs from the method currently implemented in IRI. Inst
 
 
 ## Cryptography
-The final hashing and signature scheme has not been decided on. We recommend implementing a stubs to keep it abstract and easily replaceable. For hashing use Troika or Curl. Since Ict is still in testnet phase and many Ict nodes will run on constrained devices it is reasonable to lower the amount of hashing rounds performed in order to increase performance at the kost of security. For the signature scheme please implement [this Lamport signature scheme]https://iota.stackexchange.com/questions/1690/iota-winternitz-signature-scheme-details/1701#1701() on top of the hashing function.
+The final hashing and signature scheme has not been decided on. We recommend implementing a stubs to keep it abstract and easily replaceable. For hashing use Troika or Curl. Since Ict is still in testnet phase and many Ict nodes will run on constrained devices it is reasonable to lower the amount of hashing rounds performed in order to increase performance at the kost of security. For the signature scheme please implement [this Lamport signature scheme](https://iota.stackexchange.com/questions/1690/iota-winternitz-signature-scheme-details/1701#1701) on top of the hashing function.
 
 ## Transactions
 ### Implementation
