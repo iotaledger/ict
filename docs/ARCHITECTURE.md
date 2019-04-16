@@ -259,7 +259,7 @@ Ict provides an API that is used by the Web GUI to connect to Ict. Additionally,
 
 ## IXI Modules
 ### Implementation
-IXI modules must most likely run in their own thread and therefore should be derived from [RestartableThread](#RestartableThread). Additionally, modules should offer an `install()` and `uninstall()` hook that is invoked upon (un)installation (see [here](https://github.com/iotaledger/ixi/blob/master/docs/guide.md#the-installation-process)).
+IXI modules must most likely run in their own thread and therefore should be derived from [RestartableThread](#restartable-thread). Additionally, modules should offer an `install()` and `uninstall()` hook that is invoked upon (un)installation (see [here](https://github.com/iotaledger/ixi/blob/master/docs/guide.md#the-installation-process)).
 
 ### Bridge.ixi
 It should be possible to write IXI modules in almost every major language. However, it is sufficient if Ict enables support of modules written in the native programming language. Other languages can be supported indirectly through [Bridge.ixi](https://github.com/iotaledger/bridge.ixi).
