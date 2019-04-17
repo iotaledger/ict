@@ -12,24 +12,6 @@
                  highlight ERROR=red and WARN=yellow -->
             <PatternLayout pattern="%highlight{%d{HH:mm:ss.SSS} %-5level [%t/%logger{0}]   %msg - %throwable{short}%n}"/>
         </Console>
-        <Routing name="RoutingRollingFile">
-            <Routes pattern="$${ctx:logDir}/$${ctx:logFilename}">
-                <Route>
-                    <RollingFile name="RollingFile"
-                                 fileName="${ctx:logDir}/${ctx:logFilename}"
-                                 filePattern="${ctx:logDir}/${ctx:logFilename}-%d{MM-dd-yyyy}.gz"
-                                 ignoreExceptions="false"
-                                 createOnDemand="true">
-                        <ContextMapFilter onMatch="ACCEPT" onMismatch="DENY">
-                            <KeyValuePair key="logFileEnabled" value="true"/>
-                        </ContextMapFilter>
-                        <!-- Print any stacktrace to file -->
-                        <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level [%t/%logger{0}]   %msg%n%throwable"/>
-                        <TimeBasedTriggeringPolicy/>
-                    </RollingFile>
-                </Route>
-            </Routes>
-        </Routing>
         <LogAppender name="LogAppender" />
     </Appenders>
     <Loggers>
