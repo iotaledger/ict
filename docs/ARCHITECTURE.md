@@ -254,7 +254,7 @@ Economic Clustering is the standard consensus mechanism we will use for Ict. It 
 
 Economic Clustering will not be implemented into Ict itself. It can run as a separate IXI module on top. Besides reducing the code base and increasing modularity, this allows to test different consensus mechanisms on top of Ict. Detailed documentation of Economic Clustering can be found in the [official repository](https://github.com/iotaledger/ec.ixi).
 
-API
+## API
 Ict provides an API that is used by the Web GUI to connect to Ict. Additionally, the API allows IXI modules to access certain functionality (such as the neighbors) that is not available through the IXI. A detailed documentation of the API endpoints provided can be found [here](https://qubiota.com/ict-rest). We recommend using a very similar API, possibly with minor improvements to allow the current GUI to be deployed with little to no changes.
 
 ## IXI Modules
@@ -263,7 +263,8 @@ IXI modules must most likely run in their own thread and therefore should be der
 
 ### Bridge.ixi
 It should be possible to write IXI modules in almost every major language. However, it is sufficient if Ict enables support of modules written in the native programming language. Other languages can be supported indirectly through [Bridge.ixi](https://github.com/iotaledger/bridge.ixi).
-The `module.json` File
+
+### The `module.json` File
 To improve the user experience, Ict utilizes metadata provided by IXI modules in order to reason about the module and offer additional services, such as providing descriptions of IXI modules, automatically downloading dependencies or updating modules. This metadata is specified in a `module.json` file that should either be part of all modules or be available on every module’s repository so that Ict can download and store it separately. The structure of this file should be well thought through so it can be interpreted from future Ict versions.
 
 ### The `versions.json` File
