@@ -50,8 +50,9 @@ public class IxiModuleHolder extends RestartableThread {
     public void update(String path, String version) throws Throwable {
         IxiModule module = modulesByPath.get(path);
         IxiModuleInfo info = modulesWithInfo.get(module);
+        URL urlOfNewVersion = GithubGateway.getAssetDownloadUrl(info.repository, version);
         uninstall(path);
-        IxiModule newModule = install(GithubGateway.getAssetDownloadUrl(info.repository, version));
+        IxiModule newModule = install(urlOfNewVersion);
         newModule.start();
     }
 
