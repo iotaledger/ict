@@ -92,9 +92,16 @@ class Neighbors extends Component {
 			<ResponsiveContainer height="100%" width="100%">
 				<LineChart data={stats}>
 					{Object.keys(stats[0]).map(
-						(stat) =>
+						(stat, index) =>
 							stat !== 'timestamp' && (
-								<Line key={stat} dot={false} isAnimationActive={false} strokeWidth={2} dataKey={stat} />
+								<Line
+									key={stat}
+									className={`line-${index}`}
+									dot={false}
+									isAnimationActive={false}
+									strokeWidth={2}
+									dataKey={stat}
+								/>
 							)
 					)}
 					<XAxis dataKey="timestamp" tickFormatter={toDate} />
@@ -167,8 +174,7 @@ class Neighbors extends Component {
 				)}
 				{neighbors &&
 					neighbors.map(({ address, stats }) => {
-					    if(stats.length > 0)
-					        stats.pop();
+						if (stats.length > 0) stats.pop();
 						if (!stats.length) {
 							stats.push({
 								all: 0,

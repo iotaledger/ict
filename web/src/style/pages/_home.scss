@@ -11,5 +11,20 @@ section.home {
 		width: 100%;
 		max-width: 570px;
 		color: #240849;
+
+		h1{
+			display: block;
+
+			small{
+				display: block;
+				margin: 20px auto;
+				font-size: 18px;
+				text-transform: none;
+
+				strong{
+					font-weight: 600;
+				}
+			}
+		}
 	}
 }

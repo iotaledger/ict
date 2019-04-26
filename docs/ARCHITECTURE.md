@@ -208,6 +208,9 @@ Ict should only work with complete bundles. Incomplete bundles shouldn’t reach
 *Due to the modularity and event-based nature of Ict, a standardized communication infrastructure can help to improve the overall design. EEE (Environment Entity Effect) provides such a mechanism. It is mainly used for two purposes: to allow IXI modules to communicate with each other (inter-ixi communication) and to notify components (IXI modules and native components such as the Sender) about newly received transactions. A general description of EEE as well as its appliance to inter-ixi communication can be found [here](https://github.com/iotaledger/ixi/blob/master/docs/inter-ixi.md). The advantage of EEE is that it offers a streamlined mechanism where no entity must be aware of the location of the other entity. Neither the language the other entity is written in, nor the path nor whether that entity is on the local device or the other side of a socket is relevant to communicate.*
 
 ### Gossip
+
+<img src="https://raw.githubusercontent.com/iotaledger/ict/master/docs/assets/gossipcycle.png" />
+
 Until Ict version 0.5, gossip (incoming/outgoing transactions) propagated  between components within Ict via its own infrastructure. Functionally the infrastructure was identical to EEE, therefore it was translated to EEE with 0.6. This measure simplified the IXI because the gossip specific hooks `addGossipListener()` and `removeGossipListener` could be replaced with the general-purpose EEE equivalents `addListener()` and `removeListener`.
 
 As of now there are two kinds of gossip events that are propagated, outgoing transactions (to be submitted) and incoming transactions (received). The GossipEvent class should reference a transaction object and contain some kind of flags to identify whether that transaction belongs to the outgoing or incoming group.
