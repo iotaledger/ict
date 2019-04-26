@@ -78,6 +78,11 @@ public class EditableProperties extends Properties {
         return this;
     }
 
+    public EditableProperties sparkSSL(String sparkSSL) {
+        this.sparkSSL = sparkSSL;
+        return this;
+    }
+
     public EditableProperties maxHeapSize(double maxHeapSize) {
         this.maxHeapSize = maxHeapSize;
         return this;
