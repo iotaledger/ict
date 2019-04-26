@@ -69,7 +69,12 @@ public class IxiModuleHolder extends RestartableThread {
 
         modulesWithInfo.remove(module);
         modulesByPath.remove(path);
-        module.terminate();
+
+        try {
+            module.terminate();
+        } catch (IllegalStateException e) {
+            LOGGER.warn("IllegalStateException while trying to terminate module '" + path+"'", e);
+        }
 
         File jar = new File(MODULE_DIRECTORY, path);
         File guiDirectory = new File(Constants.WEB_GUI_PATH, "modules/" + info.name + "/");
