@@ -23,7 +23,7 @@ public class Node extends RestartableThread implements PropertiesUser {
 
     protected final List<Neighbor> neighbors = new LinkedList<>();
     protected final SenderInterface sender;
-    protected final RestartableThread receiver;
+    protected final Receiver receiver;
     protected FinalProperties properties;
 
     protected InetSocketAddress address;
@@ -58,6 +58,7 @@ public class Node extends RestartableThread implements PropertiesUser {
             LOGGER.warn("There is a backlog of " + queueSize + " transactions to be forwarded. This might cause memory issues. You can monitor this metric via `--debug`.");
             IssueCollector.log();
         }
+        receiver.log();
     }
 
     @Override
