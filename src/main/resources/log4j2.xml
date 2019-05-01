@@ -20,6 +20,7 @@
             <DefaultRolloverStrategy max="20" />
 
         </RollingFile>
+        <LogAppender name="LogAppender" />
     </Appenders>
     <Loggers>
         <!--
@@ -33,6 +34,7 @@
             <AppenderRef ref="ConsoleStdOut"/>
             <AppenderRef ref="ConsoleStdErr"/>
             <AppenderRef ref="FileAppender"/>
+            <AppenderRef ref="LogAppender"/>
         </Root>
     </Loggers>
 </Configuration>

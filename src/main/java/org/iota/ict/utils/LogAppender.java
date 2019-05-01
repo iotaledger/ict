@@ -15,7 +15,7 @@ public class LogAppender extends AbstractAppender {
 
     public static final Object NOTIFY_SYNCHRONIZER = new Object();
 
-    private static final int LOG_CAPACITY = 50;
+    private static final int LOG_CAPACITY = 5000;
     private static int writePosition = 0;
     private static LogEvent[] logs = new LogEvent[LOG_CAPACITY];
 
