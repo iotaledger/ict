@@ -12,7 +12,14 @@
                  highlight ERROR=red and WARN=yellow -->
             <PatternLayout pattern="%highlight{%d{HH:mm:ss.SSS} %-5level [%t/%logger{0}]   %msg - %throwable{short}%n}"/>
         </Console>
-        <LogAppender name="LogAppender" />
+        <RollingFile name="FileAppender" fileName="./logs/log.log" filePattern="./logs/backup-%d{MM-dd-yy-HH-mm-ss}-%i.log.gz">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level [%t/%logger{0}]   %msg%throwable{none}%n"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="5 MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="20" />
+
+        </RollingFile>
     </Appenders>
     <Loggers>
         <!--
@@ -25,8 +32,7 @@
         <Root level="INFO">
             <AppenderRef ref="ConsoleStdOut"/>
             <AppenderRef ref="ConsoleStdErr"/>
-            <AppenderRef ref="RoutingRollingFile"/>
-            <AppenderRef ref="LogAppender"/>
+            <AppenderRef ref="FileAppender"/>
         </Root>
     </Loggers>
 </Configuration>
