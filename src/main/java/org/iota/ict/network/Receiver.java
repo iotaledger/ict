@@ -8,6 +8,7 @@ import org.iota.ict.model.tangle.Tangle;
 import org.iota.ict.model.transaction.Transaction;
 import org.iota.ict.network.gossip.GossipEvent;
 import org.iota.ict.utils.Constants;
+import org.iota.ict.utils.MultiHashMap;
 import org.iota.ict.utils.RestartableThread;
 import org.iota.ict.utils.Trytes;
 
@@ -25,7 +26,10 @@ import java.util.*;
  */
 public class Receiver extends RestartableThread {
 
-    protected static final Map<String, Set<String>> transactionHashesByNonce = new HashMap<>();
+    protected static final long NONCE_CACHE_LIMIT = 5000;
+
+    protected static final Queue<String> noncesCached = new LinkedList<>();
+    protected static final MultiHashMap<String, String> transactionHashesByNonce = new MultiHashMap<>();
     protected static final Logger LOGGER = LogManager.getLogger("Receiver");
     protected Node node;
 
@@ -78,32 +82,28 @@ public class Receiver extends RestartableThread {
             return;
         }
 
-        rememberTransactionByNonce(transaction);
+        noncesCached.add(transaction.nonce());
+        transactionHashesByNonce.add(transaction.nonce(), transaction.hash);
+
+        while (noncesCached.size() > NONCE_CACHE_LIMIT) {
+            String nonce = noncesCached.poll();
+            transactionHashesByNonce.remove(nonce);
+        }
+
         updateTransactionLog(sender, transaction);
 
         String requestedHash = Trytes.fromBytes(packet.getData(), Constants.TRANSACTION_SIZE_BYTES, Transaction.Field.BRANCH_HASH.byteLength);
         processRequest(sender, requestedHash);
     }
 
-    private void rememberTransactionByNonce(Transaction transaction) {
-        if(transactionHashesByNonce.containsKey(transaction.nonce())) {
-            Set<String> transactionsWithNonce = transactionHashesByNonce.get(transaction.nonce());
-            transactionsWithNonce.add(transaction.hash);
-        } else {
-            transactionHashesByNonce.put(transaction.nonce(), new HashSet<>(Arrays.asList(transaction.hash)));
-        }
-    }
-
     private Transaction unpack(DatagramPacket packet) {
         byte[] bytes = packet.getData();
 
         String nonce = Trytes.fromBytes(bytes, Transaction.Field.NONCE.byteOffset, Transaction.Field.NONCE.byteLength);
-        if(transactionHashesByNonce.containsKey(nonce)) {
-            for(String hash : transactionHashesByNonce.get(nonce)) {
-                Transaction candidate = node.ict.findTransactionByHash(hash);
-                if(candidate != null && candidate.equalBytes(bytes)) {
-                    return candidate;
-                }
+        for(String hash : transactionHashesByNonce.get(nonce)) {
+            Transaction candidate = node.ict.findTransactionByHash(hash);
+            if(candidate != null && candidate.equalBytes(bytes)) {
+                return candidate;
             }
         }
 
@@ -149,5 +149,9 @@ public class Receiver extends RestartableThread {
             if (nb.sentPacketFromSameIP(packet))
                 return nb;
         return null;
+    }
+
+    public void log() {
+        logger.debug("stored nonces: " + transactionHashesByNonce.size());
     }
 }

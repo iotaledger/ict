@@ -21,21 +21,25 @@ public class IOHelper {
         return sb.toString();
     }
 
-    public static boolean deleteRecursively(File file) {
+    public static Throwable deleteRecursively(File file) {
         if (!file.exists())
-            return true;
-        boolean success = true;
+            return null;
         LOGGER.info("Deleting " + file + " ...");
         try {
             if (file.isDirectory())
-                for (String subPath : file.list())
-                    success = success && deleteRecursively(new File(file.getPath(), subPath));
-            success = success && file.delete();
+                for (String subPath : file.list()) {
+                    Throwable throwable = deleteRecursively(new File(file.getPath(), subPath));
+                    if(throwable != null)
+                        throw throwable;
+                }
+            if(!file.delete())
+                throw new RuntimeException("Could not delete " + file.getAbsolutePath());
         } catch (Throwable t) {
             LOGGER.error("Could not delete " + file.getAbsolutePath(), t);
-            success = false;
+            return t;
         }
-        return success;
+
+        return null;
     }
 
     public static String readFile(File file) throws IOException {

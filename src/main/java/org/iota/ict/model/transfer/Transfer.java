@@ -37,10 +37,10 @@ public class Transfer {
 
     public Transfer(Bundle bundle) {
         bundleHash = bundle.getHash();
-        securityLevel = Constants.RUN_MODUS != Constants.RunModus.MAIN ? 1 : calcSecurityLevel(bundle.getHash());
         BalanceChangeCollector collector = new BalanceChangeCollector(bundle);
         inputs = collector.inputs;
         outputs = collector.outputs;
+        securityLevel = calcSecurityLevel();
     }
 
     public boolean isValid() {
@@ -105,10 +105,19 @@ public class Transfer {
     }
 
     static int calcSecurityLevel(String bundleHash) {
+        // TODO: use in future, requires lots of proof-of-work (100^sl tries)
         for (int i = 0; i < 3; i++)
             if (Trytes.sumTrytes(bundleHash.substring(27 * i, 27 * i + 27)) != 0)
                 return i;
         return 3;
+    }
+
+
+    int calcSecurityLevel() {
+        // TODO: replace with hash based calculation in the future
+        for(BalanceChange input : inputs)
+            return Math.min(3, input.getAmountOfSignatureOrMessageFragments());
+        return 0;
     }
 
     public int getSecurityLevel() {

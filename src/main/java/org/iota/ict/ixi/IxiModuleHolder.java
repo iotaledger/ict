@@ -27,7 +27,8 @@ public class IxiModuleHolder extends RestartableThread {
 
     public static final Logger LOGGER = LogManager.getLogger("IxiMH");
     protected static final File MODULE_DIRECTORY = new File("modules/");
-
+    protected static final File MODULE_MANAGEMENT = new File(MODULE_DIRECTORY, "management.json");
+    protected static JSONObject moduleManagementJSON;
 
     protected final IctInterface ict;
     protected Map<String, IxiModule> modulesByPath = new HashMap<>();
@@ -36,6 +37,11 @@ public class IxiModuleHolder extends RestartableThread {
     static {
         if (!MODULE_DIRECTORY.exists())
             MODULE_DIRECTORY.mkdirs();
+        if(!MODULE_MANAGEMENT.exists()) {
+            moduleManagementJSON = new JSONObject().put("modules", new JSONObject());
+            storeModuleManagement();
+        }
+        loadModuleManagement();
     }
 
     public IxiModuleHolder(IctInterface ict) {
@@ -43,19 +49,50 @@ public class IxiModuleHolder extends RestartableThread {
         this.ict = ict;
     }
 
+    private static void loadModuleManagement() {
+        try {
+            moduleManagementJSON = new JSONObject(IOHelper.readFile(MODULE_MANAGEMENT));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static void storeModuleManagement() {
+        try {
+            IOHelper.writeToFile(MODULE_MANAGEMENT, moduleManagementJSON.toString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static JSONObject getModuleFromModuleManagement(String path) {
+        JSONObject modules = moduleManagementJSON.getJSONObject("modules");
+        if(modules.has(path)) return modules.getJSONObject(path);
+        return new JSONObject().put("installed", false);
+    }
+
+    private static void setModuleFromModuleManagement(String path, JSONObject jsonObject) {
+        moduleManagementJSON.getJSONObject("modules").put(path, jsonObject);
+        storeModuleManagement();
+    }
+
+    private static void putModulePropertyInModuleManagement(String path, String propertyName, Object propertyValue) {
+        setModuleFromModuleManagement(path, getModuleFromModuleManagement(path).put(propertyName, propertyValue));
+    }
+
     @Override
     public void run() { ; }
-
 
     public void update(String path, String version) throws Throwable {
         IxiModule module = modulesByPath.get(path);
         IxiModuleInfo info = modulesWithInfo.get(module);
+        URL urlOfNewVersion = GithubGateway.getAssetDownloadUrl(info.repository, version);
         uninstall(path);
-        IxiModule newModule = install(GithubGateway.getAssetDownloadUrl(info.repository, version));
+        IxiModule newModule = install(urlOfNewVersion);
         newModule.start();
     }
 
-    public boolean uninstall(String path) {
+    public void uninstall(String path) {
 
         IxiModule module = modulesByPath.get(path);
         LOGGER.info("Uninstalling module " + path + " ...");
@@ -69,7 +106,12 @@ public class IxiModuleHolder extends RestartableThread {
 
         modulesWithInfo.remove(module);
         modulesByPath.remove(path);
-        module.terminate();
+
+        try {
+            module.terminate();
+        } catch (IllegalStateException e) {
+            LOGGER.warn("IllegalStateException while trying to terminate module '" + path+"'", e);
+        }
 
         File jar = new File(MODULE_DIRECTORY, path);
         File guiDirectory = new File(Constants.WEB_GUI_PATH, "modules/" + info.name + "/");
@@ -81,9 +123,15 @@ public class IxiModuleHolder extends RestartableThread {
         if (!path.endsWith(".jar"))
             throw new RuntimeException("'" + path + "' is not a .jar file.");
 
-        boolean jarDeletedSuccess = IOHelper.deleteRecursively(jar);
-        boolean guiDirectoryDeletedSuccess = IOHelper.deleteRecursively(guiDirectory);
-        return jarDeletedSuccess && guiDirectoryDeletedSuccess;
+        Throwable jarDeletedSuccess = IOHelper.deleteRecursively(jar);
+        Throwable guiDirectoryDeletedSuccess = guiDirectory.exists() ? IOHelper.deleteRecursively(guiDirectory) : null;
+
+        if(jarDeletedSuccess != null)
+            throw new RuntimeException("Could not delete jar file: " + jar.getAbsolutePath() + " (note that Windows does not allow deletion of loaded jar files, please delete manually after Ict terminated)", jarDeletedSuccess);
+        if(guiDirectoryDeletedSuccess != null)
+            throw new RuntimeException("Could not delete module's GUI directory" + guiDirectory, guiDirectoryDeletedSuccess);
+
+        putModulePropertyInModuleManagement(path, "installed", false);
     }
 
     public IxiModule install(URL url) throws Throwable {
@@ -98,8 +146,10 @@ public class IxiModuleHolder extends RestartableThread {
         }
         LOGGER.info("Download of " + target.toString() + " complete. Installing ...");
         IxiModule module = initModuleFromJar(target);
-        module.install();
         LOGGER.info("Installation of " + target.toString() + " complete.");
+
+        putModulePropertyInModuleManagement(getInfo(module).path, "installed", true);
+
         return module;
     }
 
@@ -146,18 +196,17 @@ public class IxiModuleHolder extends RestartableThread {
         return initModule(ixiClass, info);
     }
 
-    public void loadVirtualModule(Class moduleClass, String name) throws Exception {
+    public IxiModule loadVirtualModule(Class moduleClass, String path) throws Exception {
         JSONObject infoJSON = new JSONObject()
                     .put("version", "1.0")
                     .put("repository", "virtual/module")
                     .put("description", "A virtual module.")
                     .put("gui_port", "-1")
-                    .put("name", name)
+                    .put("name", path)
                     .put("main_class", moduleClass.toString())
                     .put("supported_versions", new JSONArray().put(Constants.ICT_VERSION));
-        IxiModuleInfo info = new IxiModuleInfo(infoJSON, "virtual/"+name);
-        IxiModule module = initModule(moduleClass, info);
-        module.install();
+        IxiModuleInfo info = new IxiModuleInfo(infoJSON, path);
+        return initModule(moduleClass, info);
     }
 
     private IxiModule initModule(Class moduleClass, IxiModuleInfo info) throws Exception {
@@ -165,6 +214,10 @@ public class IxiModuleHolder extends RestartableThread {
         IxiModule module =  (IxiModule) c.newInstance(ict);
         modulesWithInfo.put(module, info);
         modulesByPath.put(info.path, module);
+
+        if(!getModuleFromModuleManagement(info.path).getBoolean("installed"))
+            module.install();
+
         subWorkers.add(module);
 
         try {

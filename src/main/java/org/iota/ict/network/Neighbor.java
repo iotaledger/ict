@@ -24,7 +24,7 @@ public class Neighbor {
 
     public Neighbor(String address, long maxTransactionsAbsolute) {
         this.address = address;
-        String host = address.split(":")[0];
+        String host = address.split(":")[0].replaceAll("^.*/$", "");
         int port = Integer.parseInt(address.split(":")[1]);
         this.socketAddress = new InetSocketAddress(host, port);
         this.maxAllowedTransactionsForRound = maxTransactionsAbsolute;

@@ -76,6 +76,16 @@ public class RestApi extends RestartableThread implements PropertiesUser {
         initialized = true;
     }
 
+    private void secure() {
+        String sparkSSL = properties.sparkSSL();
+        if(!sparkSSL.isEmpty()) {
+            String[] args = sparkSSL.split(",", -1);
+            if(args.length < 4)
+                throw new RuntimeException("Property spark_ssl='"+sparkSSL+"' is invalid. Must be empty string '' or match format 'keyStoreFile,keyStorePassword,trustStoreFile,trustStorePassword'");
+            service.secure(args[0], args[1], args[2], args[3]);
+        }
+    }
+
     @Override
     public void onStart() {
         if (!properties.guiEnabled())
@@ -85,6 +95,7 @@ public class RestApi extends RestartableThread implements PropertiesUser {
             initRoutes();
 
         service = Service.ignite();
+        secure();
         int guiPort = properties.guiPort();
         service.port(guiPort);
 

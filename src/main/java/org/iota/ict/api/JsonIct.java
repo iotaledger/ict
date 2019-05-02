@@ -120,12 +120,14 @@ public class JsonIct {
     }
 
     public JSONObject addNeighbor(String address) {
-        if (!address.matches("^[a-zA-Z0-9\\-.:]+:[0-9]{1,5}$"))
+        if (!address.matches("^(.*/)?[a-zA-Z0-9\\-.:]+:[0-9]{1,5}$"))
             throw new IllegalArgumentException("Address does not match required format 'host:port'.");
         EditableProperties properties = ict.getProperties().toEditable();
 
         Set<String> neighbors = properties.neighbors();
         neighbors.add(address);
+        if(neighbors.size() > Constants.MAX_NEIGHBOR_COUNT)
+            throw new IllegalStateException("Already reached maximum amount of neighbors. Delete others first before adding new.");
         properties.neighbors(neighbors);
         ict.updateProperties(properties.toFinal());
 

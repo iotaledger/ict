@@ -36,6 +36,7 @@ public class Ict extends RestartableThread implements IctInterface {
     protected final ThreadedEffectDispatcherWithChainSupport effectDispatcher = new ThreadedEffectDispatcherWithChainSupport();
     protected final RestApi restApi;
     protected final Tangle tangle;
+    protected final BundleCollector bundleCollector;
 
     // network
     protected final Node node;
@@ -57,6 +58,7 @@ public class Ict extends RestartableThread implements IctInterface {
         this.node = new Node(this);
         this.tangle = new RingTangle(this);
         this.restApi = new RestApi(this);
+        this.bundleCollector = new BundleCollector(this);
 
         effectDispatcher.addChainedEnvironment(Constants.Environments.GOSSIP_PREPROCESSOR_CHAIN, Constants.Environments.GOSSIP);
 
@@ -64,7 +66,7 @@ public class Ict extends RestartableThread implements IctInterface {
         subWorkers.add(moduleHolder);
         subWorkers.add(restApi);
         subWorkers.add(effectDispatcher);
-        subWorkers.add(new BundleCollector(this));
+        subWorkers.add(bundleCollector);
 
         start();
     }
@@ -85,6 +87,7 @@ public class Ict extends RestartableThread implements IctInterface {
                 LOGGER.debug("memory: " + Runtime.getRuntime().totalMemory() / 1024 / 1024 + "MB / " + Runtime.getRuntime().maxMemory() / 1024 / 1024 + "MB (total/max)");
                 LOGGER.debug("tangle size: " + tangle.size() + " (" + Transaction.getAmountOfInstances() + " transaction instances alive)");
                 node.log();
+                bundleCollector.log();
                 effectDispatcher.log();
                 roundStart = System.currentTimeMillis();
             }

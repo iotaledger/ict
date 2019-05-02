@@ -33,6 +33,7 @@ public class Properties implements Cloneable {
     protected String name = "ict";
     protected String host = "0.0.0.0";
     protected String guiPassword = RestApi.hashPassword("change_me_now");
+    protected String sparkSSL = "";
     protected int port = 1337;
     protected int guiPort = 2187;
     protected long roundDuration = 60000;
@@ -84,6 +85,7 @@ public class Properties implements Cloneable {
         guiEnabled = propObject.getProperty(Property.gui_enabled.name(), DEFAULT_PROPERTIES.guiEnabled + "").toLowerCase().equals("true");
         guiPort = (int) readLongProperty(propObject, Property.gui_port, 1, 65535, DEFAULT_PROPERTIES.guiPort);
         guiPassword = propObject.getProperty(Property.gui_password.name(), DEFAULT_PROPERTIES.guiPassword);
+        sparkSSL = propObject.getProperty(Property.spark_ssl.name(), DEFAULT_PROPERTIES.sparkSSL);
     }
 
     private static List<String> stringListFromString(String string) {
@@ -214,6 +216,7 @@ public class Properties implements Cloneable {
         propObject.setProperty(Property.gui_enabled.name(), guiEnabled + "");
         propObject.setProperty(Property.gui_port.name(), guiPort + "");
         propObject.setProperty(Property.gui_password.name(), guiPassword + "");
+        propObject.setProperty(Property.spark_ssl.name(), sparkSSL + "");
         return propObject;
     }
 
@@ -232,6 +235,7 @@ public class Properties implements Cloneable {
         json.put(Property.gui_enabled.name(), guiEnabled);
         json.put(Property.gui_port.name(), guiPort);
         json.put(Property.gui_password.name(), guiPassword);
+        json.put(Property.spark_ssl.name(), sparkSSL);
         return json;
     }
 
@@ -289,6 +293,8 @@ public class Properties implements Cloneable {
         return guiPassword;
     }
 
+    public String sparkSSL() { return sparkSSL; }
+
     public String name() {
         return name;
     }
@@ -310,7 +316,8 @@ public class Properties implements Cloneable {
         neighbors,
         gui_enabled,
         gui_port,
-        gui_password
+        gui_password,
+        spark_ssl
     }
 
     @Override

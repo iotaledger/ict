@@ -4,15 +4,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.iota.ict.Ict;
 import org.iota.ict.eee.EffectListener;
+import org.iota.ict.eee.Environment;
 import org.iota.ict.model.transaction.Transaction;
 import org.iota.ict.network.gossip.GossipEvent;
 import org.iota.ict.network.gossip.GossipPreprocessor;
 import org.iota.ict.utils.RestartableThread;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This class collects bundles before they are further processed by other components. It ensures that no incomplete bundles
@@ -87,6 +85,10 @@ public class BundleCollector extends RestartableThread {
             toTail.add(last);
         }
         return last == null ? null : toTail;
+    }
+
+    public void log() {
+        logger.debug("incomplete bundle parts: " + existingTransactionsByHash.size()+"+"+existingTransactionsByTrunk.size());
     }
 
     @Override
