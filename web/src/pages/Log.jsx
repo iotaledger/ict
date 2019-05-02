@@ -6,6 +6,8 @@ import Card from '../components/Card';
 import { get } from '../lib/api';
 import { toDate, downloadFile } from '../lib/helpers';
 
+const PAGE_LENGTH = 40
+
 const Log = () => {
 	const [logs, setLogs] = useState([]);
 	const [offset, setOffset] = useState({ max: 0, min: 0 });
@@ -15,9 +17,12 @@ const Log = () => {
 			offset.max > 0
 				? {
 						min: offset.min + logs.length,
-						max: Math.min(offset.max, offset.min + logs.length + 30)
+						max: Math.min(offset.max, offset.min + logs.length + PAGE_LENGTH)
 				  }
-				: null;
+				: {
+					min: -1,
+					max: PAGE_LENGTH
+				};
 
 		const response = await get('logs', null, params);
 
