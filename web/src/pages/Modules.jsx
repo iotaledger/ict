@@ -65,7 +65,11 @@ const Modules = ({ modules, updateModules }) => {
 				<h1>
 					Manage Modules{' '}
 					<nav>
-						<button className="button secondary" onClick={() => setInstall({ ...getInstall, module: '' })} type="button">
+						<button
+							className="button secondary"
+							onClick={() => setInstall({ ...getInstall, module: '' })}
+							type="button"
+						>
 							Install third party module
 						</button>
 					</nav>
@@ -126,7 +130,8 @@ const Modules = ({ modules, updateModules }) => {
 						onClose={() => setUpdate({ module: null, loading: null, error: null })}
 					>
 						<p>
-							Update module <strong>{getUpdate.module.path}</strong> to version <strong>{getUpdate.module.version}</strong>?
+							Update module <strong>{getUpdate.module.path}</strong> to version{' '}
+							<strong>{getUpdate.module.version}</strong>?
 							{getUpdate.error && <small className="error">{getUpdate.error}</small>}
 						</p>
 					</Popup>
@@ -147,14 +152,16 @@ const Modules = ({ modules, updateModules }) => {
 										<Icon size={20} icon="close" />
 										{name}
 										<nav>
-											<a
-												href={moduleURI(name, gui_port)}
-												className="button success small"
-												target="_blank"
-												rel="noopener noreferrer"
-											>
-												Launch
-											</a>
+											{gui_port > -1 && (
+												<a
+													href={moduleURI(name, gui_port)}
+													className="button success small"
+													target="_blank"
+													rel="noopener noreferrer"
+												>
+													Launch
+												</a>
+											)}
 											{update && (
 												<button
 													className="button small"
@@ -227,11 +234,9 @@ const Modules = ({ modules, updateModules }) => {
 	);
 };
 
-
 Modules.propTypes = {
 	modules: PropTypes.array.isRequired,
 	updateModules: PropTypes.func.isRequired
 };
-
 
 export default Modules;

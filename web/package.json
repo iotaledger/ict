@@ -15,12 +15,15 @@
 		"prop-types": "^15.7.2",
 		"react": "^16.8.6",
 		"react-dom": "^16.8.6",
+		"react-highlight": "^0.12.0",
+		"react-highlight.js": "^1.0.7",
+		"react-infinite-scroller": "^1.2.4",
 		"react-router-dom": "^5.0.0",
 		"recharts": "^1.5.0"
 	},
 	"devDependencies": {
-		"@babel/core": "^7.4.3",
-		"@babel/plugin-proposal-class-properties": "^7.4.0",
+		"@babel/core": "^7.4.4",
+		"@babel/plugin-proposal-class-properties": "^7.4.4",
 		"@babel/preset-react": "^7.0.0",
 		"babel-core": "^7.0.0-bridge.0",
 		"babel-eslint": "^10.0.1",
@@ -29,11 +32,11 @@
 		"babel-runtime": "^6.26.0",
 		"eslint": "^5.16.0",
 		"eslint-config-airbnb": "^17.1.0",
-		"eslint-config-prettier": "^4.1.0",
-		"eslint-plugin-import": "^2.16.0",
+		"eslint-config-prettier": "^4.2.0",
+		"eslint-plugin-import": "^2.17.2",
 		"eslint-plugin-jsx-a11y": "^6.2.1",
 		"eslint-plugin-react": "^7.12.4",
 		"parcel-bundler": "^1.12.3",
-		"sass": "^1.18.0"
+		"sass": "^1.19.0"
 	}
 }
